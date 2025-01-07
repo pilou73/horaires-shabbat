@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4A90E2">
+    <title>Horaires Shabbat - Merom Nave</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .schedule-image {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .update-info {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .install-instructions {
+            margin-top: 30px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Horaires Shabbat - Merom Nave</h1>
+        </div>
+        
+        <img src="latest-schedule.jpg" alt="Horaires du Shabbat" class="schedule-image" />
+        
+        <div class="update-info">
+            Dernière mise à jour : <span id="updateDate"></span>
+        </div>
+
+        <div class="install-instructions">
+            <h3>Pour installer l'application sur votre téléphone :</h3>
+            <ol>
+                <li>Sur Android (Chrome) :</li>
+                <ul>
+                    <li>Appuyez sur les 3 points en haut à droite</li>
+                    <li>Sélectionnez "Ajouter à l'écran d'accueil"</li>
+                </ul>
+                <li>Sur iPhone (Safari) :</li>
+                <ul>
+                    <li>Appuyez sur l'icône de partage</li>
+                    <li>Sélectionnez "Sur l'écran d'accueil"</li>
+                </ul>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Mettre à jour la date
+        document.getElementById('updateDate').textContent = new Date().toLocaleDateString('fr-FR');
+        
+        // Enregistrer le service worker pour la PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
