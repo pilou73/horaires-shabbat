@@ -1,0 +1,48 @@
+name: Update Shabbat Schedule
+
+on:
+  schedule:
+    - cron: '0 0 * * 4'  # Tous les jeudis à minuit
+  workflow_dispatch:      # Permet de lancer manuellement
+
+jobs:
+  update-schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pillow pandas pytz
+
+      - name: Create resources directory
+        run: mkdir -p resources
+
+      - name: Download template and fonts
+        run: |
+          curl -L -o resources/template.jpeg ${{ secrets.TEMPLATE_URL }}
+          curl -L -o resources/mriamc_0.ttf ${{ secrets.FONT_URL }}
+          curl -L -o resources/ARIALBD_0.TTF ${{ secrets.ARIAL_BOLD_URL }}
+
+      - name: Run schedule generator
+        run: python horaires_shabbat.py
+
+      - name: Copy latest schedule
+        run: |
+          mkdir -p public
+          cp output/horaires_*.jpeg public/latest-schedule.jpg
+          cp index.html public/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          force_orphan: true
