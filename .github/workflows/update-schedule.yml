@@ -60,9 +60,11 @@ jobs:
           echo "Dossier public créé."
           
           echo "Recherche des fichiers horaires_*.jpeg dans output..."
-          if ls output/horaires_*.jpeg 1> /dev/null 2>&1; then
-            echo "Fichier trouvé : $(ls output/horaires_*.jpeg)"
-            cp output/horaires_*.jpeg public/latest-schedule.jpg
+          FILE_PATH=$(find output -name "horaires_*.jpeg" -print -quit)
+          
+          if [ -n "$FILE_PATH" ]; then
+            echo "Fichier trouvé : $FILE_PATH"
+            cp "$FILE_PATH" public/latest-schedule.jpg
             echo "Fichier copié dans public/latest-schedule.jpg"
           else
             echo "Erreur : Aucun fichier horaires_*.jpeg trouvé dans le dossier output."
