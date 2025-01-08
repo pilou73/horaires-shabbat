@@ -31,6 +31,9 @@ jobs:
           curl -L -o resources/mriamc_0.ttf "${{ secrets.FONT_URL }}"
           curl -L -o resources/ARIALBD_0.TTF "${{ secrets.ARIAL_BOLD_URL }}"
 
+      - name: Create output directory
+        run: mkdir -p output  # Crée le dossier output avant d'exécuter le script
+
       - name: Run schedule generator
         run: python horaires_shabbat.py
 
