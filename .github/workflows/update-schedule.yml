@@ -55,6 +55,7 @@ jobs:
         run: |
           echo "Création du dossier public..."
           mkdir -p public
+          echo "Dossier public créé."
           
           echo "Recherche des fichiers horaires_*.jpeg dans output..."
           if ls output/horaires_*.jpeg 1> /dev/null 2>&1; then
@@ -73,6 +74,6 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}  # Ce token est automatiquement fourni par GitHub
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
           force_orphan: true
