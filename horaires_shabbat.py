@@ -16,6 +16,7 @@ class ShabbatScheduleGenerator:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)  # Crée le dossier output s'il n'existe pas
         
+        # Vérifie que les fichiers nécessaires existent
         if not self.template_path.exists():
             raise FileNotFoundError(f"Template introuvable: {self.template_path}")
         if not self.font_path.exists():
@@ -24,6 +25,7 @@ class ShabbatScheduleGenerator:
             raise FileNotFoundError(f"Police Arial Bold introuvable: {self.arial_bold_path}")
             
         try:
+            # Charge les polices
             self._test_font = ImageFont.truetype(str(self.font_path), 30)
             self._arial_bold_font = ImageFont.truetype(str(self.arial_bold_path), 40)
         except Exception as e:
@@ -185,6 +187,10 @@ class ShabbatScheduleGenerator:
     def create_image(self, times, parasha, parasha_hebrew, shabbat_end, candle_lighting):
         try:
             print("Ouverture du template...")
+            print(f"Chemin du template : {self.template_path}")
+            print(f"Chemin de la police : {self.font_path}")
+            print(f"Chemin de la police Arial Bold : {self.arial_bold_path}")
+            
             with Image.open(self.template_path) as img:
                 print("Template ouvert avec succès.")
                 draw = ImageDraw.Draw(img)
