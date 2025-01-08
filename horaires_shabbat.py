@@ -14,7 +14,7 @@ class ShabbatScheduleGenerator:
         self.font_path = Path(font_path)
         self.arial_bold_path = Path(arial_bold_path)
         self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.output_dir.mkdir(parents=True, exist_ok=True)  # Crée le dossier output s'il n'existe pas
         
         if not self.template_path.exists():
             raise FileNotFoundError(f"Template introuvable: {self.template_path}")
@@ -125,7 +125,7 @@ class ShabbatScheduleGenerator:
         end_minutes = shabbat_end.hour * 60 + shabbat_end.minute
         
         times = {
-            'mincha_kabbalat': start_minutes,  # Pas d'arrondi pour מנחה וקבלת שבת
+            'mincha_kabbalat': start_minutes,  # Pas d'arrondi pour מנחה et קבלת שבת
             'shir_hashirim': self.round_to_nearest_five(start_minutes - 15),
             'shacharit': self.round_to_nearest_five(7 * 60 + 45),
             'mincha_gdola': self.round_to_nearest_five(12 * 60 + 45),
@@ -184,7 +184,9 @@ class ShabbatScheduleGenerator:
 
     def create_image(self, times, parasha, parasha_hebrew, shabbat_end, candle_lighting):
         try:
+            print("Ouverture du template...")
             with Image.open(self.template_path) as img:
+                print("Template ouvert avec succès.")
                 draw = ImageDraw.Draw(img)
                 font = ImageFont.truetype(str(self.font_path), 30)
 
@@ -236,7 +238,9 @@ class ShabbatScheduleGenerator:
                 draw.text((time_x, 990), arvit_str, fill="black", font=font)  # Coordonnées ajustées
 
                 output_path = self.output_dir / f"horaires_{parasha}.jpeg"
+                print(f"Chemin de sortie de l'image : {output_path}")
                 img.save(str(output_path))
+                print("Image sauvegardée avec succès")
                 return output_path
 
         except Exception as e:
