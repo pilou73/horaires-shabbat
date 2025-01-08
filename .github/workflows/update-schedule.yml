@@ -27,34 +27,18 @@ jobs:
 
       - name: Download template and fonts
         run: |
-          curl -L -o resources/template.jpeg "${{ secrets.TEMPLATE_URL }}"
-          curl -L -o resources/mriamc_0.ttf "${{ secrets.FONT_URL }}"
-          curl -L -o resources/ARIALBD_0.TTF "${{ secrets.ARIAL_BOLD_URL }}"
-
-      - name: Create output directory
-        run: mkdir -p output  # Crée le dossier output avant d'exécuter le script
+          curl -L -o resources/template.jpeg ${{ secrets.TEMPLATE_URL }}
+          curl -L -o resources/mriamc_0.ttf ${{ secrets.FONT_URL }}
+          curl -L -o resources/ARIALBD_0.TTF ${{ secrets.ARIAL_BOLD_URL }}
 
       - name: Run schedule generator
         run: python horaires_shabbat.py
 
       - name: Copy latest schedule
         run: |
-          echo "Création du dossier public..."
           mkdir -p public
-          
-          echo "Recherche des fichiers horaires_*.jpeg dans output..."
-          if ls output/horaires_*.jpeg 1> /dev/null 2>&1; then
-            echo "Fichier trouvé : $(ls output/horaires_*.jpeg)"
-            cp output/horaires_*.jpeg public/latest-schedule.jpg
-            echo "Fichier copié dans public/latest-schedule.jpg"
-          else
-            echo "Erreur : Aucun fichier horaires_*.jpeg trouvé dans le dossier output."
-            exit 1
-          fi
-          
-          echo "Copie de index.html dans public..."
+          cp output/horaires_*.jpeg public/latest-schedule.jpg
           cp index.html public/
-          echo "Copie terminée."
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
