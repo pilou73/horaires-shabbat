@@ -1,0 +1,79 @@
+name: Update Shabbat Schedule
+
+on:
+  schedule:
+    - cron: '0 0 * * 4'  # Tous les jeudis à minuit
+  workflow_dispatch:      # Permet de lancer manuellement
+
+# Ajoutez cette section pour donner les permissions nécessaires
+permissions:
+  contents: write  # Permet d'écrire sur la branche gh-pages
+
+jobs:
+  update-schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          echo "Installation des dépendances Python..."
+          python -m pip install --upgrade pip
+          pip install requests pillow pandas pytz
+          echo "Dépendances installées avec succès."
+
+      - name: Create resources directory
+        run: |
+          echo "Création du dossier resources..."
+          mkdir -p resources
+          echo "Dossier resources créé."
+
+      - name: Download template and fonts
+        run: |
+          echo "Téléchargement des fichiers resources..."
+          curl -L -o resources/template.jpeg "${{ secrets.TEMPLATE_URL }}"
+          curl -L -o resources/mriamc_0.ttf "${{ secrets.FONT_URL }}"
+          curl -L -o resources/ARIALBD_0.TTF "${{ secrets.ARIAL_BOLD_URL }}"
+          echo "Fichiers resources téléchargés avec succès."
+
+      - name: Run schedule generator
+        run: |
+          echo "Exécution du script Python..."
+          python horaires_shabbat.py
+          echo "Script exécuté avec succès."
+          
+          echo "Contenu du dossier output :"
+          ls -l output
+
+      - name: Copy latest schedule
+        run: |
+          echo "Création du dossier public..."
+          mkdir -p public
+          echo "Dossier public créé."
+          
+          echo "Recherche des fichiers horaires_*.jpeg dans output..."
+          if ls output/horaires_*.jpeg 1> /dev/null 2>&1; then
+            echo "Fichier trouvé : $(ls output/horaires_*.jpeg)"
+            cp output/horaires_*.jpeg public/latest-schedule.jpg
+            echo "Fichier copié dans public/latest-schedule.jpg"
+          else
+            echo "Erreur : Aucun fichier horaires_*.jpeg trouvé dans le dossier output."
+            exit 1
+          fi
+          
+          echo "Copie de index.html dans public..."
+          cp index.html public/
+          echo "Copie terminée."
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          force_orphan: true
