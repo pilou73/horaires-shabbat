@@ -5,6 +5,10 @@ on:
     - cron: '0 0 * * 4'  # Tous les jeudis à minuit
   workflow_dispatch:      # Permet de lancer manuellement
 
+# Ajoutez cette section pour donner les permissions nécessaires
+permissions:
+  contents: write  # Permet d'écrire sur la branche gh-pages
+
 jobs:
   update-schedule:
     runs-on: ubuntu-latest
@@ -19,27 +23,30 @@ jobs:
 
       - name: Install dependencies
         run: |
+          echo "Installation des dépendances Python..."
           python -m pip install --upgrade pip
           pip install requests pillow pandas pytz
+          echo "Dépendances installées avec succès."
 
       - name: Create resources directory
-        run: mkdir -p resources
+        run: |
+          echo "Création du dossier resources..."
+          mkdir -p resources
+          echo "Dossier resources créé."
 
       - name: Download template and fonts
         run: |
+          echo "Téléchargement des fichiers resources..."
           curl -L -o resources/template.jpeg "${{ secrets.TEMPLATE_URL }}"
           curl -L -o resources/mriamc_0.ttf "${{ secrets.FONT_URL }}"
           curl -L -o resources/ARIALBD_0.TTF "${{ secrets.ARIAL_BOLD_URL }}"
-
-      # Supprimez ou commentez cette étape (le dossier output existe déjà)
-      # - name: Create output directory
-      #   run: mkdir -p output
+          echo "Fichiers resources téléchargés avec succès."
 
       - name: Run schedule generator
         run: |
           echo "Exécution du script Python..."
           python horaires_shabbat.py
-          echo "Script exécuté avec succès"
+          echo "Script exécuté avec succès."
           
           echo "Contenu du dossier output :"
           ls -l output
@@ -66,6 +73,6 @@ jobs:
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Ce token est automatiquement fourni par GitHub
           publish_dir: ./public
           force_orphan: true
