@@ -5,7 +5,6 @@ on:
     - cron: '0 0 * * 4'  # Tous les jeudis à minuit
   workflow_dispatch:      # Permet de lancer manuellement
 
-# Ajoutez cette section pour donner les permissions nécessaires
 permissions:
   contents: write  # Permet d'écrire sur la branche gh-pages
 
@@ -40,6 +39,9 @@ jobs:
           curl -L -o resources/template.jpeg "${{ secrets.TEMPLATE_URL }}"
           curl -L -o resources/mriamc_0.ttf "${{ secrets.FONT_URL }}"
           curl -L -o resources/ARIALBD_0.TTF "${{ secrets.ARIAL_BOLD_URL }}"
+          
+          echo "Vérification des fichiers téléchargés..."
+          ls -l resources
           echo "Fichiers resources téléchargés avec succès."
 
       - name: Run schedule generator
