@@ -50,8 +50,11 @@ jobs:
           python horaires_shabbat.py
           echo "Script exécuté avec succès."
           
-          echo "Contenu du dossier output :"
-          ls -l output
+          echo "Diagnostic des fichiers générés :"
+          ls -R .
+          
+          echo "Vérification spécifique du dossier output :"
+          ls -l output || echo "Erreur : Dossier output introuvable ou vide."
 
       - name: Copy latest schedule
         run: |
@@ -59,15 +62,14 @@ jobs:
           mkdir -p public
           echo "Dossier public créé."
           
-          echo "Recherche du fichier horaires_*.jpeg le plus récent dans output..."
-          FILE_PATH=$(find output -name "horaires_*.jpeg" -print -quit)
-          
+          echo "Recherche du fichier JPEG le plus récent dans output..."
+          FILE_PATH=$(find output -type f -name "*.jpeg" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{print $2}')
           if [ -n "$FILE_PATH" ]; then
             echo "Fichier trouvé : $FILE_PATH"
             cp "$FILE_PATH" public/latest-schedule.jpg
             echo "Fichier copié dans public/latest-schedule.jpg"
           else
-            echo "Erreur : Aucun fichier horaires_*.jpeg trouvé dans le dossier output."
+            echo "Erreur : Aucun fichier JPEG trouvé dans le dossier output."
             exit 1
           fi
           
