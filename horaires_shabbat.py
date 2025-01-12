@@ -7,7 +7,6 @@ import requests
 import pytz
 import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
-from shutil import copyfile
 
 class ShabbatScheduleGenerator:
     def __init__(self, template_path, font_path, arial_bold_path, output_dir):
@@ -16,21 +15,21 @@ class ShabbatScheduleGenerator:
         self.arial_bold_path = Path(arial_bold_path)
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)  # Crée le dossier output s'il n'existe pas
-
+        
         # Vérifie que les fichiers nécessaires existent
-       if not self.template_path.exists():
+        if not self.template_path.exists():
             raise FileNotFoundError(f"Template introuvable: {self.template_path}")
         if not self.font_path.exists():
             raise FileNotFoundError(f"Police introuvable: {self.font_path}")
         if not self.arial_bold_path.exists():
             raise FileNotFoundError(f"Police Arial Bold introuvable: {self.arial_bold_path}")
-
+            
         try:
+            # Charge les polices
             self._test_font = ImageFont.truetype(str(self.font_path), 30)
             self._arial_bold_font = ImageFont.truetype(str(self.arial_bold_path), 40)
         except Exception as e:
             raise Exception(f"Erreur de chargement de la police: {e}")
-
 
         # Données de l'onglet שבתות השנה intégrées dans le code
         self.yearly_shabbat_data = [
@@ -305,8 +304,8 @@ class ShabbatScheduleGenerator:
 
     def generate(self):
         current_date = datetime.now()
-        end_date = current_date + timedelta(days=14)
-
+        end_date = current_date + timedelta(days=14)  # Récupérer les données pour 2 semaines
+        
         shabbat_times = self.get_hebcal_times(current_date, end_date)
         if not shabbat_times:
             print("Aucun horaire trouvé pour cette semaine")
@@ -314,22 +313,11 @@ class ShabbatScheduleGenerator:
 
         shabbat = shabbat_times[0]
         times = self.calculate_times(shabbat['start'], shabbat['end'])
-
+        
         image_path = self.create_image(times, shabbat['parasha'], shabbat['parasha_hebrew'], shabbat['end'], shabbat['candle_lighting'])
         if not image_path:
             print("Échec de la génération de l'image")
-        else:
-            print(f"Image générée avec succès : {image_path}")
-            latest_schedule_path = self.output_dir / "latest-schedule.jpg"
-            copyfile(image_path, latest_schedule_path)
-            print(f"Image copiée sous le nom : {latest_schedule_path}")
-
-            public_dir = self.output_dir.parent / "public"
-            public_dir.mkdir(parents=True, exist_ok=True)
-            public_path = public_dir / "latest-schedule.jpg"
-            copyfile(latest_schedule_path, public_path)
-            print(f"Image copiée dans le dossier public : {public_path}")
-
+        
         self.update_excel(shabbat, times)
 
 def main():
@@ -348,7 +336,7 @@ def main():
 
         generator = ShabbatScheduleGenerator(template_path, font_path, arial_bold_path, output_dir)
         generator.generate()
-
+        
     except Exception as e:
         print(f"Erreur: {e}")
         input("Appuyez sur Entrée pour fermer...")
