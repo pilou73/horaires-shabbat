@@ -3,42 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Générer les horaires de Shabbat</title>
+    <title>Horaires Shabbat - Merom Nave</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             padding: 20px;
         }
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
         img {
             max-width: 100%;
             height: auto;
-            margin-top: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>Générer les horaires de Shabbat</h1>
-    <p>Cliquez sur le bouton pour générer les horaires :</p>
-    <a href="https://github.com/pilou73/horaires-shabbat/actions/workflows/update-schedule.yml" target="_blank">
-        <button>Générer l'image</button>
-    </a>
-    <div id="image-container">
-        <img src="https://pilou73.github.io/horaires-shabbat/latest-schedule.jpg" alt="Horaires Shabbat">
-    </div>
+    <h1>Horaires Shabbat - Merom Nave</h1>
+    <p>Dernière mise à jour : <span id="last-updated"></span></p>
+    <img src="horaires-shabbat/public/latest-schedule.jpg" alt="Horaires Shabbat">
+    <script>
+        // Afficher la date de la dernière mise à jour
+        const lastUpdated = new Date().toLocaleDateString('fr-FR');
+        document.getElementById('last-updated').textContent = lastUpdated;
+    </script>
 </body>
 </html>
