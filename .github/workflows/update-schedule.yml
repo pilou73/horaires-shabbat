@@ -2,7 +2,7 @@ name: Update Shabbat Schedule
 
 on:
   schedule:
-    - cron: '0 0 * * 4'  # Tous les jeudis à minuit
+    - cron: '0 13 * * 7'  # Tous les dimanches à 13:00
   workflow_dispatch:      # Permet de lancer manuellement
 
 permissions:
