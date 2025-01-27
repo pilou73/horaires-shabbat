@@ -44,10 +44,10 @@ jobs:
           ls -l resources
           echo "Fichiers resources téléchargés avec succès."
 
-      - name: Run test script
+      - name: Run schedule generator
         run: |
           echo "Exécution du script Python..."
-          python test_script.py
+          python horaires_shabbat.py
           echo "Script exécuté avec succès."
           
           echo "Diagnostic des fichiers générés :"
