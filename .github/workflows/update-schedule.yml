@@ -24,7 +24,7 @@ jobs:
         run: |
           echo "Installation des dépendances Python..."
           python -m pip install --upgrade pip
-          pip install requests pillow pandas pytz
+          pip install requests pillow pandas pytz openpyxl
           echo "Dépendances installées avec succès."
 
       - name: Create resources directory
@@ -36,10 +36,11 @@ jobs:
       - name: Download template and fonts
         run: |
           echo "Téléchargement des fichiers resources..."
-          curl -L -o resources/template.jpeg "${{ secrets.TEMPLATE_URL }}"
+          curl -L -o resources/template.jpg "${{ secrets.TEMPLATE_URL }}"
           curl -L -o resources/mriamc_0.ttf "${{ secrets.FONT_URL }}"
           curl -L -o resources/ARIALBD_0.TTF "${{ secrets.ARIAL_BOLD_URL }}"
-          
+          file resources/template.jpeg  # Vérifie le fichier template
+
           echo "Vérification des fichiers téléchargés..."
           ls -l resources
           echo "Fichiers resources téléchargés avec succès."
@@ -47,7 +48,7 @@ jobs:
       - name: Run test script
         run: |
           echo "Exécution du script Python..."
-          python test_script.py
+          python horaires_shabbat.py
           echo "Script exécuté avec succès."
           
           echo "Diagnostic des fichiers générés :"

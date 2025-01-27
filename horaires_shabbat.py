@@ -329,7 +329,7 @@ def main():
         else:
             base_path = Path.cwd()
 
-        template_path = base_path / "resources" / "template.jpeg"
+        template_path = base_path / "resources" / "template.jpg"
         font_path = base_path / "resources" / "mriamc_0.ttf"
         arial_bold_path = base_path / "resources" / "ARIALBD_0.TTF"
         output_dir = base_path / "output"
