@@ -2,73 +2,74 @@ name: Update Shabbat Schedule
 
 on:
   schedule:
-    - cron: '0 22 * * 6'  # Tous les samedis à 22:00
-  workflow_dispatch:      # Permet de lancer manuellement
+    - cron: '0 22 * * 6'  # Tous les samedis à 22:00 UTC
+  workflow_dispatch:
 
 permissions:
-  contents: write  # Permet d'écrire sur la branche gh-pages
+  contents: write
 
 jobs:
   update-schedule:
     runs-on: ubuntu-latest
     steps:
+      # Étape 1 : Cloner le dépôt
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Étape 2 : Configurer Python
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
 
+      # Étape 3 : Installer les dépendances
       - name: Install dependencies
         run: |
-          echo "Installation des dépendances Python..."
           python -m pip install --upgrade pip
           pip install requests pillow pandas pytz openpyxl
-          echo "Dépendances installées avec succès."
 
-      - name: Create resources directory
-        run: |
-          echo "Création du dossier resources..."
-          mkdir -p resources
-          echo "Dossier resources créé."
-
+      # Étape 4 : Télécharger les fichiers nécessaires
       - name: Download template and fonts
         run: |
           echo "Téléchargement des fichiers resources..."
           curl -L -o resources/template.jpg "${{ secrets.TEMPLATE_URL }}"
           curl -L -o resources/mriamc_0.ttf "${{ secrets.FONT_URL }}"
           curl -L -o resources/ARIALBD_0.TTF "${{ secrets.ARIAL_BOLD_URL }}"
- 
-      - name: Inspect template file
+          echo "Téléchargement terminé."
+
+      # Étape 5 : Vérifier le fichier image téléchargé
+      - name: Inspect downloaded image
         run: |
+          echo "Vérification de l'image téléchargée..."
           file resources/template.jpg
-          identify resources/template.jpg || echo "Erreur : Impossible de lire l'image avec ImageMagick."
+          ls -lh resources/template.jpg
+          identify resources/template.jpg || echo "Impossible de lire l'image avec ImageMagick."
+        continue-on-error: true  # Continue même si identify échoue pour collecter plus d'informations
 
+      # Étape 6 : Fixer les permissions
+      - name: Set permissions for resources
+        run: chmod 644 resources/template.jpg
 
-          echo "Vérification des fichiers téléchargés..."
-          ls -l resources
-          echo "Fichiers resources téléchargés avec succès."
-
-      - name: Run test script
+      # Étape 7 : Exécuter le script Python
+      - name: Run schedule generator
         run: |
           echo "Exécution du script Python..."
           python horaires_shabbat.py
           echo "Script exécuté avec succès."
-          
+
+      # Étape 8 : Vérifier les fichiers générés
+      - name: Check generated files
+        run: |
           echo "Diagnostic des fichiers générés :"
           ls -R .
-          
-          echo "Vérification spécifique du dossier output :"
-          ls -l output || echo "Erreur : Dossier output introuvable ou vide."
+          echo "Fichiers dans le dossier output :"
+          ls -l output || echo "Dossier output introuvable ou vide."
 
+      # Étape 9 : Copier le fichier le plus récent dans public/latest-schedule.jpg
       - name: Copy latest schedule
         run: |
-          echo "Création du dossier public..."
+          echo "Préparation des fichiers pour publication..."
           mkdir -p public
-          echo "Dossier public créé."
-          
-          echo "Recherche du fichier JPEG le plus récent dans output..."
           FILE_PATH=$(find output -type f -name "*.jpeg" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{print $2}')
           if [ -n "$FILE_PATH" ]; then
             echo "Fichier trouvé : $FILE_PATH"
@@ -80,14 +81,11 @@ jobs:
             echo "Erreur : Aucun fichier JPEG trouvé dans le dossier output."
             exit 1
           fi
-          
-          echo "Copie de index.html dans public..."
           cp index.html public/
-          echo "Copie terminée."
 
+      # Étape 10 : Publier sur GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
-          force_orphan: true
