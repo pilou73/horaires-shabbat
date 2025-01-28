@@ -147,6 +147,10 @@ class ShabbatScheduleGenerator:
         mins = minutes % 60
         return f"{hours:02d}:{mins:02d}"
 
+    def reverse_hebrew_text(self, text):
+        # Inverser le texte en hébreu pour un affichage correct
+        return text[::-1]
+
     def round_to_nearest_five(self, minutes):
         # Arrondir les minutes au multiple de 5 le plus proche
         return round(minutes / 5) * 5
@@ -217,6 +221,7 @@ class ShabbatScheduleGenerator:
                 draw.text((time_x, 830), end_time_str, fill="black", font=font)
 
                 # Ajouter le nom de la Parasha en hébreu dans le carré en haut à gauche
+                parasha_hebrew_reversed = self.reverse_hebrew_text(parasha_hebrew)  # Inverser le texte
                 draw.text((300, 280), parasha_hebrew_reversed, fill="blue", font=self._arial_bold_font, anchor="mm")
 
                 # Ajouter l'heure de כניסת שבת en haut
