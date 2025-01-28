@@ -147,10 +147,6 @@ class ShabbatScheduleGenerator:
         mins = minutes % 60
         return f"{hours:02d}:{mins:02d}"
 
-    def reverse_hebrew_text(self, text):
-        # Inverser le texte en hébreu pour un affichage correct
-        return text[::-1]
-
     def round_to_nearest_five(self, minutes):
         # Arrondir les minutes au multiple de 5 le plus proche
         return round(minutes / 5) * 5
