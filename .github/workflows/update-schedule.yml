@@ -28,14 +28,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pillow pandas pytz openpyxl
 
-      # Étape 4 : Vérifier les fichiers nécessaires
-      - name: Inspect template file
+      # Étape 4 : Vérifier les fichiers locaux
+      - name: Inspect local resources
         run: |
-          echo "Vérification du fichier template..."
+          echo "Vérification des fichiers locaux..."
+          ls -lh resources/
           file resources/template.jpg
-          ls -lh resources/template.jpg
-          identify resources/template.jpg || echo "Impossible de lire l'image avec ImageMagick."
-        continue-on-error: true  # Continue même si identify échoue
+          file resources/mriamc_0.ttf
+          file resources/ARIALBD_0.TTF
 
       # Étape 5 : Exécuter le script Python
       - name: Run schedule generator
