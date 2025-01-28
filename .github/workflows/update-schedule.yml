@@ -22,42 +22,29 @@ jobs:
         with:
           python-version: '3.9'
 
-      # Étape 3 : Installer les dépendances
+      # Étape 3 : Installer les dépendances Python
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install requests pillow pandas pytz openpyxl
 
-      # Étape 4 : Télécharger les fichiers nécessaires
-      - name: Download template and fonts
+      # Étape 4 : Vérifier les fichiers nécessaires
+      - name: Inspect template file
         run: |
-          echo "Téléchargement des fichiers resources..."
-          curl -L -o resources/template.jpg "${{ secrets.TEMPLATE_URL }}"
-          curl -L -o resources/mriamc_0.ttf "${{ secrets.FONT_URL }}"
-          curl -L -o resources/ARIALBD_0.TTF "${{ secrets.ARIAL_BOLD_URL }}"
-          echo "Téléchargement terminé."
-
-      # Étape 5 : Vérifier le fichier image téléchargé
-      - name: Inspect downloaded image
-        run: |
-          echo "Vérification de l'image téléchargée..."
+          echo "Vérification du fichier template..."
           file resources/template.jpg
           ls -lh resources/template.jpg
           identify resources/template.jpg || echo "Impossible de lire l'image avec ImageMagick."
-        continue-on-error: true  # Continue même si identify échoue pour collecter plus d'informations
+        continue-on-error: true  # Continue même si identify échoue
 
-      # Étape 6 : Fixer les permissions
-      - name: Set permissions for resources
-        run: chmod 644 resources/template.jpg
-
-      # Étape 7 : Exécuter le script Python
+      # Étape 5 : Exécuter le script Python
       - name: Run schedule generator
         run: |
           echo "Exécution du script Python..."
           python horaires_shabbat.py
           echo "Script exécuté avec succès."
 
-      # Étape 8 : Vérifier les fichiers générés
+      # Étape 6 : Vérifier les fichiers générés
       - name: Check generated files
         run: |
           echo "Diagnostic des fichiers générés :"
@@ -65,7 +52,7 @@ jobs:
           echo "Fichiers dans le dossier output :"
           ls -l output || echo "Dossier output introuvable ou vide."
 
-      # Étape 9 : Copier le fichier le plus récent dans public/latest-schedule.jpg
+      # Étape 7 : Copier le fichier le plus récent dans public/latest-schedule.jpg
       - name: Copy latest schedule
         run: |
           echo "Préparation des fichiers pour publication..."
@@ -83,7 +70,7 @@ jobs:
           fi
           cp index.html public/
 
-      # Étape 10 : Publier sur GitHub Pages
+      # Étape 8 : Publier sur GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
