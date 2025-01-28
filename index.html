@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horaires Shabbat - Merom Nave</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Horaires Shabbat - Merom Nave</h1>
+    <p>Dernière mise à jour : <span id="last-updated"></span></p>
+    <img src="public/latest-schedule.jpg" alt="Horaires Shabbat">
+    <script>
+        // Afficher la date de la dernière mise à jour
+        const lastUpdated = new Date().toLocaleDateString('fr-FR');
+        document.getElementById('last-updated').textContent = lastUpdated;
+    </script>
+</body>
+</html>
