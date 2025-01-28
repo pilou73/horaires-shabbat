@@ -2,7 +2,7 @@ name: Update Shabbat Schedule
 
 on:
   schedule:
-    - cron: '0 22 * * 6'  # Tous les samedis à 22:00 UTC
+    - cron: '0 22 * * 2'  # Tous les samedis à 22:00 UTC
   workflow_dispatch:
 
 permissions:
