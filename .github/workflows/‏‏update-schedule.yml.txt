@@ -57,12 +57,6 @@ jobs:
         run: |
           echo "Préparation des fichiers pour publication..."
           mkdir -p public
-          # Supprimer l'ancien fichier s'il existe
-          if [ -f public/latest-schedule.jpg ]; then
-            echo "Suppression de l'ancien fichier latest-schedule.jpg"
-            rm public/latest-schedule.jpg
-          fi
-          # Trouver et copier le fichier le plus récent
           FILE_PATH=$(find output -type f -name "*.jpeg" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{print $2}')
           if [ -n "$FILE_PATH" ]; then
             echo "Fichier trouvé : $FILE_PATH"
