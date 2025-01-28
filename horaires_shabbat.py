@@ -234,14 +234,14 @@ class ShabbatScheduleGenerator:
                 # Ajouter l'heure de שבת הבאה en face de מנחה (en bas de la page)
                 next_shabbat_time = self.get_next_shabbat_time(shabbat_end.date())
                 if next_shabbat_time[1]:  # Si l'heure est disponible
-                    draw.text((time_x, 950), next_shabbat_time[1], fill="black", font=font)  # Coordonnées ajustées
+                    draw.text((time_x, 950), next_shabbat_time[1], fill="green", font=font)  # Coordonnées ajustées
 
                 # Calculer l'heure de ערבית
                 arvit_time = self.round_to_nearest_five(mincha_time + 45)
                 arvit_str = self.format_time(arvit_time)
 
                 # Ajouter l'heure de ערבית en face du mot ערבית
-                draw.text((time_x, 990), arvit_str, fill="black", font=font)  # Coordonnées ajustées
+                draw.text((time_x, 990), arvit_str, fill="green", font=font)  # Coordonnées ajustées
 
                 output_path = self.output_dir / f"horaires_{parasha}.jpeg"
                 print(f"Chemin de sortie de l'image : {output_path}")
