@@ -9,9 +9,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-  # Schedule the workflow to run automatically every Saturday at 22:00
+  # Schedule the workflow to run automatically every Thursday at 16:05
   schedule:
-    - cron: '5 12 * * 0'
+    - cron: '5 14 * * 4'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
