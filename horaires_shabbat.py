@@ -132,7 +132,7 @@ class ShabbatScheduleGenerator:
             'shacharit': self.round_to_nearest_five(7 * 60 + 45),
             'mincha_gdola': self.round_to_nearest_five(12 * 60 + 45),
             'parashat_hashavua': self.round_to_nearest_five(end_minutes - (3 * 60)),
-            'tehilim': self.round_to_nearest_five(15 * 60),
+            'tehilim': self.round_to_nearest_five(16 * 60),
             'nashim': self.round_to_nearest_five(15 * 60),
             'shiur_rav': self.round_to_nearest_five(end_minutes - (2 * 60 + 15))
         }
