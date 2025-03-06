@@ -160,27 +160,33 @@ class ShabbatScheduleGenerator:
             # Convertir la date actuelle en format datetime pour la comparaison
             current_date = datetime(current_shabbat_date.year, current_shabbat_date.month, current_shabbat_date.day)
             
-            # Trouver le Shabbat suivant dans les données intégrées
+            # Parcourir les données pour trouver le prochain Shabbat
             for shabbat in self.yearly_shabbat_data:
                 shabbat_date = datetime.strptime(shabbat['day'], '%Y-%m-%d %H:%M:%S')
                 if shabbat_date > current_date:
-                    # Récupérer l'heure d'entrée du Shabbat
+                    # Récupérer l'heure d'entrée du prochain Shabbat
                     shabbat_entry_time = shabbat['כנסית שבת'].split()[0]
-                    
-                    # Convertir l'heure en minutes pour l'arrondir
                     hours, minutes = map(int, shabbat_entry_time.split(':'))
                     total_minutes = hours * 60 + minutes
-                    rounded_minutes = self.round_to_nearest_five(total_minutes)
                     
-                    # Convertir les minutes arrondies en heure
-                    rounded_hours = rounded_minutes // 60
-                    rounded_mins = rounded_minutes % 60
-                    rounded_time = f"{rounded_hours:02d}:{rounded_mins:02d}"
+                    # Arrondir l'heure de Min'ha en semaine au multiple de 5 inférieur
+                    if minutes % 5 == 0:
+                        mincha_weekday_minutes = total_minutes  # Pas de changement si déjà multiple de 5
+                    else:
+                        mincha_weekday_minutes = total_minutes - (minutes % 5)  # Arrondi à l'inférieur
                     
-                    # Retourner la date et l'heure arrondie
-                    return shabbat_date.strftime('%d/%m/%Y'), rounded_time
+                    # Convertir les minutes en format heure:minute
+                    mincha_hours = mincha_weekday_minutes // 60
+                    mincha_mins = mincha_weekday_minutes % 60
+                    mincha_time = f"{mincha_hours:02d}:{mincha_mins:02d}"
+                    
+                    # Retourner la date du prochain Shabbat et l'heure ajustée de Min'ha
+                    return shabbat_date.strftime('%d/%m/%Y'), mincha_time
+            
+            # Retour par défaut si aucun Shabbat suivant n'est trouvé
             return None, None
         except Exception as e:
+            # Gestion des erreurs et affichage d'un message en cas de problème
             print(f"Erreur lors de la récupération du Shabbat suivant: {e}")
             return None, None
 
