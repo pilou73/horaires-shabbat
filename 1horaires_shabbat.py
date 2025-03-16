@@ -159,7 +159,10 @@ class ShabbatScheduleGenerator:
         try:
             # Convertir la date actuelle en format datetime pour la comparaison
             current_date = datetime(current_shabbat_date.year, current_shabbat_date.month, current_shabbat_date.day)
-            
+            change_time_date = datetime(2025, 3, 27)  # Date prévue du changement d'heure en 2025
+            use_previous_shabbat = current_date < change_time_date <= current_date + timedelta(days=7)
+
+            last_shabbat = None
             # Parcourir les données pour trouver le prochain Shabbat
             for shabbat in self.yearly_shabbat_data:
                 shabbat_date = datetime.strptime(shabbat['day'], '%Y-%m-%d %H:%M:%S')
