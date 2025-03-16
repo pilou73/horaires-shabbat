@@ -16,6 +16,7 @@ class ShabbatScheduleGenerator:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)  # Crée le dossier output s'il n'existe pas
         
+        # Vérifie que les fichiers nécessaires existent
         if not self.template_path.exists():
             raise FileNotFoundError(f"Template introuvable: {self.template_path}")
         if not self.font_path.exists():
@@ -24,6 +25,7 @@ class ShabbatScheduleGenerator:
             raise FileNotFoundError(f"Police Arial Bold introuvable: {self.arial_bold_path}")
             
         try:
+            # Charge les polices
             self._test_font = ImageFont.truetype(str(self.font_path), 30)
             self._arial_bold_font = ImageFont.truetype(str(self.arial_bold_path), 40)
         except Exception as e:
@@ -130,8 +132,8 @@ class ShabbatScheduleGenerator:
             'shacharit': self.round_to_nearest_five(7 * 60 + 45),
             'mincha_gdola': self.round_to_nearest_five(12 * 60 + 45),
             'parashat_hashavua': self.round_to_nearest_five(end_minutes - (3 * 60)),
-            'tehilim': self.round_to_nearest_five(15 * 60),
-            'nashim': self.round_to_nearest_five(15 * 60),
+            'tehilim': self.round_to_nearest_five(16 * 60),
+            'nashim': self.round_to_nearest_five(16 * 60),
             'shiur_rav': self.round_to_nearest_five(end_minutes - (2 * 60 + 15))
         }
         
@@ -145,9 +147,9 @@ class ShabbatScheduleGenerator:
         mins = minutes % 60
         return f"{hours:02d}:{mins:02d}"
 
-    def reverse_hebrew_text(self, text):
+    #def reverse_hebrew_text(self, text):
         # Inverser le texte en hébreu pour un affichage correct
-        return text[::-1]
+        #return text[::-1]
 
     def round_to_nearest_five(self, minutes):
         # Arrondir les minutes au multiple de 5 le plus proche
@@ -157,34 +159,47 @@ class ShabbatScheduleGenerator:
         try:
             # Convertir la date actuelle en format datetime pour la comparaison
             current_date = datetime(current_shabbat_date.year, current_shabbat_date.month, current_shabbat_date.day)
-            
-            # Trouver le Shabbat suivant dans les données intégrées
+            change_time_date = datetime(2025, 3, 27)  # Date prévue du changement d'heure en 2025
+            use_previous_shabbat = current_date < change_time_date <= current_date + timedelta(days=7)
+
+            last_shabbat = None
+            # Parcourir les données pour trouver le prochain Shabbat
             for shabbat in self.yearly_shabbat_data:
                 shabbat_date = datetime.strptime(shabbat['day'], '%Y-%m-%d %H:%M:%S')
                 if shabbat_date > current_date:
-                    # Récupérer l'heure d'entrée du Shabbat
+                    # Récupérer l'heure d'entrée du prochain Shabbat
                     shabbat_entry_time = shabbat['כנסית שבת'].split()[0]
-                    
-                    # Convertir l'heure en minutes pour l'arrondir
                     hours, minutes = map(int, shabbat_entry_time.split(':'))
                     total_minutes = hours * 60 + minutes
-                    rounded_minutes = self.round_to_nearest_five(total_minutes)
                     
-                    # Convertir les minutes arrondies en heure
-                    rounded_hours = rounded_minutes // 60
-                    rounded_mins = rounded_minutes % 60
-                    rounded_time = f"{rounded_hours:02d}:{rounded_mins:02d}"
+                    # Arrondir l'heure de Min'ha en semaine au multiple de 5 inférieur
+                    if minutes % 5 == 0:
+                        mincha_weekday_minutes = total_minutes  # Pas de changement si déjà multiple de 5
+                    else:
+                        mincha_weekday_minutes = total_minutes - (minutes % 5)  # Arrondi à l'inférieur
                     
-                    # Retourner la date et l'heure arrondie
-                    return shabbat_date.strftime('%d/%m/%Y'), rounded_time
+                    # Convertir les minutes en format heure:minute
+                    mincha_hours = mincha_weekday_minutes // 60
+                    mincha_mins = mincha_weekday_minutes % 60
+                    mincha_time = f"{mincha_hours:02d}:{mincha_mins:02d}"
+                    
+                    # Retourner la date du prochain Shabbat et l'heure ajustée de Min'ha
+                    return shabbat_date.strftime('%d/%m/%Y'), mincha_time
+            
+            # Retour par défaut si aucun Shabbat suivant n'est trouvé
             return None, None
         except Exception as e:
+            # Gestion des erreurs et affichage d'un message en cas de problème
             print(f"Erreur lors de la récupération du Shabbat suivant: {e}")
             return None, None
 
     def create_image(self, times, parasha, parasha_hebrew, shabbat_end, candle_lighting):
         try:
             print("Ouverture du template...")
+            print(f"Chemin du template : {self.template_path}")
+            print(f"Chemin de la police : {self.font_path}")
+            print(f"Chemin de la police Arial Bold : {self.arial_bold_path}")
+            
             with Image.open(self.template_path) as img:
                 print("Template ouvert avec succès.")
                 draw = ImageDraw.Draw(img)
@@ -215,8 +230,8 @@ class ShabbatScheduleGenerator:
                 draw.text((time_x, 830), end_time_str, fill="black", font=font)
 
                 # Ajouter le nom de la Parasha en hébreu dans le carré en haut à gauche
-                parasha_hebrew_reversed = self.reverse_hebrew_text(parasha_hebrew)  # Inverser le texte
-                draw.text((300, 280), parasha_hebrew_reversed, fill="blue", font=self._arial_bold_font, anchor="mm")
+                #parasha_hebrew_reversed = self.reverse_hebrew_text(parasha_hebrew)  # Inverser le texte           
+                draw.text((300, 280), parasha_hebrew, fill="blue", font=self._arial_bold_font, anchor="mm")
 
                 # Ajouter l'heure de כניסת שבת en haut
                 draw.text((time_x, 440), candle_lighting, fill="black", font=font)
@@ -228,14 +243,14 @@ class ShabbatScheduleGenerator:
                 # Ajouter l'heure de שבת הבאה en face de מנחה (en bas de la page)
                 next_shabbat_time = self.get_next_shabbat_time(shabbat_end.date())
                 if next_shabbat_time[1]:  # Si l'heure est disponible
-                    draw.text((time_x, 950), next_shabbat_time[1], fill="black", font=font)  # Coordonnées ajustées
+                    draw.text((time_x, 950), next_shabbat_time[1], fill="green", font=font)  # Coordonnées ajustées
 
                 # Calculer l'heure de ערבית
                 arvit_time = self.round_to_nearest_five(mincha_time + 45)
                 arvit_str = self.format_time(arvit_time)
 
                 # Ajouter l'heure de ערבית en face du mot ערבית
-                draw.text((time_x, 990), arvit_str, fill="black", font=font)  # Coordonnées ajustées
+                draw.text((time_x, 990), arvit_str, fill="green", font=font)  # Coordonnées ajustées
 
                 output_path = self.output_dir / f"horaires_{parasha}.jpeg"
                 print(f"Chemin de sortie de l'image : {output_path}")
@@ -323,7 +338,7 @@ def main():
         else:
             base_path = Path.cwd()
 
-        template_path = base_path / "resources" / "template.jpeg"
+        template_path = base_path / "resources" / "template.jpg"
         font_path = base_path / "resources" / "mriamc_0.ttf"
         arial_bold_path = base_path / "resources" / "ARIALBD_0.TTF"
         output_dir = base_path / "output"
