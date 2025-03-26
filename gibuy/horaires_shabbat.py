@@ -130,9 +130,9 @@ class ShabbatScheduleGenerator:
             'mincha_kabbalat': start_minutes,  # Pas d'arrondi pour מנחה et קבלת שבת
             'shir_hashirim': self.round_to_nearest_five(start_minutes - 15),
             'shacharit': self.round_to_nearest_five(7 * 60 + 45),
-            'mincha_gdola': self.round_to_nearest_five(12 * 60 + 45),
+            'mincha_gdola': self.round_to_nearest_five(13 * 60),
             'parashat_hashavua': self.round_to_nearest_five(end_minutes - (3 * 60)),
-            'tehilim': self.round_to_nearest_five(16 * 60),
+            'tehilim': (13 * 60 + 45, 17 * 60),  # Deux horaires pour Tehilim: 13:45 et 17:00
             'nashim': self.round_to_nearest_five(16 * 60),
             'shiur_rav': self.round_to_nearest_five(end_minutes - (2 * 60 + 15))
         }
@@ -157,39 +157,30 @@ class ShabbatScheduleGenerator:
 
     def get_next_shabbat_time(self, current_shabbat_date):
         try:
-            # Convertir la date actuelle en format datetime pour la comparaison
             current_date = datetime(current_shabbat_date.year, current_shabbat_date.month, current_shabbat_date.day)
             change_time_date = datetime(2025, 3, 27)  # Date prévue du changement d'heure en 2025
-            use_previous_shabbat = current_date < change_time_date <= current_date + timedelta(days=7)
-
+            
             last_shabbat = None
-            # Parcourir les données pour trouver le prochain Shabbat
             for shabbat in self.yearly_shabbat_data:
                 shabbat_date = datetime.strptime(shabbat['day'], '%Y-%m-%d %H:%M:%S')
+                
                 if shabbat_date > current_date:
-                    # Récupérer l'heure d'entrée du prochain Shabbat
-                    shabbat_entry_time = shabbat['כנסית שבת'].split()[0]
+                    if shabbat_date > change_time_date and last_shabbat:
+                        shabbat = last_shabbat  # Utiliser le Chabbat précédent si le prochain tombe après le changement d'heure
+                    
+                    shabbat_entry_time = shabbat['כנסית שבת']
                     hours, minutes = map(int, shabbat_entry_time.split(':'))
                     total_minutes = hours * 60 + minutes
-                    
-                    # Arrondir l'heure de Min'ha en semaine au multiple de 5 inférieur
-                    if minutes % 5 == 0:
-                        mincha_weekday_minutes = total_minutes  # Pas de changement si déjà multiple de 5
-                    else:
-                        mincha_weekday_minutes = total_minutes - (minutes % 5)  # Arrondi à l'inférieur
-                    
-                    # Convertir les minutes en format heure:minute
+                    mincha_weekday_minutes = total_minutes - (total_minutes % 5)
                     mincha_hours = mincha_weekday_minutes // 60
                     mincha_mins = mincha_weekday_minutes % 60
                     mincha_time = f"{mincha_hours:02d}:{mincha_mins:02d}"
-                    
-                    # Retourner la date du prochain Shabbat et l'heure ajustée de Min'ha
                     return shabbat_date.strftime('%d/%m/%Y'), mincha_time
+                
+                last_shabbat = shabbat
             
-            # Retour par défaut si aucun Shabbat suivant n'est trouvé
             return None, None
         except Exception as e:
-            # Gestion des erreurs et affichage d'un message en cas de problème
             print(f"Erreur lors de la récupération du Shabbat suivant: {e}")
             return None, None
 
@@ -269,23 +260,23 @@ class ShabbatScheduleGenerator:
         next_shabbat_date, next_shabbat_time = self.get_next_shabbat_time(shabbat_data['date'])
         
         row = {
-            'תאריך': shabbat_data['date'].strftime('%d/%m/%Y'),
-            'פרשה': shabbat_data['parasha'],
-            'שיר השירים': self.format_time(times['shir_hashirim']),
-            'כנסית שבת': shabbat_data['candle_lighting'],  # Colonne כנסית שבת déplacée ici
-            'מנחה': self.format_time(times['mincha_kabbalat']),
-            'שחרית': self.format_time(times['shacharit']),
-            'מנחה גדולה': self.format_time(times['mincha_gdola']),
-            'שיעור לנשים': self.format_time(times['nashim']),
-            'תהילים לילדים': self.format_time(times['tehilim']),
-            'שיעור פרשת השבוע': self.format_time(times['parashat_hashavua']),
-            'שיעור עם הרב': self.format_time(times['shiur_rav']),
-            'מנחה 2': self.format_time(times['mincha_2']),
-            'ערבית מוצ"ש': self.format_time(times['arvit']),
-            'מוצאי שבת קודש': shabbat_data['end'].strftime('%H:%M'),
-            'שבת הבאה (Date)': next_shabbat_date if next_shabbat_date else "N/A",  # Date du Shabbat suivant
-            'שבת הבאה (Heure)': next_shabbat_time if next_shabbat_time else "N/A"  # Heure du Shabbat suivant
-        }
+    'תאריך': shabbat_data['date'].strftime('%d/%m/%Y'),
+    'פרשה': shabbat_data['parasha'],
+    'שיר השירים': self.format_time(times['shir_hashirim']),
+    'כנסית שבת': shabbat_data['candle_lighting'],
+    'מנחה': self.format_time(times['mincha_kabbalat']),
+    'שחרית': self.format_time(times['shacharit']),
+    'מנחה גדולה': self.format_time(times['mincha_gdola']),
+    'שיעור לנשים': self.format_time(times['nashim']),
+    'תהילים לילדים': self.format_time(times['tehilim']),  # Ici ça affichera "13:45/17:00"
+    'שיעור פרשת השבוע': self.format_time(times['parashat_hashavua']),
+    'שיעור עם הרב': self.format_time(times['shiur_rav']),
+    'מנחה 2': self.format_time(times['mincha_2']),
+    'ערבית מוצ"ש': self.format_time(times['arvit']),
+    'מוצאי שבת קודש': shabbat_data['end'].strftime('%H:%M'),
+    'שבת הבאה (Date)': next_shabbat_date if next_shabbat_date else "N/A",
+    'שבת הבאה (Heure)': next_shabbat_time if next_shabbat_time else "N/A"
+}
 
         try:
             # Charger ou créer le fichier Excel
