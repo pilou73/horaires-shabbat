@@ -130,7 +130,7 @@ class ShabbatScheduleGenerator:
             'mincha_kabbalat': start_minutes,  # Pas d'arrondi pour מנחה et קבלת שבת
             'shir_hashirim': self.round_to_nearest_five(start_minutes - 15),
             'shacharit': self.round_to_nearest_five(7 * 60 + 45),
-            'mincha_gdola': self.round_to_nearest_five(12 * 60 + 45),
+            'mincha_gdola': self.round_to_nearest_five(13 * 60),
             'parashat_hashavua': self.round_to_nearest_five(end_minutes - (3 * 60)),
             'tehilim': self.round_to_nearest_five(16 * 60),
             'nashim': self.round_to_nearest_five(16 * 60),
