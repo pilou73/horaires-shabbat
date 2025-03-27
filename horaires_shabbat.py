@@ -237,7 +237,7 @@ class ShabbatScheduleGenerator:
                     draw.text((time_x, 950), next_shabbat_time[1], fill="green", font=font)  # Coordonnées ajustées
 
                 # Calculer l'heure de ערבית
-                arvit_time = self.round_to_nearest_five(mincha_time + 45)
+                arvit_time = self.round_to_nearest_five(mincha_time + 40)
                 arvit_str = self.format_time(arvit_time)
 
                 # Ajouter l'heure de ערבית en face du mot ערבית
