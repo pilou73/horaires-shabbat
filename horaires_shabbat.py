@@ -60,8 +60,8 @@ class ShabbatScheduleGenerator:
             {'day': '2025-05-23 00:00:00', 'פרשה': 'Behar-Bechukotai', 'כנסית שבת': '19:18', 'צאת שבת': '20:19'},
             {'day': '2025-05-30 00:00:00', 'פרשה': 'Bamidbar', 'כנסית שבת': '19:23', 'צאת שבת': '20:23'},
             {'day': '2025-06-06 00:00:00', 'פרשה': 'Nasso', 'כנסית שבת': '19:26', 'צאת שבת': '20:28'},
-            {'day': '2025-06-13 00:00:00', 'פרשה': 'Beha'alotcha', 'כנסית שבת': '19:29', 'צאת שבת': '20:31'},
-            {'day': '2025-06-20 00:00:00', 'פרשה': 'Sh'lach', 'כנסית שבת': '19:32', 'צאת שבת': '20:33'},
+            {'day': '2025-06-13 00:00:00', 'פרשה': 'Beha’alotcha', 'כנסית שבת': '19:29', 'צאת שבת': '20:31'},
+            {'day': '2025-06-20 00:00:00', 'פרשה': 'Sh’lach', 'כנסית שבת': '19:32', 'צאת שבת': '20:33'},
             {'day': '2025-06-27 00:00:00', 'פרשה': 'Korach', 'כנסית שבת': '19:33', 'צאת שבת': '20:33'},
             {'day': '2025-07-04 00:00:00', 'פרשה': 'Chukat', 'כנסית שבת': '19:32', 'צאת שבת': '20:33'},
             {'day': '2025-07-11 00:00:00', 'פרשה': 'Balak', 'כנסית שבת': '19:31', 'צאת שבת': '20:31'},
@@ -70,7 +70,7 @@ class ShabbatScheduleGenerator:
             {'day': '2025-08-01 00:00:00', 'פרשה': 'Devarim', 'כנסית שבת': '19:19', 'צאת שבת': '20:17'},
             {'day': '2025-08-08 00:00:00', 'פרשה': 'Vaetchanan', 'כנסית שבת': '19:13', 'צאת שבת': '20:10'},
             {'day': '2025-08-15 00:00:00', 'פרשה': 'Eikev', 'כנסית שבת': '19:06', 'צאת שבת': '20:02'},
-            {'day': '2025-08-22 00:00:00', 'פרשה': 'Re'eh', 'כנסית שבת': '18:59', 'צאת שבת': '19:54'},
+            {'day': '2025-08-22 00:00:00', 'פרשה': 'Re’eh', 'כנסית שבת': '18:59', 'צאת שבת': '19:54'},
             {'day': '2025-08-29 00:00:00', 'פרשה': 'Shoftim', 'כנסית שבת': '18:50', 'צאת שבת': '19:45'},
             {'day': '2025-09-05 00:00:00', 'פרשה': 'Ki Teitzei', 'כנסית שבת': '18:41', 'צאת שבת': '19:35'},
             {'day': '2025-09-12 00:00:00', 'פרשה': 'Ki Tavo', 'כנסית שבת': '18:32', 'צאת שבת': '19:26'},
@@ -132,7 +132,7 @@ class ShabbatScheduleGenerator:
             'shacharit': self.round_to_nearest_five(7 * 60 + 45),
             'mincha_gdola': self.round_to_nearest_five(13 * 60),
             'parashat_hashavua': self.round_to_nearest_five(end_minutes - (3 * 60)),
-            'tehilim': (13 * 60 + 45, 17 * 60),  # Deux horaires pour Tehilim: 13:45 et 17:00
+            'tehilim': self.round_to_nearest_five(16 * 60),
             'nashim': self.round_to_nearest_five(16 * 60),
             'shiur_rav': self.round_to_nearest_five(end_minutes - (2 * 60 + 15))
         }
@@ -143,14 +143,13 @@ class ShabbatScheduleGenerator:
         return times
 
     def format_time(self, minutes):
-        if isinstance(minutes, tuple):  # Cas spécial pour Tehilim qui a deux horaires
-            return f"{self.format_single_time(minutes[0])}/{self.format_single_time(minutes[1])}"
-        return self.format_single_time(minutes)
-
-    def format_single_time(self, minutes):
         hours = minutes // 60
         mins = minutes % 60
         return f"{hours:02d}:{mins:02d}"
+
+    #def reverse_hebrew_text(self, text):
+        # Inverser le texte en hébreu pour un affichage correct
+        #return text[::-1]
 
     def round_to_nearest_five(self, minutes):
         # Arrondir les minutes au multiple de 5 le plus proche
@@ -222,6 +221,7 @@ class ShabbatScheduleGenerator:
                 draw.text((time_x, 830), end_time_str, fill="black", font=font)
 
                 # Ajouter le nom de la Parasha en hébreu dans le carré en haut à gauche
+                #parasha_hebrew_reversed = self.reverse_hebrew_text(parasha_hebrew)  # Inverser le texte           
                 draw.text((300, 280), parasha_hebrew, fill="blue", font=self._arial_bold_font, anchor="mm")
 
                 # Ajouter l'heure de כניסת שבת en haut
@@ -263,19 +263,19 @@ class ShabbatScheduleGenerator:
             'תאריך': shabbat_data['date'].strftime('%d/%m/%Y'),
             'פרשה': shabbat_data['parasha'],
             'שיר השירים': self.format_time(times['shir_hashirim']),
-            'כנסית שבת': shabbat_data['candle_lighting'],
+            'כנסית שבת': shabbat_data['candle_lighting'],  # Colonne כנסית שבת déplacée ici
             'מנחה': self.format_time(times['mincha_kabbalat']),
             'שחרית': self.format_time(times['shacharit']),
             'מנחה גדולה': self.format_time(times['mincha_gdola']),
             'שיעור לנשים': self.format_time(times['nashim']),
-            'תהילים לילדים': self.format_time(times['tehilim']),  # Affichera "13:45/17:00"
+            'תהילים לילדים': self.format_time(times['tehilim']),
             'שיעור פרשת השבוע': self.format_time(times['parashat_hashavua']),
             'שיעור עם הרב': self.format_time(times['shiur_rav']),
             'מנחה 2': self.format_time(times['mincha_2']),
             'ערבית מוצ"ש': self.format_time(times['arvit']),
             'מוצאי שבת קודש': shabbat_data['end'].strftime('%H:%M'),
-            'שבת הבאה (Date)': next_shabbat_date if next_shabbat_date else "N/A",
-            'שבת הבאה (Heure)': next_shabbat_time if next_shabbat_time else "N/A"
+            'שבת הבאה (Date)': next_shabbat_date if next_shabbat_date else "N/A",  # Date du Shabbat suivant
+            'שבת הבאה (Heure)': next_shabbat_time if next_shabbat_time else "N/A"  # Heure du Shabbat suivant
         }
 
         try:
