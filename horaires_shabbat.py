@@ -134,11 +134,11 @@ class ShabbatScheduleGenerator:
             'parashat_hashavua': self.round_to_nearest_five(end_minutes - (3 * 60)),
             'tehilim': self.round_to_nearest_five(17 * 60),
             'nashim': self.round_to_nearest_five(16 * 60),
-            'shiur_rav': self.round_to_nearest_five(end_minutes - (2 * 60 + 15))
+            'shiur_rav': self.round_to_nearest_five(end_minutes - (2 * 60 + 25))
         }
         
         times['mincha_2'] = self.round_to_nearest_five(times['shiur_rav'] + 45)
-        times['arvit'] = self.round_to_nearest_five(end_minutes - 5)
+        times['arvit'] = self.round_to_nearest_five(end_minutes - 10)
         
         return times
 
