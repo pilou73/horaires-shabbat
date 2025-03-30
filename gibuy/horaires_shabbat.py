@@ -132,13 +132,13 @@ class ShabbatScheduleGenerator:
             'shacharit': self.round_to_nearest_five(7 * 60 + 45),
             'mincha_gdola': self.round_to_nearest_five(13 * 60),
             'parashat_hashavua': self.round_to_nearest_five(end_minutes - (3 * 60)),
-            'tehilim': self.round_to_nearest_five(16 * 60),
+            'tehilim': self.round_to_nearest_five(17 * 60),
             'nashim': self.round_to_nearest_five(16 * 60),
-            'shiur_rav': self.round_to_nearest_five(end_minutes - (2 * 60 + 15))
+            'shiur_rav': self.round_to_nearest_five(end_minutes - (2 * 60 + 25))
         }
         
         times['mincha_2'] = self.round_to_nearest_five(times['shiur_rav'] + 45)
-        times['arvit'] = self.round_to_nearest_five(end_minutes - 5)
+        times['arvit'] = self.round_to_nearest_five(end_minutes - 10)
         
         return times
 
@@ -211,21 +211,22 @@ class ShabbatScheduleGenerator:
                     (time_x, 790, 'arvit')
                 ]
 
-                # Écrire les horaires sans les noms des activités
-                for x, y, time_key in time_positions:
-                    formatted_time = self.format_time(times[time_key])
-                    draw.text((x, y), formatted_time, fill="black", font=font)
-
-                # Ajouter l'heure de fin de Shabbat en face de "מוצאי שבת קודש"
-                end_time_str = shabbat_end.strftime('%H:%M')
-                draw.text((time_x, 830), end_time_str, fill="black", font=font)
 
                 # Ajouter le nom de la Parasha en hébreu dans le carré en haut à gauche
                 #parasha_hebrew_reversed = self.reverse_hebrew_text(parasha_hebrew)  # Inverser le texte           
                 draw.text((300, 280), parasha_hebrew, fill="blue", font=self._arial_bold_font, anchor="mm")
 
+                # Écrire les horaires sans les noms des activités
+                for x, y, time_key in time_positions:
+                    formatted_time = self.format_time(times[time_key])
+                    draw.text((x, y), formatted_time, fill="black", font=font)
+
                 # Ajouter l'heure de כניסת שבת en haut
                 draw.text((time_x, 440), candle_lighting, fill="black", font=font)
+
+                # Ajouter l'heure de fin de Shabbat en face de "מוצאי שבת קודש"
+                end_time_str = shabbat_end.strftime('%H:%M')
+                draw.text((time_x, 830), end_time_str, fill="black", font=font)
 
                 # Récupérer l'heure de מנחה (en bas de la page, sous ראשון-חמישי)
                 mincha_time = times['mincha_kabbalat']
@@ -237,7 +238,7 @@ class ShabbatScheduleGenerator:
                     draw.text((time_x, 950), next_shabbat_time[1], fill="green", font=font)  # Coordonnées ajustées
 
                 # Calculer l'heure de ערבית
-                arvit_time = self.round_to_nearest_five(mincha_time + 45)
+                arvit_time = self.round_to_nearest_five(mincha_time + 40)
                 arvit_str = self.format_time(arvit_time)
 
                 # Ajouter l'heure de ערבית en face du mot ערבית

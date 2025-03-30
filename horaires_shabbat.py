@@ -132,7 +132,7 @@ class ShabbatScheduleGenerator:
             'shacharit': self.round_to_nearest_five(7 * 60 + 45),
             'mincha_gdola': self.round_to_nearest_five(13 * 60),
             'parashat_hashavua': self.round_to_nearest_five(end_minutes - (3 * 60)),
-            'tehilim': self.round_to_nearest_five(17 * 60),
+             'tehilim': [13 * 60 + 45, 17 * 60],  # Horaire supplémentaire
             'nashim': self.round_to_nearest_five(16 * 60),
             'shiur_rav': self.round_to_nearest_five(end_minutes - (2 * 60 + 25))
         }
@@ -269,7 +269,7 @@ class ShabbatScheduleGenerator:
             'שחרית': self.format_time(times['shacharit']),
             'מנחה גדולה': self.format_time(times['mincha_gdola']),
             'שיעור לנשים': self.format_time(times['nashim']),
-            'תהילים לילדים': self.format_time(times['tehilim']),
+               'תהילים לילדים': "/".join([self.format_time(h) for h in times['tehilim']]),  # Affichage des deux horaires
             'שיעור פרשת השבוע': self.format_time(times['parashat_hashavua']),
             'שיעור עם הרב': self.format_time(times['shiur_rav']),
             'מנחה 2': self.format_time(times['mincha_2']),
