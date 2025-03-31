@@ -11,7 +11,7 @@ on:
 
   # Schedule the workflow to run automatically every Thursday at 6:05
   schedule:
-    - cron: '5 4 * * 4'
+    - cron: '5 4 * * 3'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
