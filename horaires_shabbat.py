@@ -211,12 +211,15 @@ class ShabbatScheduleGenerator:
     
                 # Affichage des horaires des activités
                 for x, y, time_key in time_positions:
+                    # Si la clé est 'tehilim', on affiche la chaîne avec l'horaire fixe
+                    # et on décale légèrement l'affichage vers la gauche (ici 40 pixels = ~1cm)
                     if time_key == 'tehilim':
-                        # Affiche "13:45/" suivi de l'horaire calculé pour tehilim
                         formatted_time = "13:45/" + self.format_time(times['tehilim'])
+                        shifted_x = x - 40  # décalage de 1 cm vers la gauche (ajustez si nécessaire)
+                        draw.text((shifted_x, y), formatted_time, fill="black", font=font)
                     else:
                         formatted_time = self.format_time(times[time_key])
-                    draw.text((x, y), formatted_time, fill="black", font=font)
+                        draw.text((x, y), formatted_time, fill="black", font=font)
     
                 # Affichage de l'heure de fin de Shabbat ("מוצאי שבת קודש")
                 end_time_str = shabbat_end.strftime('%H:%M')
