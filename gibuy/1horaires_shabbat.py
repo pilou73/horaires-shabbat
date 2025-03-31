@@ -60,17 +60,17 @@ class ShabbatScheduleGenerator:
             {'day': '2025-05-23 00:00:00', 'פרשה': 'Behar-Bechukotai', 'כנסית שבת': '19:18', 'צאת שבת': '20:19'},
             {'day': '2025-05-30 00:00:00', 'פרשה': 'Bamidbar', 'כנסית שבת': '19:23', 'צאת שבת': '20:23'},
             {'day': '2025-06-06 00:00:00', 'פרשה': 'Nasso', 'כנסית שבת': '19:26', 'צאת שבת': '20:28'},
-            {'day': '2025-06-13 00:00:00', 'פרשה': 'Beha'alotcha', 'כנסית שבת': '19:29', 'צאת שבת': '20:31'},
-            {'day': '2025-06-20 00:00:00', 'פרשה': 'Sh'lach', 'כנסית שבת': '19:32', 'צאת שבת': '20:33'},
+            {'day': '2025-06-13 00:00:00', 'פרשה': 'Beha’alotcha', 'כנסית שבת': '19:29', 'צאת שבת': '20:31'},
+            {'day': '2025-06-20 00:00:00', 'פרשה': 'Sh’lach', 'כנסית שבת': '19:32', 'צאת שבת': '20:33'},
             {'day': '2025-06-27 00:00:00', 'פרשה': 'Korach', 'כנסית שבת': '19:33', 'צאת שבת': '20:33'},
-            {'day': '2025-07-04 00:00:00', 'פرשה': 'Chukat', 'כנסית שבת': '19:32', 'צאת שבת': '20:33'},
+            {'day': '2025-07-04 00:00:00', 'פרשה': 'Chukat', 'כנסית שבת': '19:32', 'צאת שבת': '20:33'},
             {'day': '2025-07-11 00:00:00', 'פרשה': 'Balak', 'כנסית שבת': '19:31', 'צאת שבת': '20:31'},
             {'day': '2025-07-18 00:00:00', 'פרשה': 'Pinchas', 'כנסית שבת': '19:28', 'צאת שבת': '20:27'},
             {'day': '2025-07-25 00:00:00', 'פרשה': 'Matot-Masei', 'כנסית שבת': '19:24', 'צאת שבת': '20:23'},
             {'day': '2025-08-01 00:00:00', 'פרשה': 'Devarim', 'כנסית שבת': '19:19', 'צאת שבת': '20:17'},
             {'day': '2025-08-08 00:00:00', 'פרשה': 'Vaetchanan', 'כנסית שבת': '19:13', 'צאת שבת': '20:10'},
             {'day': '2025-08-15 00:00:00', 'פרשה': 'Eikev', 'כנסית שבת': '19:06', 'צאת שבת': '20:02'},
-            {'day': '2025-08-22 00:00:00', 'פרשה': 'Re'eh', 'כנסית שבת': '18:59', 'צאת שבת': '19:54'},
+            {'day': '2025-08-22 00:00:00', 'פרשה': 'Re’eh', 'כנסית שבת': '18:59', 'צאת שבת': '19:54'},
             {'day': '2025-08-29 00:00:00', 'פרשה': 'Shoftim', 'כנסית שבת': '18:50', 'צאת שבת': '19:45'},
             {'day': '2025-09-05 00:00:00', 'פרשה': 'Ki Teitzei', 'כנסית שבת': '18:41', 'צאת שבת': '19:35'},
             {'day': '2025-09-12 00:00:00', 'פרשה': 'Ki Tavo', 'כנסית שבת': '18:32', 'צאת שבת': '19:26'},
@@ -101,15 +101,11 @@ class ShabbatScheduleGenerator:
                     start_time = datetime.fromisoformat(item['date']).astimezone(tz)
                     havdalah_items = [i for i in data['items'] if i['category'] == 'havdalah']
                     parasha_items = [i for i in data['items'] if i['category'] == 'parashat']
-                    sunset_items = [i for i in data['items'] if i['category'] == 'sunset']
                     
                     if havdalah_items and parasha_items:
                         end_time = datetime.fromisoformat(havdalah_items[0]['date']).astimezone(tz)
                         parasha = parasha_items[0]['title'].replace('Parashat ', '')
                         parasha_hebrew = parasha_items[0].get('hebrew', parasha)  # Récupérer le nom en hébreu
-                        
-                        # Récupérer l'heure du coucher du soleil
-                        sunset_time = sunset_items[0]['date'] if sunset_items else None
                         
                         shabbat_times.append({
                             'date': start_time.date(),
@@ -117,8 +113,7 @@ class ShabbatScheduleGenerator:
                             'end': end_time,
                             'parasha': parasha,
                             'parasha_hebrew': parasha_hebrew,
-                            'candle_lighting': start_time.strftime('%H:%M'),
-                            'sunset': sunset_time
+                            'candle_lighting': start_time.strftime('%H:%M')  # Ajout de l'heure d'allumage des bougies
                         })
             
             return shabbat_times
@@ -131,34 +126,30 @@ class ShabbatScheduleGenerator:
         start_minutes = shabbat_start.hour * 60 + shabbat_start.minute
         end_minutes = shabbat_end.hour * 60 + shabbat_end.minute
         
-        # Calcul de l'heure d'arvit avec un écart d'au moins 9 minutes et en minutes multiples de 5
-        arvit_minutes = self.round_to_nearest_five(end_minutes + 9)
-        
-        # Calcul du cours du rav et de minha 2
-        shiur_rav_minutes = arvit_minutes - 45
-        mincha_2_minutes = arvit_minutes - 90
-        
         times = {
             'mincha_kabbalat': start_minutes,  # Pas d'arrondi pour מנחה et קבלת שבת
             'shir_hashirim': self.round_to_nearest_five(start_minutes - 15),
             'shacharit': self.round_to_nearest_five(7 * 60 + 45),
             'mincha_gdola': self.round_to_nearest_five(13 * 60),
             'parashat_hashavua': self.round_to_nearest_five(end_minutes - (3 * 60)),
-            'tehilim': f"13:45/17:00",  # Nouvel horaire de tehilim
+            'tehilim': self.round_to_nearest_five(17 * 60),
             'nashim': self.round_to_nearest_five(16 * 60),
-            'shiur_rav': shiur_rav_minutes,
-            'mincha_2': mincha_2_minutes,
-            'arvit': arvit_minutes
+            'shiur_rav': self.round_to_nearest_five(end_minutes - (2 * 60 + 25))
         }
+        
+        times['mincha_2'] = self.round_to_nearest_five(times['shiur_rav'] + 45)
+        times['arvit'] = self.round_to_nearest_five(end_minutes - 10)
         
         return times
 
     def format_time(self, minutes):
-        if isinstance(minutes, str):  # Pour gérer le cas spécial de tehilim
-            return minutes
         hours = minutes // 60
         mins = minutes % 60
         return f"{hours:02d}:{mins:02d}"
+
+    #def reverse_hebrew_text(self, text):
+        # Inverser le texte en hébreu pour un affichage correct
+        #return text[::-1]
 
     def round_to_nearest_five(self, minutes):
         # Arrondir les minutes au multiple de 5 le plus proche
@@ -180,8 +171,6 @@ class ShabbatScheduleGenerator:
                     shabbat_entry_time = shabbat['כנסית שבת']
                     hours, minutes = map(int, shabbat_entry_time.split(':'))
                     total_minutes = hours * 60 + minutes
-                    
-                    # Arrondir vers le bas pour obtenir un multiple de 5
                     mincha_weekday_minutes = total_minutes - (total_minutes % 5)
                     mincha_hours = mincha_weekday_minutes // 60
                     mincha_mins = mincha_weekday_minutes % 60
@@ -222,20 +211,22 @@ class ShabbatScheduleGenerator:
                     (time_x, 790, 'arvit')
                 ]
 
+
+                # Ajouter le nom de la Parasha en hébreu dans le carré en haut à gauche
+                #parasha_hebrew_reversed = self.reverse_hebrew_text(parasha_hebrew)  # Inverser le texte           
+                draw.text((300, 280), parasha_hebrew, fill="blue", font=self._arial_bold_font, anchor="mm")
+
                 # Écrire les horaires sans les noms des activités
                 for x, y, time_key in time_positions:
                     formatted_time = self.format_time(times[time_key])
                     draw.text((x, y), formatted_time, fill="black", font=font)
 
+                # Ajouter l'heure de כניסת שבת en haut
+                draw.text((time_x, 440), candle_lighting, fill="black", font=font)
+
                 # Ajouter l'heure de fin de Shabbat en face de "מוצאי שבת קודש"
                 end_time_str = shabbat_end.strftime('%H:%M')
                 draw.text((time_x, 830), end_time_str, fill="black", font=font)
-
-                # Ajouter le nom de la Parasha en hébreu dans le carré en haut à gauche
-                draw.text((300, 280), parasha_hebrew, fill="blue", font=self._arial_bold_font, anchor="mm")
-
-                # Ajouter l'heure de כניסת שבת en haut
-                draw.text((time_x, 440), candle_lighting, fill="black", font=font)
 
                 # Récupérer l'heure de מנחה (en bas de la page, sous ראשון-חמישי)
                 mincha_time = times['mincha_kabbalat']
@@ -247,7 +238,7 @@ class ShabbatScheduleGenerator:
                     draw.text((time_x, 950), next_shabbat_time[1], fill="green", font=font)  # Coordonnées ajustées
 
                 # Calculer l'heure de ערבית
-                arvit_time = times['arvit']
+                arvit_time = self.round_to_nearest_five(mincha_time + 40)
                 arvit_str = self.format_time(arvit_time)
 
                 # Ajouter l'heure de ערבית en face du mot ערבית
@@ -278,7 +269,7 @@ class ShabbatScheduleGenerator:
             'שחרית': self.format_time(times['shacharit']),
             'מנחה גדולה': self.format_time(times['mincha_gdola']),
             'שיעור לנשים': self.format_time(times['nashim']),
-            'תהילים לילדים': '13:45/17:00',  # Nouvel horaire de tehilim
+            'תהילים לילדים': self.format_time(times['tehilim']),
             'שיעור פרשת השבוע': self.format_time(times['parashat_hashavua']),
             'שיעור עם הרב': self.format_time(times['shiur_rav']),
             'מנחה 2': self.format_time(times['mincha_2']),
@@ -296,9 +287,8 @@ class ShabbatScheduleGenerator:
                     df = pd.DataFrame([row])
                     df.to_excel(writer, sheet_name='Sheet1', index=False, startrow=writer.sheets['Sheet1'].max_row)
                     
-                    # Recréer l'onglet שבתות השנה à partir des données intégrées avec une colonne שקיעה
-                    weekly_data = [dict(d, שקיעה=self.get_sunset_time(d)) for d in self.yearly_shabbat_data]
-                    yearly_df = pd.DataFrame(weekly_data)
+                    # Recréer l'onglet שבתות השנה à partir des données intégrées
+                    yearly_df = pd.DataFrame(self.yearly_shabbat_data)
                     yearly_df.to_excel(writer, sheet_name='שבתות השנה', index=False)
             else:
                 # Créer un nouveau fichier Excel avec les deux onglets
@@ -306,29 +296,12 @@ class ShabbatScheduleGenerator:
                     df = pd.DataFrame([row])
                     df.to_excel(writer, sheet_name='Sheet1', index=False)
                     
-                    # Recréer l'onglet שבתות השנה à partir des données intégrées avec une colonne שקיעה
-                    weekly_data = [dict(d, שקיעה=self.get_sunset_time(d)) for d in self.yearly_shabbat_data]
-                    yearly_df = pd.DataFrame(weekly_data)
+                    yearly_df = pd.DataFrame(self.yearly_shabbat_data)
                     yearly_df.to_excel(writer, sheet_name='שבתות השנה', index=False)
             
             print(f"Excel mis à jour: {excel_path}")
         except Exception as e:
             print(f"Erreur lors de la mise à jour de l'Excel: {e}")
-
-    def get_sunset_time(self, shabbat_entry):
-        tz = pytz.timezone('Asia/Jerusalem')
-        shabbat_date = datetime.strptime(shabbat_entry['day'], '%Y-%m-%d %H:%M:%S')
-        
-        # Vérifier si une heure de שקיעה est déjà définie
-        if 'sunset' in shabbat_entry:
-            return shabbat_entry['sunset']
-        
-        # Récupérer l'heure de צאת שבת si disponible
-        if shabbat_entry['צאת שבת']:
-            return shabbat_entry['צאת שבת']
-        
-        # Si aucune heure n'est disponible
-        return "N/A"
 
     def generate(self):
         current_date = datetime.now()

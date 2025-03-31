@@ -182,6 +182,8 @@ class ShabbatScheduleGenerator:
             print(f"Erreur lors de la récupération du Shabbat suivant: {e}")
             return None, None
     
+    # ... (Keep the existing code unchanged until the create_image method)
+
     def create_image(self, times, parasha, parasha_hebrew, shabbat_end, candle_lighting, shabbat_date):
         try:
             print("Ouverture du template...")
@@ -193,7 +195,7 @@ class ShabbatScheduleGenerator:
                 print("Template ouvert avec succès.")
                 draw = ImageDraw.Draw(img)
                 font = ImageFont.truetype(str(self.font_path), 30)
-    
+
                 # Coordonnées pour l'affichage des horaires
                 time_x = 120
                 time_positions = [
@@ -208,65 +210,77 @@ class ShabbatScheduleGenerator:
                     (time_x, 750, 'mincha_2'),
                     (time_x, 790, 'arvit')
                 ]
-    
+
                 # Affichage des horaires des activités
                 for x, y, time_key in time_positions:
                     formatted_time = self.format_time(times[time_key])
                     draw.text((x, y), formatted_time, fill="black", font=font)
-    
+
                 # Affichage de l'heure de fin de Shabbat ("מוצאי שבת קודש")
                 end_time_str = shabbat_end.strftime('%H:%M')
                 draw.text((time_x, 830), end_time_str, fill="black", font=font)
-    
+
                 # Affichage du nom de la Parasha en hébreu dans le carré en haut à gauche
                 draw.text((300, 280), parasha_hebrew, fill="blue", font=self._arial_bold_font, anchor="mm")
-    
+
                 # Affichage de l'heure de כניסת שבת en haut
                 draw.text((time_x, 440), candle_lighting, fill="black", font=font)
-    
-                # Calcul et affichage de "מנחה ביניים"
-                # Pour ce calcul, on part du dimanche correspondant à la date de la bougie (shabbat_date + 2 jours)
+
+                # Calcul et affichage de "מנחה ביניים" et "ערבית"
+                minha_beynayim = ""
+                arvit_str = ""
                 sunday_date = shabbat_date + timedelta(days=2)
-                s_sunday = sun(self.ramat_gan.observer, date=sunday_date, tzinfo=self.ramat_gan.timezone)
-                sunday_sunset = s_sunday['sunset'].strftime("%H:%M")
-    
-                # Calcul du jeudi suivant (dimanche +4 jours)
                 thursday_date = sunday_date + timedelta(days=4)
-                s_thursday = sun(self.ramat_gan.observer, date=thursday_date, tzinfo=self.ramat_gan.timezone)
-                thursday_sunset = s_thursday['sunset'].strftime("%H:%M")
-    
-                def to_minutes(t):
-                    h, m = map(int, t.split(':'))
-                    return h * 60 + m
-    
-                if sunday_sunset and thursday_sunset:
-                    base = min(to_minutes(sunday_sunset), to_minutes(thursday_sunset)) - 20
-                    if base < 0:
-                        minha_beynayim = ""
-                    else:
-                        minha_beynayim_minutes = (base // 5) * 5
+                
+                try:
+                    s_sunday = sun(self.ramat_gan.observer, date=sunday_date, tzinfo=self.ramat_gan.timezone)
+                    sunday_sunset = s_sunday['sunset']
+                    s_thursday = sun(self.ramat_gan.observer, date=thursday_date, tzinfo=self.ramat_gan.timezone)
+                    thursday_sunset = s_thursday['sunset']
+
+                    def time_to_minutes(t):
+                        return t.hour * 60 + t.minute
+
+                    sunset_sun_min = time_to_minutes(sunday_sunset)
+                    sunset_thu_min = time_to_minutes(thursday_sunset)
+                    earliest_sunset_min = min(sunset_sun_min, sunset_thu_min)
+
+                    # Calcul de מנחה ביניים
+                    base = earliest_sunset_min - 20
+                    if base >= 0:
+                        minha_beynayim_minutes = self.round_to_nearest_five(base)
                         minha_beynayim = f"{minha_beynayim_minutes//60:02d}:{minha_beynayim_minutes%60:02d}"
-                else:
-                    minha_beynayim = ""
-    
-                # Affichage de "מנחה ביניים" à la position (time_x, 950)
+                    else:
+                        minha_beynayim = ""
+
+                    # Calcul de ערבית
+                    if base >= 0:
+                        arvit_candidate = self.round_to_nearest_five(earliest_sunset_min + 25)
+                        mincha_plus_40 = minha_beynayim_minutes + 40
+                        mincha_plus_45 = minha_beynayim_minutes + 45
+
+                        arvit_time = max(arvit_candidate, mincha_plus_40)
+                        if arvit_time > mincha_plus_45:
+                            arvit_time = mincha_plus_45
+                        arvit_time = self.round_to_nearest_five(arvit_time)
+                        arvit_str = self.format_time(arvit_time)
+                except Exception as e:
+                    print(f"Erreur dans le calcul des horaires: {e}")
+
                 draw.text((time_x, 950), minha_beynayim, fill="green", font=font)
-    
-                # Calcul et affichage de l'heure de ערבית
-                arvit_time = self.round_to_nearest_five(times['mincha_kabbalat'] + 45)
-                arvit_str = self.format_time(arvit_time)
                 draw.text((time_x, 990), arvit_str, fill="green", font=font)
-    
+
                 output_path = self.output_dir / f"horaires_{parasha}.jpeg"
                 print(f"Chemin de sortie de l'image : {output_path}")
                 img.save(str(output_path))
                 print("Image sauvegardée avec succès")
                 return output_path
-    
+
         except Exception as e:
             print(f"Erreur lors de la création de l'image: {e}")
             return None
-    
+
+# ... (Keep the rest of the existing code unchanged)
     def update_excel(self, shabbat_data, times):
         excel_path = self.output_dir / "horaires_shabbat.xlsx"
         
