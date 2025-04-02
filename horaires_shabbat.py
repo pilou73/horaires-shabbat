@@ -137,7 +137,7 @@ class ShabbatScheduleGenerator:
             'shacharit': self.round_to_nearest_five(7 * 60 + 45),
             'mincha_gdola': self.round_to_nearest_five(13 * 60),
             'parashat_hashavua': self.round_to_nearest_five(end_minutes - (3 * 60)),
-            'tehilim': self.round_to_nearest_five(17 * 60),
+            'tehilim': self.round_to_nearest_five(13 * 60+45),
             'nashim': self.round_to_nearest_five(16 * 60),
             'shiur_rav': self.round_to_nearest_five(end_minutes - (2 * 60 + 25))
         }
@@ -214,7 +214,7 @@ class ShabbatScheduleGenerator:
                     # Si la clé est 'tehilim', on affiche la chaîne avec l'horaire fixe
                     # et on décale légèrement l'affichage vers la gauche (ici 40 pixels = ~1cm)
                     if time_key == 'tehilim':
-                        formatted_time = "13:45/" + self.format_time(times['tehilim'])
+                        formatted_time = "17:00/" + self.format_time(times['tehilim'])
                         shifted_x = x - 40  # décalage de 1 cm vers la gauche (ajustez si nécessaire)
                         draw.text((shifted_x, y), formatted_time, fill="black", font=font)
                     else:
