@@ -210,7 +210,7 @@ class ShabbatScheduleGenerator:
                     (time_x, 670, 'parashat_hashavua'),
                     (time_x, 710, 'shiur_rav'),
                     (time_x, 750, 'mincha_2'),
-                    (time_x, 780, 'arvit')
+                    (time_x, 790, 'arvit')
                 ]
     
                 # Affichage des horaires des activités
