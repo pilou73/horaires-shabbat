@@ -84,7 +84,7 @@ class ShabbatScheduleGenerator:
     
     def reverse_hebrew_text(self, text):
         # Inverser le texte en hébreu pour un affichage correct
-        return text[::-1]
+        return text[::1]
     
     def get_hebcal_times(self, start_date, end_date):
         tz = pytz.timezone('Asia/Jerusalem')
