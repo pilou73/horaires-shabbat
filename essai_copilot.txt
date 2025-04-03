@@ -248,10 +248,10 @@ class ShabbatScheduleGenerator:
                     (time_x, 475, 'mincha_kabbalat'),
                     (time_x, 510, 'shacharit'),
                     (time_x, 550, 'mincha_gdola'),
-                    (time_x, 590, 'parashat_hashavua'),
-                    (time_x, 630, 'tehilim'),  # Pour tehilim : affichage conditionnel
-                    (time_x, 670, 'shiur_rav'),
-                    (time_x, 710, 'shiur_nashim'),
+                    (time_x, 590, 'tehilim'),  # Pour tehilim : affichage conditionnel
+                    (time_x, 630, 'shiur_nashim'),
+                    (time_x, 670, 'parashat_hashavua'),
+                    (time_x, 710, 'shiur_rav'),
                     (time_x, 750, 'mincha_2'),
                     (time_x, 790, 'arvit')
                 ]

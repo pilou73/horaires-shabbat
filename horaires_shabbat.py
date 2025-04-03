@@ -82,6 +82,10 @@ class ShabbatScheduleGenerator:
             {'day': '2025-09-19 00:00:00', 'פרשה': 'Nitzavim', 'כנסית שבת': '18:23', 'צאת שבת': '19:16'},
         ]
     
+    def reverse_hebrew_text(self, text):
+        # Inverser le texte en hébreu pour un affichage correct
+        return text[::-1]
+    
     def get_hebcal_times(self, start_date, end_date):
         tz = pytz.timezone('Asia/Jerusalem')
         base_url = "https://www.hebcal.com/shabbat"
@@ -137,7 +141,7 @@ class ShabbatScheduleGenerator:
             'shacharit': self.round_to_nearest_five(7 * 60 + 45),
             'mincha_gdola': self.round_to_nearest_five(13 * 60),
             'parashat_hashavua': self.round_to_nearest_five(end_minutes - (3 * 60)),
-            'tehilim': self.round_to_nearest_five(13 * 60+45),
+            'tehilim': self.round_to_nearest_five(13 * 60 + 45),
             'nashim': self.round_to_nearest_five(16 * 60),
             'shiur_rav': self.round_to_nearest_five(end_minutes - (2 * 60 + 25))
         }
@@ -202,17 +206,15 @@ class ShabbatScheduleGenerator:
                     (time_x, 510, 'shacharit'),
                     (time_x, 550, 'mincha_gdola'),
                     (time_x, 590, 'tehilim'),  # Pour tehilim : affichage conditionnel
-                    (time_x, 630, 'shiur_nashim'),
+                    (time_x, 630, 'nashim'),
                     (time_x, 670, 'parashat_hashavua'),
                     (time_x, 710, 'shiur_rav'),
                     (time_x, 750, 'mincha_2'),
-                    (time_x, 790, 'arvit')
+                    (time_x, 780, 'arvit')
                 ]
     
                 # Affichage des horaires des activités
                 for x, y, time_key in time_positions:
-                    # Si la clé est 'tehilim', on affiche la chaîne avec l'horaire fixe
-                    # et on décale légèrement l'affichage vers la gauche (ici 40 pixels = ~1cm)
                     if time_key == 'tehilim':
                         formatted_time = "17:00/" + self.format_time(times['tehilim'])
                         shifted_x = x - 40  # décalage de 1 cm vers la gauche (ajustez si nécessaire)
@@ -225,19 +227,18 @@ class ShabbatScheduleGenerator:
                 end_time_str = shabbat_end.strftime('%H:%M')
                 draw.text((time_x, 830), end_time_str, fill="black", font=font)
     
-                # Affichage du nom de la Parasha en hébreu dans le carré en haut à gauche
-                draw.text((300, 280), parasha_hebrew, fill="blue", font=self._arial_bold_font, anchor="mm")
+                # Inverser le texte de la parasha pour un affichage correct et l'afficher dans le carré en haut à gauche
+                parasha_hebrew_reversed = self.reverse_hebrew_text(parasha_hebrew)
+                draw.text((300, 280), parasha_hebrew_reversed, fill="blue", font=self._arial_bold_font, anchor="mm")
     
                 # Affichage de l'heure de כניסת שבת en haut
                 draw.text((time_x, 440), candle_lighting, fill="black", font=font)
     
                 # Calcul et affichage de "מנחה ביניים"
-                # Pour ce calcul, on part du dimanche correspondant à la date de la bougie (shabbat_date + 2 jours)
                 sunday_date = shabbat_date + timedelta(days=2)
                 s_sunday = sun(self.ramat_gan.observer, date=sunday_date, tzinfo=self.ramat_gan.timezone)
                 sunday_sunset = s_sunday['sunset'].strftime("%H:%M")
     
-                # Calcul du jeudi suivant (dimanche +4 jours)
                 thursday_date = sunday_date + timedelta(days=4)
                 s_thursday = sun(self.ramat_gan.observer, date=thursday_date, tzinfo=self.ramat_gan.timezone)
                 thursday_sunset = s_thursday['sunset'].strftime("%H:%M")
@@ -256,7 +257,6 @@ class ShabbatScheduleGenerator:
                 else:
                     minha_beynayim = ""
     
-                # Affichage de "מנחה ביניים" à la position (time_x, 950)
                 draw.text((time_x, 950), minha_beynayim, fill="green", font=font)
     
                 # Calcul et affichage de l'heure de ערבית
