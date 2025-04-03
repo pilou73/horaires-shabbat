@@ -152,7 +152,7 @@ class ShabbatScheduleGenerator:
 
     def reverse_hebrew_text(self, text):
         """Inverse le texte hébreu pour un affichage correct (notamment sur GitHub)."""
-        return text[::-1]
+        return text[::1]
 
     def calculate_times(self, shabbat_start, shabbat_end):
         """
