@@ -16,7 +16,7 @@ class ShabbatScheduleGenerator:
         self.font_path = Path(font_path)
         self.arial_bold_path = Path(arial_bold_path)
         self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)  # Crée le dossier output s'il n'existe pas
+        self.output_dir.mkdir(parents=True, exist_ok=True)  # créer le dossier output s'il n'existe pas
 
         # Vérifie que les fichiers nécessaires existent
         if not self.template_path.exists():
@@ -41,48 +41,48 @@ class ShabbatScheduleGenerator:
 
         # Données intégrées pour l'onglet "שבתות השנה" (pour Excel)
         self.yearly_shabbat_data = [
-            {'day': '2024-12-06 00:00:00', 'פרשה': 'Vayetzei', 'כנסית שבת': '16:17', 'צאת שבת': '17:16'},
-            {'day': '2024-12-13 00:00:00', 'פרשה': 'Vayishlach', 'כנסית שבת': '16:19', 'צאת שבת': '17:17'},
-            {'day': '2024-12-20 00:00:00', 'פרשה': 'Vayeshev', 'כנסית שבת': '16:22', 'צאת שבת': '17:20'},
-            {'day': '2024-12-27 00:00:00', 'פרשה': 'Miketz', 'כנסית שבת': '16:25', 'צאת שבת': '17:24'},
-            {'day': '2025-01-03 00:00:00', 'פרשה': 'Vayigash', 'כנסית שבת': '16:30', 'צאת שבת': '17:29'},
-            {'day': '2025-01-10 00:00:00', 'פרשה': 'Vayechi', 'כנסית שבת': '16:36', 'צאת שבת': '17:35'},
-            {'day': '2025-01-17 00:00:00', 'פרשה': 'Shemot', 'כנסית שבת': '16:42', 'צאת שבת': '17:41'},
-            {'day': '2025-01-24 00:00:00', 'פרשה': 'Vaera', 'כנסית שבת': '16:49', 'צאת שבת': '17:47'},
-            {'day': '2025-01-31 00:00:00', 'פרשה': 'Bo', 'כנסית שבת': '16:55', 'צאת שבת': '17:53'},
-            {'day': '2025-02-07 00:00:00', 'פרשה': 'Beshalach', 'כנסית שבת': '17:02', 'צאת שבת': '17:58'},
-            {'day': '2025-02-14 00:00:00', 'פרשה': 'Yitro', 'כנסית שבת': '17:08', 'צאת שבת': '18:04'},
-            {'day': '2025-02-21 00:00:00', 'פרשה': 'Mishpatim', 'כנסית שבת': '17:14', 'צאת שבת': '18:10'},
-            {'day': '2025-02-28 00:00:00', 'פרשה': 'Terumah', 'כנסית שבת': '17:19', 'צאת שבת': '18:15'},
-            {'day': '2025-03-07 00:00:00', 'פרשה': 'Tetzaveh', 'כנסית שבת': '17:25', 'צאת שבת': '18:20'},
-            {'day': '2025-03-14 00:00:00', 'פרשה': 'Ki Tisa', 'כנסית שבת': '17:30', 'צאת שבת': '18:25'},
-            {'day': '2025-03-21 00:00:00', 'פרשה': 'Vayakhel', 'כנסית שבת': '17:34', 'צאת שבת': '18:30'},
-            {'day': '2025-03-28 00:00:00', 'פרשה': 'Pekudei', 'כנסית שבת': '18:39', 'צאת שבת': '19:35'},
-            {'day': '2025-04-04 00:00:00', 'פרשה': 'Vayikra', 'כנסית שבת': '18:44', 'צאת שבת': '19:40'},
-            {'day': '2025-04-11 00:00:00', 'פרשה': 'Tzav', 'כנסית שבת': '18:49', 'צאת שבת': '19:45'},
-            {'day': '2025-04-18 00:00:00', 'פרשה': 'Pesach', 'כנסית שבת': '18:54', 'צאת שבת': '19:51'},
-            {'day': '2025-04-25 00:00:00', 'פרשה': 'Shmini', 'כנסית שבת': '18:59', 'צאת שבת': '19:56'},
-            {'day': '2025-05-02 00:00:00', 'פרשה': 'Tazria-Metzora', 'כנסית שבת': '19:04', 'צאת שבת': '20:02'},
-            {'day': '2025-05-09 00:00:00', 'פרשה': 'Achrei Mot-Kedoshim', 'כנסית שבת': '19:09', 'צאת שבת': '20:08'},
-            {'day': '2025-05-16 00:00:00', 'פרשה': 'Emor', 'כנסית שבת': '19:14', 'צאת שבת': '20:13'},
-            {'day': '2025-05-23 00:00:00', 'פרשה': 'Behar-Bechukotai', 'כנסית שבת': '19:18', 'צאת שבת': '20:19'},
-            {'day': '2025-05-30 00:00:00', 'פרשה': 'Bamidbar', 'כנסית שבת': '19:23', 'צאת שבת': '20:23'},
-            {'day': '2025-06-06 00:00:00', 'פרשה': 'Nasso', 'כנסית שבת': '19:26', 'צאת שבת': '20:28'},
-            {'day': '2025-06-13 00:00:00', 'פרשה': 'Beha’alotcha', 'כנסית שבת': '19:29', 'צאת שבת': '20:31'},
-            {'day': '2025-06-20 00:00:00', 'פרשה': 'Sh’lach', 'כנסית שבת': '19:32', 'צאת שבת': '20:33'},
-            {'day': '2025-06-27 00:00:00', 'פרשה': 'Korach', 'כנסית שבת': '19:33', 'צאת שבת': '20:33'},
-            {'day': '2025-07-04 00:00:00', 'פרשה': 'Chukat', 'כנסית שבת': '19:32', 'צאת שבת': '20:33'},
-            {'day': '2025-07-11 00:00:00', 'פרשה': 'Balak', 'כנסית שבת': '19:31', 'צאת שבת': '20:31'},
-            {'day': '2025-07-18 00:00:00', 'פרשה': 'Pinchas', 'כנסית שבת': '19:28', 'צאת שבת': '20:27'},
-            {'day': '2025-07-25 00:00:00', 'פרשה': 'Matot-Masei', 'כנסית שבת': '19:24', 'צאת שבת': '20:23'},
-            {'day': '2025-08-01 00:00:00', 'פרשה': 'Devarim', 'כנסית שבת': '19:19', 'צאת שבת': '20:17'},
-            {'day': '2025-08-08 00:00:00', 'פרשה': 'Vaetchanan', 'כנסית שבת': '19:13', 'צאת שבת': '20:10'},
-            {'day': '2025-08-15 00:00:00', 'פרשה': 'Eikev', 'כנסית שבת': '19:06', 'צאת שבת': '20:02'},
-            {'day': '2025-08-22 00:00:00', 'פרשה': 'Re’eh', 'כנסית שבת': '18:59', 'צאת שבת': '19:54'},
-            {'day': '2025-08-29 00:00:00', 'פרשה': 'Shoftim', 'כנסית שבת': '18:50', 'צאת שבת': '19:45'},
-            {'day': '2025-09-05 00:00:00', 'פרשה': 'Ki Teitzei', 'כנסית שבת': '18:41', 'צאת שבת': '19:35'},
-            {'day': '2025-09-12 00:00:00', 'פרשה': 'Ki Tavo', 'כנסית שבת': '18:32', 'צאת שבת': '19:26'},
-            {'day': '2025-09-19 00:00:00', 'פרשה': 'Nitzavim', 'כנסית שבת': '18:23', 'צאת שבת': '19:16'},
+            {'day': '2024-12-06 00:00:00', 'פרשה': 'ויצא', 'כנסית שבת': '16:17', 'צאת שבת': '17:16'},
+            {'day': '2024-12-13 00:00:00', 'פרשה': 'וישלח', 'כנסית שבת': '16:19', 'צאת שבת': '17:17'},
+            {'day': '2024-12-20 00:00:00', 'פרשה': 'וישב', 'כנסית שבת': '16:22', 'צאת שבת': '17:20'},
+            {'day': '2024-12-27 00:00:00', 'פרשה': 'מקץ', 'כנסית שבת': '16:25', 'צאת שבת': '17:24'},
+            {'day': '2025-01-03 00:00:00', 'פרשה': 'ויגש', 'כנסית שבת': '16:30', 'צאת שבת': '17:29'},
+            {'day': '2025-01-10 00:00:00', 'פרשה': 'ויחי', 'כנסית שבת': '16:36', 'צאת שבת': '17:35'},
+            {'day': '2025-01-17 00:00:00', 'פרשה': 'שמות', 'כנסית שבת': '16:42', 'צאת שבת': '17:41'},
+            {'day': '2025-01-24 00:00:00', 'פרשה': 'וארא', 'כנסית שבת': '16:49', 'צאת שבת': '17:47'},
+            {'day': '2025-01-31 00:00:00', 'פרשה': 'בא', 'כנסית שבת': '16:55', 'צאת שבת': '17:53'},
+            {'day': '2025-02-07 00:00:00', 'פרשה': 'בשלח', 'כנסית שבת': '17:02', 'צאת שבת': '17:58'},
+            {'day': '2025-02-14 00:00:00', 'פרשה': 'יתרו', 'כנסית שבת': '17:08', 'צאת שבת': '18:04'},
+            {'day': '2025-02-21 00:00:00', 'פרשה': 'משפטים', 'כנסית שבת': '17:14', 'צאת שבת': '18:10'},
+            {'day': '2025-02-28 00:00:00', 'פרשה': 'תרומה', 'כנסית שבת': '17:19', 'צאת שבת': '18:15'},
+            {'day': '2025-03-07 00:00:00', 'פרשה': 'תצוה', 'כנסית שבת': '17:25', 'צאת שבת': '18:20'},
+            {'day': '2025-03-14 00:00:00', 'פרשה': 'כי-תשא', 'כנסית שבת': '17:30', 'צאת שבת': '18:25'},
+            {'day': '2025-03-21 00:00:00', 'פרשה': 'ויקהל', 'כנסית שבת': '17:34', 'צאת שבת': '18:30'},
+            {'day': '2025-03-28 00:00:00', 'פרשה': 'פקודי', 'כנסית שבת': '18:39', 'צאת שבת': '19:35'},
+            {'day': '2025-04-04 00:00:00', 'פרשה': 'ויקרא', 'כנסית שבת': '18:44', 'צאת שבת': '19:40'},
+            {'day': '2025-04-11 00:00:00', 'פרשה': 'צו', 'כנסית שבת': '18:49', 'צאת שבת': '19:45'},
+            {'day': '2025-04-18 00:00:00', 'פרשה': 'פסח', 'כנסית שבת': '18:54', 'צאת שבת': '19:51'},
+            {'day': '2025-04-25 00:00:00', 'פרשה': 'שמיני', 'כנסית שבת': '18:59', 'צאת שבת': '19:56'},
+            {'day': '2025-05-02 00:00:00', 'פרשה': 'תזריע-מצורע', 'כנסית שבת': '19:04', 'צאת שבת': '20:02'},
+            {'day': '2025-05-09 00:00:00', 'פרשה': 'אחרי-מות קדושים', 'כנסית שבת': '19:09', 'צאת שבת': '20:08'},
+            {'day': '2025-05-16 00:00:00', 'פרשה': 'אמור', 'כנסית שבת': '19:14', 'צאת שבת': '20:13'},
+            {'day': '2025-05-23 00:00:00', 'פרשה': 'בהר-בחוקותי', 'כנסית שבת': '19:18', 'צאת שבת': '20:19'},
+            {'day': '2025-05-30 00:00:00', 'פרשה': 'במדבר', 'כנסית שבת': '19:23', 'צאת שבת': '20:23'},
+            {'day': '2025-06-06 00:00:00', 'פרשה': 'נשא', 'כנסית שבת': '19:26', 'צאת שבת': '20:28'},
+            {'day': '2025-06-13 00:00:00', 'פרשה': 'בהעלותך', 'כנסית שבת': '19:29', 'צאת שבת': '20:31'},
+            {'day': '2025-06-20 00:00:00', 'פרשה': 'שלח', 'כנסית שבת': '19:32', 'צאת שבת': '20:33'},
+            {'day': '2025-06-27 00:00:00', 'פרשה': 'קרח', 'כנסית שבת': '19:33', 'צאת שבת': '20:33'},
+            {'day': '2025-07-04 00:00:00', 'פרשה': 'חוקת', 'כנסית שבת': '19:32', 'צאת שבת': '20:33'},
+            {'day': '2025-07-11 00:00:00', 'פרשה': 'בלק', 'כנסית שבת': '19:31', 'צאת שבת': '20:31'},
+            {'day': '2025-07-18 00:00:00', 'פרשה': 'פינחס', 'כנסית שבת': '19:28', 'צאת שבת': '20:27'},
+            {'day': '2025-07-25 00:00:00', 'פרשה': 'מטות-מסעי', 'כנסית שבת': '19:24', 'צאת שבת': '20:23'},
+            {'day': '2025-08-01 00:00:00', 'פרשה': 'דברים', 'כנסית שבת': '19:19', 'צאת שבת': '20:17'},
+            {'day': '2025-08-08 00:00:00', 'פרשה': 'ואתחנן', 'כנסית שבת': '19:13', 'צאת שבת': '20:10'},
+            {'day': '2025-08-15 00:00:00', 'פרשה': 'עקב', 'כנסית שבת': '19:06', 'צאת שבת': '20:02'},
+            {'day': '2025-08-22 00:00:00', 'פרשה': 'ראה', 'כנסית שבת': '18:59', 'צאת שבת': '19:54'},
+            {'day': '2025-08-29 00:00:00', 'פרשה': 'שופטים', 'כנסית שבת': '18:50', 'צאת שבת': '19:45'},
+            {'day': '2025-09-05 00:00:00', 'פרשה': 'כי-תצא', 'כנסית שבת': '18:41', 'צאת שבת': '19:35'},
+            {'day': '2025-09-12 00:00:00', 'פרשה': 'כי-תבוא', 'כנסית שבת': '18:32', 'צאת שבת': '19:26'},
+            {'day': '2025-09-19 00:00:00', 'פרשה': 'ניצבים', 'כנסית שבת': '18:23', 'צאת שבת': '19:16'},
         ]
 
     def determine_season(self):
@@ -101,7 +101,8 @@ class ShabbatScheduleGenerator:
     def get_hebcal_times(self, start_date, end_date):
         """
         Récupère via l'API Hebcal les horaires du Shabbat (candles et havdalah)
-        et retourne une liste d'événements comprenant le nom de la parasha, l'heure de fin, etc.
+        et retourne une liste d'événements comprenant le nom de la parasha et l'heure de fin.
+        Pour le nom, on tente de récupérer la version hébraïque via la clé "hebrew".
         """
         tz = pytz.timezone("Asia/Jerusalem")
         base_url = "https://www.hebcal.com/shabbat"
@@ -111,7 +112,8 @@ class ShabbatScheduleGenerator:
             "b": "18",
             "M": "on",
             "start": start_date.strftime("%Y-%m-%d"),
-            "end": end_date.strftime("%Y-%m-%d")
+            "end": end_date.strftime("%Y-%m-%d"),
+            "lg": "he"  # tentative : demander la langue hébraïque (si supporté par l'API)
         }
         try:
             response = requests.get(base_url, params=params)
@@ -126,7 +128,8 @@ class ShabbatScheduleGenerator:
                     if havdalah_items and parasha_items:
                         end_time = datetime.fromisoformat(havdalah_items[0]["date"]).astimezone(tz)
                         parasha = parasha_items[0]["title"].replace("Parashat ", "")
-                        parasha_hebrew = parasha_items[0].get("hebrew", parasha)
+                        # Tenter de récupérer le nom en hébreu via la clé "hebrew"
+                        parasha_hebrew = parasha_items[0].get("hebrew", "").strip()
                         shabbat_times.append({
                             "date": start_time.date(),
                             "start": start_time,
@@ -144,6 +147,7 @@ class ShabbatScheduleGenerator:
         """
         Tente de récupérer les horaires du Shabbat depuis le fichier Excel dans l'onglet "שבתות השנה".
         Si le fichier n'existe pas ou s'il y a une erreur, utilise les données internes self.yearly_shabbat_data.
+        Pour le nom de la parasha en hébreu, on tente d'abord de récupérer la colonne "פרשה_עברית".
         """
         excel_path = self.output_dir / "horaires_shabbat.xlsx"
         if excel_path.exists():
@@ -156,7 +160,6 @@ class ShabbatScheduleGenerator:
         else:
             print("Fichier Excel non trouvé, utilisation des données internes")
             df = pd.DataFrame(self.yearly_shabbat_data)
-        # Conversion de la colonne "day" au format date
         try:
             df["day"] = pd.to_datetime(df["day"], format="%Y-%m-%d %H:%M:%S").dt.date
         except Exception as e:
@@ -166,7 +169,6 @@ class ShabbatScheduleGenerator:
         df = df[df["day"] >= today_date].sort_values(by="day")
         if df.empty:
             return None
-        # Prend le premier Shabbat futur
         row = df.iloc[0]
         shabbat_date = datetime.combine(row["day"], datetime.min.time())
         try:
@@ -188,7 +190,7 @@ class ShabbatScheduleGenerator:
             "start": shabbat_start,
             "end": shabbat_end,
             "parasha": row.get("פרשה", ""),
-            "parasha_hebrew": row.get("פרשה", ""),
+            "parasha_hebrew": row.get("פרשה_עברית", row.get("פרשה", "")),
             "candle_lighting": row["כנסית שבת"]
         }]
 
@@ -203,8 +205,11 @@ class ShabbatScheduleGenerator:
         return f"{h:02d}:{m:02d}"
 
     def reverse_hebrew_text(self, text):
-        """Inverse le texte hébreu pour un affichage correct (notamment sur GitHub)."""
-        return text[::1]
+        """
+        Ici, on ne modifie pas le texte.
+        On le retourne tel quel, en supposant qu'il est déjà au bon format (en hébreu).
+        """
+        return text
 
     def calculate_times(self, shabbat_start, shabbat_end):
         """
@@ -297,15 +302,15 @@ class ShabbatScheduleGenerator:
                 end_time_str = shabbat_end.strftime("%H:%M")
                 draw.text((time_x, 830), end_time_str, fill="black", font=font)
 
-                # Inverser le texte de la parasha pour un affichage correct
+                # Affichage du nom de la parasha en haut (en bleu) à partir de la variable parasha_hebrew
                 reversed_parasha = self.reverse_hebrew_text(parasha_hebrew)
                 draw.text((300, 280), reversed_parasha, fill="blue", font=self._arial_bold_font, anchor="mm")
 
                 # Affichage de l'heure de כניסת שבת en haut (440px)
                 draw.text((time_x, 440), candle_lighting, fill="black", font=font)
 
-                # Calcul de "מנחה ביניים" : on utilise le coucher du soleil du dimanche et du jeudi, 
-                # on prend la plus tôt et on soustrait 20 minutes
+                # Calcul de "מנחה ביניים" : on utilise le coucher du soleil du dimanche et du jeudi,
+                # on prend la plus tôt et on soustrait 18 minutes, puis on arrondit au multiple de 5.
                 sunday_date = shabbat_date + timedelta(days=2)
                 s_sunday = sun(self.ramat_gan.observer, date=sunday_date, tzinfo=self.ramat_gan.timezone)
                 sunday_sunset = s_sunday["sunset"].strftime("%H:%M")
@@ -318,16 +323,16 @@ class ShabbatScheduleGenerator:
                     return h * 60 + m
 
                 if sunday_sunset and thursday_sunset:
-                    base_minha = min(to_minutes(sunday_sunset), to_minutes(thursday_sunset)) - 20
+                    base_minha = min(to_minutes(sunday_sunset), to_minutes(thursday_sunset)) - 18
                     minha_midweek = self.format_time(self.round_to_nearest_five(base_minha))
                 else:
                     minha_midweek = ""
                 draw.text((time_x, 950), minha_midweek, fill="green", font=font)
 
-                # Calcul de l'heure d'ערבית en milieu de semaine 
+                # Calcul de l'heure d'ערבית en milieu de semaine :
                 sunday_minutes = to_minutes(sunday_sunset) if sunday_sunset else 0
                 thursday_minutes = to_minutes(thursday_sunset) if thursday_sunset else 0
-                base_arvit = max(sunday_minutes, thursday_minutes) + 20
+                base_arvit = max(sunday_minutes, thursday_minutes) + 25
                 new_arvit_time = self.round_to_nearest_five(base_arvit)
                 new_arvit_str = self.format_time(new_arvit_time)
                 draw.text((time_x, 990), new_arvit_str, fill="green", font=font)
@@ -349,6 +354,7 @@ class ShabbatScheduleGenerator:
         row = {
             "תאריך": shabbat_data["date"].strftime("%d/%m/%Y"),
             "פרשה": shabbat_data["parasha"],
+            "API_parasha_hebrew": shabbat_data.get("parasha_hebrew", ""),  # nouvelle colonne avec la réponse API/fallback
             "שיר השירים": self.format_time(times["shir_hashirim"]),
             "כנסית שבת": shabbat_data["candle_lighting"],
             "מנחה": self.format_time(times["mincha_kabbalat"]),
@@ -383,7 +389,7 @@ class ShabbatScheduleGenerator:
                     h, m = map(int, t.split(":"))
                     return h * 60 + m
                 if sunday_sunset and thursday_sunset:
-                    base = min(to_minutes(sunday_sunset), to_minutes(thursday_sunset)) - 20
+                    base = min(to_minutes(sunday_sunset), to_minutes(thursday_sunset)) - 18
                     if base < 0:
                         minha_midweek = ""
                     else:
@@ -419,15 +425,30 @@ class ShabbatScheduleGenerator:
         current_date = datetime.now()
         end_date = current_date + timedelta(days=14)
         shabbat_times = self.get_hebcal_times(current_date, end_date)
-        if not shabbat_times:
+        # Si on a récupéré via l'API
+        if shabbat_times:
+            shabbat = shabbat_times[0]
+        else:
             print("Aucun horaire trouvé via l'API pour cette semaine.")
             print("Tentative de récupération depuis le fichier Excel...")
-            shabbat_times = self.get_shabbat_times_from_excel_file(current_date)
-            if not shabbat_times:
+            excel_result = self.get_shabbat_times_from_excel_file(current_date)
+            if not excel_result:
                 print("Aucun horaire trouvé pour cette semaine")
                 return
+            shabbat = excel_result[0]
 
-        shabbat = shabbat_times[0]
+        # Vérifie si le nom en hébreu obtenu via l'API (ou Excel) semble invalide.
+        # Ici, on considère qu'une valeur identique à la version anglaise signifie que l'API n'a pas renvoyé le nom en hébreu.
+        api_hebrew = shabbat.get("parasha_hebrew", "").strip()
+        if not api_hebrew or api_hebrew == shabbat.get("parasha", "").strip():
+            # Utilisation d'un fallback : lecture depuis Excel (si une colonne "פרשה_עברית" existe)
+            excel_result = self.get_shabbat_times_from_excel_file(current_date)
+            if excel_result and excel_result[0].get("parasha_hebrew", "").strip():
+                shabbat["parasha_hebrew"] = excel_result[0].get("parasha_hebrew", "").strip()
+                print("Nom de parasha en hébreu récupéré depuis Excel pour vérification.")
+            else:
+                print("Aucune version hébraïque trouvée ; on conserve la valeur API.")
+
         # Utilisation de calculate_times pour obtenir les horaires calculés
         times = self.calculate_times(shabbat['start'], shabbat['end'])
         image_path = self.create_image(
