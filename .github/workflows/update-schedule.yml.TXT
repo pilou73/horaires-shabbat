@@ -1,0 +1,84 @@
+name: Update Shabbat Schedule
+
+on:
+  schedule:
+    - cron: '0 4 * * 3'  # Tous les jeudis à 6:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-schedule:
+    runs-on: ubuntu-latest
+    steps:
+      # Étape 1 : Cloner le dépôt
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Étape 2 : Configurer Python
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      # Étape 3 : Installer les dépendances Python
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pillow pandas pytz openpyxl astral
+
+      # Étape 4 : Vérifier les fichiers locaux
+      - name: Inspect local resources
+        run: |
+          echo "Vérification des fichiers locaux..."
+          ls -lh resources/
+          file resources/template.jpg
+          file resources/mriamc_0.ttf
+          file resources/ARIALBD_0.TTF
+
+      # Étape 5 : Exécuter le script Python
+      - name: Run schedule generator
+        run: |
+          echo "Exécution du script Python..."
+          python horaires_shabbat.py
+          echo "Script exécuté avec succès."
+
+      # Étape 6 : Vérifier les fichiers générés
+      - name: Check generated files
+        run: |
+          echo "Diagnostic des fichiers générés :"
+          ls -R .
+          echo "Fichiers dans le dossier output :"
+          ls -l output || echo "Dossier output introuvable ou vide."
+
+      # Étape 7 : Copier le fichier le plus récent dans public/latest-schedule.jpg
+      - name: Copy latest schedule
+        run: |
+          echo "Préparation des fichiers pour publication..."
+          mkdir -p public
+          # Supprimer l'ancien fichier s'il existe
+          if [ -f public/latest-schedule.jpg ]; then
+            echo "Suppression de l'ancien fichier latest-schedule.jpg"
+            rm public/latest-schedule.jpg
+          fi
+          # Trouver et copier le fichier le plus récent
+          FILE_PATH=$(find output -type f -name "*.jpeg" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{print $2}')
+          if [ -n "$FILE_PATH" ]; then
+            echo "Fichier trouvé : $FILE_PATH"
+            cp "$FILE_PATH" "output/latest-schedule.jpg"
+            echo "Fichier renommé : output/latest-schedule.jpg"
+            cp "output/latest-schedule.jpg" public/latest-schedule.jpg
+            echo "Fichier copié dans public/latest-schedule.jpg"
+          else
+            echo "Erreur : Aucun fichier JPEG trouvé dans le dossier output."
+            exit 1
+          fi
+          cp index.html public/
+
+      # Étape 8 : Publier sur GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
