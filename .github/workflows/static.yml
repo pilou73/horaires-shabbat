@@ -9,7 +9,7 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-  # Schedule the workflow to run automatically every Thursday at 6:05
+  # Schedule the workflow to run automatically every mercredis at 4:05
   schedule:
     - cron: '5 4 * * 3'
 
