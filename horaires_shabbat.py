@@ -9,6 +9,9 @@ import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 from astral import LocationInfo
 from astral.sun import sun
+import unicodedata
+import re
+import shutil
 
 class ShabbatScheduleGenerator:
     def __init__(self, template_path, font_path, arial_bold_path, output_dir):
@@ -84,6 +87,22 @@ class ShabbatScheduleGenerator:
             {'day': '2025-09-12 00:00:00', 'פרשה': 'כי-תבוא', 'כנסית שבת': '18:32', 'צאת שבת': '19:26'},
             {'day': '2025-09-19 00:00:00', 'פרשה': 'ניצבים', 'כנסית שבת': '18:23', 'צאת שבת': '19:16'},
         ]
+
+    def sanitize_filename(self, value: str) -> str:
+        """
+        Transforme une chaîne en un slug ASCII-safe pour les noms de fichiers:
+        - Décompose les accents et supprime les caractères non-ASCII
+        - Ne conserve que lettres, chiffres et espaces
+        - Remplace les espaces par des underscores
+        """
+        # 1. Normalisation Unicode
+        nfkd = unicodedata.normalize('NFKD', value)
+        # 2. Encodage ASCII
+        ascii_str = nfkd.encode('ascii', 'ignore').decode('ascii')
+        # 3. Ne garder que alphanumériques et espaces
+        ascii_str = re.sub(r'[^\w\s-]', '', ascii_str).strip()
+        # 4. Remplacer les espaces par underscore
+        return re.sub(r'\s+', '_', ascii_str)
 
     def determine_season(self):
         """
@@ -337,15 +356,27 @@ class ShabbatScheduleGenerator:
                 new_arvit_str = self.format_time(new_arvit_time)
                 draw.text((time_x, 990), new_arvit_str, fill="green", font=font)
 
-                output_path = self.output_dir / f"horaires_{parasha}.jpeg"
+                # Génération du nom de fichier safe
+                safe_parasha = self.sanitize_filename(parasha)
+                output_filename = f"horaires_{safe_parasha}.jpeg"
+                output_path = self.output_dir / output_filename
                 print(f"Chemin de sortie de l'image : {output_path}")
                 img.save(str(output_path))
                 print("Image sauvegardée avec succès")
+
+                # Mise à jour du fichier latest-schedule.jpg
+                latest_path = self.output_dir / "latest-schedule.jpg"
+                if latest_path.exists():
+                    latest_path.unlink()
+                shutil.copy(str(output_path), str(latest_path))
+                print(f"Copie vers le fichier le plus récent : {latest_path}")
+
                 return output_path
 
         except Exception as e:
             print(f"Erreur lors de la création de l'image: {e}")
             return None
+
 
     def update_excel(self, shabbat_data, times):
         excel_path = self.output_dir / "horaires_shabbat.xlsx"
