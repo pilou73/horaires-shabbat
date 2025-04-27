@@ -242,7 +242,7 @@ class ShabbatScheduleGenerator:
             "shir_hashirim": self.round_to_nearest_five(start_minutes - 10),
             "shacharit": self.round_to_nearest_five(7 * 60 + 45),
             "mincha_gdola": self.round_to_nearest_five(12 * 60 + (30 if self.season == "winter" else 60)),
-            "tehilim": self.round_to_nearest_five(13 * 60 + 45),
+            "tehilim": self.round_to_nearest_five(14 * 60),
             "parashat_hashavua": self.round_to_nearest_five(end_minutes - 180),
             "arvit": self.round_to_nearest_five(end_minutes - (5 if self.season == "winter" else 10)),
             "mincha_2": None,
