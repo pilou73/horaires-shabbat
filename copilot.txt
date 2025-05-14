@@ -9,6 +9,9 @@ import pandas as pd
 from PIL import Image, ImageDraw, ImageFont
 from astral import LocationInfo
 from astral.sun import sun
+import unicodedata
+import re
+import shutil
 
 class ShabbatScheduleGenerator:
     def __init__(self, template_path, font_path, arial_bold_path, output_dir):
@@ -16,8 +19,7 @@ class ShabbatScheduleGenerator:
         self.font_path = Path(font_path)
         self.arial_bold_path = Path(arial_bold_path)
         self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)  # créer le dossier output s'il n'existe pas
-
+        self.output_dir.mkdir(parents=True, exist_ok=True)
         # Vérifie que les fichiers nécessaires existent
         if not self.template_path.exists():
             raise FileNotFoundError(f"Template introuvable: {self.template_path}")
@@ -25,20 +27,16 @@ class ShabbatScheduleGenerator:
             raise FileNotFoundError(f"Police introuvable: {self.font_path}")
         if not self.arial_bold_path.exists():
             raise FileNotFoundError(f"Police Arial Bold introuvable: {self.arial_bold_path}")
-
         try:
             # Charge les polices
             self._font = ImageFont.truetype(str(self.font_path), 30)
             self._arial_bold_font = ImageFont.truetype(str(self.arial_bold_path), 40)
         except Exception as e:
             raise Exception(f"Erreur de chargement de la police: {e}")
-
         # Détermination automatique de la saison (été ou hiver)
         self.season = self.determine_season()
-
         # Configuration de la localisation pour Ramat Gan, Israël (pour les calculs astronomiques)
         self.ramat_gan = LocationInfo("Ramat Gan", "Israel", "Asia/Jerusalem", 32.0680, 34.8248)
-
         # Données intégrées pour l'onglet "שבתות השנה" (pour Excel)
         self.yearly_shabbat_data = [
             {'day': '2024-12-06 00:00:00', 'פרשה': 'ויצא', 'כנסית שבת': '16:17', 'צאת שבת': '17:16'},
@@ -85,13 +83,13 @@ class ShabbatScheduleGenerator:
             {'day': '2025-09-19 00:00:00', 'פרשה': 'ניצבים', 'כנסית שבת': '18:23', 'צאת שבת': '19:16'},
         ]
 
+    def sanitize_filename(self, value: str) -> str:
+        nfkd = unicodedata.normalize('NFKD', value)
+        ascii_str = nfkd.encode('ascii', 'ignore').decode('ascii')
+        ascii_str = re.sub(r'[^\w\s-]', '', ascii_str).strip()
+        return re.sub(r'\s+', '_', ascii_str)
+
     def determine_season(self):
-        """
-        Détermine dynamiquement si nous sommes en heure d'été ou d'hiver en Israël.
-        Par défaut, l'heure d'été est appliquée du dernier vendredi de mars jusqu'au dernier dimanche d'octobre.
-        Pour tester en hiver, vous pouvez temporairement remplacer le contenu par :
-            return "winter"
-        """
         today = datetime.now()
         year = today.year
         start_summer = datetime(year, 3, 29)
@@ -99,13 +97,8 @@ class ShabbatScheduleGenerator:
         return "summer" if start_summer <= today <= end_summer else "winter"
 
     def get_hebcal_times(self, start_date, end_date):
-        """
-        Récupère via l'API Hebcal les horaires du Shabbat (candles et havdalah)
-        et retourne une liste d'événements comprenant le nom de la parasha et l'heure de fin.
-        Pour le nom, on tente de récupérer la version hébraïque via la clé "hebrew".
-        """
         tz = pytz.timezone("Asia/Jerusalem")
-        base_url = "https://www.hebcal.com/shabbat"
+        base_url = "https://www.hebcal.com/shabbat "
         params = {
             "cfg": "json",
             "geonameid": "293397",
@@ -113,7 +106,7 @@ class ShabbatScheduleGenerator:
             "M": "on",
             "start": start_date.strftime("%Y-%m-%d"),
             "end": end_date.strftime("%Y-%m-%d"),
-            "lg": "he"  # tentative : demander la langue hébraïque (si supporté par l'API)
+            "lg": "he"
         }
         try:
             response = requests.get(base_url, params=params)
@@ -128,7 +121,6 @@ class ShabbatScheduleGenerator:
                     if havdalah_items and parasha_items:
                         end_time = datetime.fromisoformat(havdalah_items[0]["date"]).astimezone(tz)
                         parasha = parasha_items[0]["title"].replace("Parashat ", "")
-                        # Tenter de récupérer le nom en hébreu via la clé "hebrew"
                         parasha_hebrew = parasha_items[0].get("hebrew", "").strip()
                         shabbat_times.append({
                             "date": start_time.date(),
@@ -144,11 +136,6 @@ class ShabbatScheduleGenerator:
             return []
 
     def get_shabbat_times_from_excel_file(self, current_date):
-        """
-        Tente de récupérer les horaires du Shabbat depuis le fichier Excel dans l'onglet "שבתות השנה".
-        Si le fichier n'existe pas ou s'il y a une erreur, utilise les données internes self.yearly_shabbat_data.
-        Pour le nom de la parasha en hébreu, on tente d'abord de récupérer la colonne "פרשה_עברית".
-        """
         excel_path = self.output_dir / "horaires_shabbat.xlsx"
         if excel_path.exists():
             try:
@@ -195,35 +182,25 @@ class ShabbatScheduleGenerator:
         }]
 
     def round_to_nearest_five(self, minutes):
-        """Arrondit les minutes à la baisse au multiple de 5."""
         return (minutes // 5) * 5
 
     def format_time(self, minutes):
-        """Transforme un total de minutes en chaîne au format HH:MM."""
         h = minutes // 60
         m = minutes % 60
         return f"{h:02d}:{m:02d}"
 
     def reverse_hebrew_text(self, text):
-        """
-        Ici, on ne modifie pas le texte.
-        On le retourne tel quel, en supposant qu'il est déjà au bon format (en hébreu).
-        """
         return text
 
     def calculate_times(self, shabbat_start, shabbat_end):
-        """
-        Calcule les horaires du Shabbat selon les règles définies.
-        """
         start_minutes = shabbat_start.hour * 60 + shabbat_start.minute
         end_minutes = shabbat_end.hour * 60 + shabbat_end.minute
-
         times = {
             "mincha_kabbalat": start_minutes,
             "shir_hashirim": self.round_to_nearest_five(start_minutes - 10),
             "shacharit": self.round_to_nearest_five(7 * 60 + 45),
             "mincha_gdola": self.round_to_nearest_five(12 * 60 + (30 if self.season == "winter" else 60)),
-            "tehilim": self.round_to_nearest_five(13 * 60 + 45),
+            "tehilim": self.round_to_nearest_five(14 * 60),
             "parashat_hashavua": self.round_to_nearest_five(end_minutes - 180),
             "arvit": self.round_to_nearest_five(end_minutes - (5 if self.season == "winter" else 10)),
             "mincha_2": None,
@@ -235,9 +212,6 @@ class ShabbatScheduleGenerator:
         return times
 
     def get_next_shabbat_time(self, current_shabbat_date):
-        """
-        Recherche, dans les données annuelles, la date et l'heure (arrondie) du prochain Shabbat.
-        """
         try:
             current_date = datetime(current_shabbat_date.year, current_shabbat_date.month, current_shabbat_date.day)
             change_time_date = datetime(2025, 3, 27)
@@ -259,20 +233,15 @@ class ShabbatScheduleGenerator:
             return None, None
 
     def create_image(self, times, parasha, parasha_hebrew, shabbat_end, candle_lighting, shabbat_date):
-        """
-        Crée l'image des horaires du Shabbat avec le design défini.
-        """
         try:
             print("Ouverture du template...")
             print(f"Chemin du template : {self.template_path}")
             print(f"Chemin de la police : {self.font_path}")
             print(f"Chemin de la police Arial Bold : {self.arial_bold_path}")
-
             with Image.open(self.template_path) as img:
                 print("Template ouvert avec succès.")
                 draw = ImageDraw.Draw(img)
                 font = ImageFont.truetype(str(self.font_path), 30)
-
                 time_x = 120
                 time_positions = [
                     (time_x, 400, 'shir_hashirim'),
@@ -297,31 +266,24 @@ class ShabbatScheduleGenerator:
                     else:
                         formatted_time = self.format_time(times[key])
                         draw.text((x, y), formatted_time, fill="black", font=font)
-
-                # Affichage de l'heure de fin du Shabbat ("מוצאי שבת קודש") à 830px
-                end_time_str = shabbat_end.strftime("%H:%M")
-                draw.text((time_x, 830), end_time_str, fill="black", font=font)
-
-                # Affichage du nom de la parasha en haut (en bleu) à partir de la variable parasha_hebrew
+                draw.text((time_x, 830), shabbat_end.strftime("%H:%M"), fill="black", font=font)
                 reversed_parasha = self.reverse_hebrew_text(parasha_hebrew)
                 draw.text((300, 280), reversed_parasha, fill="blue", font=self._arial_bold_font, anchor="mm")
-
-                # Affichage de l'heure de כניסת שבת en haut (440px)
                 draw.text((time_x, 440), candle_lighting, fill="black", font=font)
-
-                # Calcul de "מנחה ביניים" : on utilise le coucher du soleil du dimanche et du jeudi,
-                # on prend la plus tôt et on soustrait 18 minutes, puis on arrondit au multiple de 5.
                 sunday_date = shabbat_date + timedelta(days=2)
                 s_sunday = sun(self.ramat_gan.observer, date=sunday_date, tzinfo=self.ramat_gan.timezone)
                 sunday_sunset = s_sunday["sunset"].strftime("%H:%M")
+                sunday_dusk = s_sunday["dusk"].strftime("%H:%M")
                 thursday_date = sunday_date + timedelta(days=4)
                 s_thursday = sun(self.ramat_gan.observer, date=thursday_date, tzinfo=self.ramat_gan.timezone)
                 thursday_sunset = s_thursday["sunset"].strftime("%H:%M")
+                thursday_dusk = s_thursday["dusk"].strftime("%H:%M")
 
                 def to_minutes(t):
                     h, m = map(int, t.split(":"))
                     return h * 60 + m
 
+                # Calcul de Min'ha Bineyim (pas de changement)
                 if sunday_sunset and thursday_sunset:
                     base_minha = min(to_minutes(sunday_sunset), to_minutes(thursday_sunset)) - 18
                     minha_midweek = self.format_time(self.round_to_nearest_five(base_minha))
@@ -329,20 +291,27 @@ class ShabbatScheduleGenerator:
                     minha_midweek = ""
                 draw.text((time_x, 950), minha_midweek, fill="green", font=font)
 
-                # Calcul de l'heure d'ערבית en milieu de semaine :
-                sunday_minutes = to_minutes(sunday_sunset) if sunday_sunset else 0
-                thursday_minutes = to_minutes(thursday_sunset) if thursday_sunset else 0
-                base_arvit = max(sunday_minutes, thursday_minutes) + 25
-                new_arvit_time = self.round_to_nearest_five(base_arvit)
-                new_arvit_str = self.format_time(new_arvit_time)
+                # Calcul d'Arvit basé sur צאת הכוכבים
+                if sunday_dusk and thursday_dusk:
+                    base_arvit = min(to_minutes(sunday_dusk), to_minutes(thursday_dusk)) - 3
+                    new_arvit_time = self.round_to_nearest_five(base_arvit)
+                    new_arvit_str = self.format_time(new_arvit_time)
+                else:
+                    new_arvit_str = ""
                 draw.text((time_x, 990), new_arvit_str, fill="green", font=font)
 
-                output_path = self.output_dir / f"horaires_{parasha}.jpeg"
+                safe_parasha = self.sanitize_filename(parasha)
+                output_filename = f"horaires_{safe_parasha}.jpeg"
+                output_path = self.output_dir / output_filename
                 print(f"Chemin de sortie de l'image : {output_path}")
                 img.save(str(output_path))
                 print("Image sauvegardée avec succès")
+                latest_path = self.output_dir / "latest-schedule.jpg"
+                if latest_path.exists():
+                    latest_path.unlink()
+                shutil.copy(str(output_path), str(latest_path))
+                print(f"Copie vers le fichier le plus récent : {latest_path}")
                 return output_path
-
         except Exception as e:
             print(f"Erreur lors de la création de l'image: {e}")
             return None
@@ -350,11 +319,10 @@ class ShabbatScheduleGenerator:
     def update_excel(self, shabbat_data, times):
         excel_path = self.output_dir / "horaires_shabbat.xlsx"
         next_shabbat_date, next_shabbat_time = self.get_next_shabbat_time(shabbat_data["date"])
-
         row = {
             "תאריך": shabbat_data["date"].strftime("%d/%m/%Y"),
             "פרשה": shabbat_data["parasha"],
-            "API_parasha_hebrew": shabbat_data.get("parasha_hebrew", ""),  # nouvelle colonne avec la réponse API/fallback
+            "API_parasha_hebrew": shabbat_data.get("parasha_hebrew", ""),
             "שיר השירים": self.format_time(times["shir_hashirim"]),
             "כנסית שבת": shabbat_data["candle_lighting"],
             "מנחה": self.format_time(times["mincha_kabbalat"]),
@@ -370,11 +338,8 @@ class ShabbatScheduleGenerator:
             "שבת הבאה (Date)": next_shabbat_date if next_shabbat_date else "N/A",
             "שבת הבאה (Heure)": next_shabbat_time if next_shabbat_time else "N/A"
         }
-
         try:
-            # Création du DataFrame annuel pour l'onglet "שבתות השנה"
             yearly_df = pd.DataFrame(self.yearly_shabbat_data)
-            
             def compute_times(row):
                 row_date = datetime.strptime(row["day"], "%Y-%m-%d %H:%M:%S").date()
                 sunday_date = row_date + timedelta(days=2)
@@ -403,10 +368,8 @@ class ShabbatScheduleGenerator:
                     "צאת הכוכבים Jeudi": thursday_dusk,
                     "מנחה ביניים": minha_midweek
                 })
-            
             times_df = yearly_df.apply(compute_times, axis=1)
             yearly_df = pd.concat([yearly_df, times_df], axis=1)
-            
             if excel_path.exists():
                 with pd.ExcelWriter(str(excel_path), engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
                     df = pd.DataFrame([row])
@@ -425,7 +388,6 @@ class ShabbatScheduleGenerator:
         current_date = datetime.now()
         end_date = current_date + timedelta(days=14)
         shabbat_times = self.get_hebcal_times(current_date, end_date)
-        # Si on a récupéré via l'API
         if shabbat_times:
             shabbat = shabbat_times[0]
         else:
@@ -436,20 +398,14 @@ class ShabbatScheduleGenerator:
                 print("Aucun horaire trouvé pour cette semaine")
                 return
             shabbat = excel_result[0]
-
-        # Vérifie si le nom en hébreu obtenu via l'API (ou Excel) semble invalide.
-        # Ici, on considère qu'une valeur identique à la version anglaise signifie que l'API n'a pas renvoyé le nom en hébreu.
         api_hebrew = shabbat.get("parasha_hebrew", "").strip()
         if not api_hebrew or api_hebrew == shabbat.get("parasha", "").strip():
-            # Utilisation d'un fallback : lecture depuis Excel (si une colonne "פרשה_עברית" existe)
             excel_result = self.get_shabbat_times_from_excel_file(current_date)
             if excel_result and excel_result[0].get("parasha_hebrew", "").strip():
                 shabbat["parasha_hebrew"] = excel_result[0].get("parasha_hebrew", "").strip()
                 print("Nom de parasha en hébreu récupéré depuis Excel pour vérification.")
             else:
                 print("Aucune version hébraïque trouvée ; on conserve la valeur API.")
-
-        # Utilisation de calculate_times pour obtenir les horaires calculés
         times = self.calculate_times(shabbat['start'], shabbat['end'])
         image_path = self.create_image(
             times,
@@ -471,15 +427,12 @@ def main():
             base_path = Path(__file__).parent
         else:
             base_path = Path.cwd()
-
         template_path = base_path / "resources" / "template.jpg"
         font_path = base_path / "resources" / "mriamc_0.ttf"
         arial_bold_path = base_path / "resources" / "ARIALBD_0.TTF"
         output_dir = base_path / "output"
-
         generator = ShabbatScheduleGenerator(template_path, font_path, arial_bold_path, output_dir)
         generator.generate()
-
     except Exception as e:
         print(f"Erreur: {e}")
         input("Appuyez sur Entrée pour fermer...")
