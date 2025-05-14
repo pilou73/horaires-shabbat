@@ -1,47 +1,84 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: Update Shabbat Schedule
 
 on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
+  schedule:
+    - cron: '0 4 * * 3'  # Tous les mercredis à 4:00 UTC
   workflow_dispatch:
 
-  # Schedule the workflow to run automatically every Saturday at 22:00
-  schedule:
-    - cron: '0 8 * * 0'
-
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  contents: write
 
 jobs:
-  # Single deploy job since we're just deploying
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  update-schedule:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      # Étape 1 : Cloner le dépôt
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Étape 2 : Configurer Python
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          # Upload entire repository
-          path: '.'
+          python-version: '3.9'
+
+      # Étape 3 : Installer les dépendances Python
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pillow pandas pytz openpyxl astral
+
+      # Étape 4 : Vérifier les fichiers locaux
+      - name: Inspect local resources
+        run: |
+          echo "Vérification des fichiers locaux..."
+          ls -lh resources/
+          file resources/template.jpg
+          file resources/mriamc_0.ttf
+          file resources/ARIALBD_0.TTF
+
+      # Étape 5 : Exécuter le script Python
+      - name: Run schedule generator
+        run: |
+          echo "Exécution du script Python..."
+          python horaires_shabbat.py
+          echo "Script exécuté avec succès."
+
+      # Étape 6 : Vérifier les fichiers générés
+      - name: Check generated files
+        run: |
+          echo "Diagnostic des fichiers générés :"
+          ls -R .
+          echo "Fichiers dans le dossier output :"
+          ls -l output || echo "Dossier output introuvable ou vide."
+
+      # Étape 7 : Copier le fichier le plus récent dans public/latest-schedule.jpg
+      - name: Copy latest schedule
+        run: |
+          echo "Préparation des fichiers pour publication..."
+          mkdir -p public
+          # Supprimer l'ancien fichier s'il existe
+          if [ -f public/latest-schedule.jpg ]; then
+            echo "Suppression de l'ancien fichier latest-schedule.jpg"
+            rm public/latest-schedule.jpg
+          fi
+          # Trouver et copier le fichier le plus récent
+          FILE_PATH=$(find output -type f -name "*.jpeg" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{print $2}')
+          if [ -n "$FILE_PATH" ]; then
+            echo "Fichier trouvé : $FILE_PATH"
+            cp "$FILE_PATH" "output/latest-schedule.jpg"
+            echo "Fichier renommé : output/latest-schedule.jpg"
+            cp "output/latest-schedule.jpg" public/latest-schedule.jpg
+            echo "Fichier copié dans public/latest-schedule.jpg"
+          else
+            echo "Erreur : Aucun fichier JPEG trouvé dans le dossier output."
+            exit 1
+          fi
+          cp index.html public/
+
+      # Étape 8 : Publier sur GitHub Pages
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
