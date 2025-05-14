@@ -147,9 +147,9 @@ class ShabbatScheduleGenerator:
         mins = minutes % 60
         return f"{hours:02d}:{mins:02d}"
 
-    def reverse_hebrew_text(self, text):
+    #def reverse_hebrew_text(self, text):
         # Inverser le texte en hébreu pour un affichage correct
-        return text[::-1]
+        #return text[::-1]
 
     def round_to_nearest_five(self, minutes):
         # Arrondir les minutes au multiple de 5 le plus proche
@@ -221,8 +221,8 @@ class ShabbatScheduleGenerator:
                 draw.text((time_x, 830), end_time_str, fill="black", font=font)
 
                 # Ajouter le nom de la Parasha en hébreu dans le carré en haut à gauche
-                parasha_hebrew_reversed = self.reverse_hebrew_text(parasha_hebrew)  # Inverser le texte
-                draw.text((300, 280), parasha_hebrew_reversed, fill="blue", font=self._arial_bold_font, anchor="mm")
+                #parasha_hebrew_reversed = self.reverse_hebrew_text(parasha_hebrew)  # Inverser le texte           
+                draw.text((300, 280), parasha_hebrew, fill="blue", font=self._arial_bold_font, anchor="mm")
 
                 # Ajouter l'heure de כניסת שבת en haut
                 draw.text((time_x, 440), candle_lighting, fill="black", font=font)
@@ -234,14 +234,14 @@ class ShabbatScheduleGenerator:
                 # Ajouter l'heure de שבת הבאה en face de מנחה (en bas de la page)
                 next_shabbat_time = self.get_next_shabbat_time(shabbat_end.date())
                 if next_shabbat_time[1]:  # Si l'heure est disponible
-                    draw.text((time_x, 950), next_shabbat_time[1], fill="black", font=font)  # Coordonnées ajustées
+                    draw.text((time_x, 950), next_shabbat_time[1], fill="green", font=font)  # Coordonnées ajustées
 
                 # Calculer l'heure de ערבית
                 arvit_time = self.round_to_nearest_five(mincha_time + 45)
                 arvit_str = self.format_time(arvit_time)
 
                 # Ajouter l'heure de ערבית en face du mot ערבית
-                draw.text((time_x, 990), arvit_str, fill="black", font=font)  # Coordonnées ajustées
+                draw.text((time_x, 990), arvit_str, fill="green", font=font)  # Coordonnées ajustées
 
                 output_path = self.output_dir / f"horaires_{parasha}.jpeg"
                 print(f"Chemin de sortie de l'image : {output_path}")
@@ -329,7 +329,7 @@ def main():
         else:
             base_path = Path.cwd()
 
-        template_path = base_path / "resources" / "template.jpeg"
+        template_path = base_path / "resources" / "template.jpg"
         font_path = base_path / "resources" / "mriamc_0.ttf"
         arial_bold_path = base_path / "resources" / "ARIALBD_0.TTF"
         output_dir = base_path / "output"

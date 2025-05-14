@@ -2,67 +2,73 @@ name: Update Shabbat Schedule
 
 on:
   schedule:
-    - cron: '50 7 * * 0'  # Tous les samedis à 20:00 UTC
-  workflow_dispatch:
+    - cron: '0 22 * * 6'  # Tous les samedis à 22:00
+  workflow_dispatch:      # Permet de lancer manuellement
 
 permissions:
-  contents: write
+  contents: write  # Permet d'écrire sur la branche gh-pages
 
 jobs:
   update-schedule:
     runs-on: ubuntu-latest
     steps:
-      # Étape 1 : Cloner le dépôt
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Étape 2 : Configurer Python
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.9'
 
-      # Étape 3 : Installer les dépendances Python
       - name: Install dependencies
         run: |
+          echo "Installation des dépendances Python..."
           python -m pip install --upgrade pip
           pip install requests pillow pandas pytz openpyxl
+          echo "Dépendances installées avec succès."
 
-      # Étape 4 : Vérifier les fichiers locaux
-      - name: Inspect local resources
+      - name: Create resources directory
         run: |
-          echo "Vérification des fichiers locaux..."
-          ls -lh resources/
-          file resources/template.jpg
-          file resources/mriamc_0.ttf
-          file resources/ARIALBD_0.TTF
+          echo "Création du dossier resources..."
+          mkdir -p resources
+          echo "Dossier resources créé."
 
-      # Étape 5 : Exécuter le script Python
-      - name: Run schedule generator
+      - name: Download template and fonts
+        run: |
+          echo "Téléchargement des fichiers resources..."
+          curl -L -o resources/template.jpg "${{ secrets.TEMPLATE_URL }}"
+          curl -L -o resources/mriamc_0.ttf "${{ secrets.FONT_URL }}"
+          curl -L -o resources/ARIALBD_0.TTF "${{ secrets.ARIAL_BOLD_URL }}"
+ 
+      - name: Inspect template file
+        run: |
+          file resources/template.jpg
+          identify resources/template.jpg || echo "Erreur : Impossible de lire l'image avec ImageMagick."
+
+
+          echo "Vérification des fichiers téléchargés..."
+          ls -l resources
+          echo "Fichiers resources téléchargés avec succès."
+
+      - name: Run test script
         run: |
           echo "Exécution du script Python..."
           python horaires_shabbat.py
           echo "Script exécuté avec succès."
-
-      # Étape 6 : Vérifier les fichiers générés
-      - name: Check generated files
-        run: |
+          
           echo "Diagnostic des fichiers générés :"
           ls -R .
-          echo "Fichiers dans le dossier output :"
-          ls -l output || echo "Dossier output introuvable ou vide."
+          
+          echo "Vérification spécifique du dossier output :"
+          ls -l output || echo "Erreur : Dossier output introuvable ou vide."
 
-      # Étape 7 : Copier le fichier le plus récent dans public/latest-schedule.jpg
       - name: Copy latest schedule
         run: |
-          echo "Préparation des fichiers pour publication..."
+          echo "Création du dossier public..."
           mkdir -p public
-          # Supprimer l'ancien fichier s'il existe
-          if [ -f public/latest-schedule.jpg ]; then
-            echo "Suppression de l'ancien fichier latest-schedule.jpg"
-            rm public/latest-schedule.jpg
-          fi
-          # Trouver et copier le fichier le plus récent
+          echo "Dossier public créé."
+          
+          echo "Recherche du fichier JPEG le plus récent dans output..."
           FILE_PATH=$(find output -type f -name "*.jpeg" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{print $2}')
           if [ -n "$FILE_PATH" ]; then
             echo "Fichier trouvé : $FILE_PATH"
@@ -74,11 +80,14 @@ jobs:
             echo "Erreur : Aucun fichier JPEG trouvé dans le dossier output."
             exit 1
           fi
+          
+          echo "Copie de index.html dans public..."
           cp index.html public/
+          echo "Copie terminée."
 
-      # Étape 8 : Publier sur GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
+          force_orphan: true
