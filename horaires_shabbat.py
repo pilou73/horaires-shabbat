@@ -354,7 +354,7 @@ class ShabbatScheduleGenerator:
 
                 # 4. Calcul d'Arvit basé sur Tsé Hakochavim
                 if sunday_dusk and thursday_dusk:
-                    base_arvit = min(to_minutes(sunday_dusk), to_minutes(thursday_dusk)) - 3
+                    base_arvit = min(to_minutes(sunday_dusk), to_minutes(thursday_dusk)) 
                     new_arvit_time = self.round_to_nearest_five(base_arvit)
                     times["arvit"] = new_arvit_time
                 else:
