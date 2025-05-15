@@ -224,6 +224,8 @@ class ShabbatScheduleGenerator:
 
     def format_time(self, minutes):
         """Transforme un total de minutes en chaîne au format HH:MM."""
+        if minutes is None:
+            return ""
         h = minutes // 60
         m = minutes % 60
         return f"{h:02d}:{m:02d}"
@@ -242,31 +244,29 @@ class ShabbatScheduleGenerator:
         start_minutes = shabbat_start.hour * 60 + shabbat_start.minute
         end_minutes = shabbat_end.hour * 60 + shabbat_end.minute
 
-        # Initialisation des horaires
         times = {
             "mincha_kabbalat": start_minutes,
-            "shir_hashirim": None,
+            "shir_hashirim": self.round_to_nearest_five(start_minutes - 10),
             "shacharit": self.round_to_nearest_five(7 * 60 + 45),
             "mincha_gdola": self.round_to_nearest_five(12 * 60 + (30 if self.season == "winter" else 60)),
             "tehilim": self.round_to_nearest_five(14 * 60),
-            "shiur_nashim": 16 * 60,
+            "parashat_hashavua": self.round_to_nearest_five(end_minutes - 180),
             "arvit": self.round_to_nearest_five(end_minutes - (5 if self.season == "winter" else 10)),
             "mincha_2": None,
             "shiur_rav": None,
-            "parashat_hashavua": None
+            "shiur_nashim": 16 * 60
         }
 
-        # 1. Calcul de Shir HaShirim : au moins 9 minutes avant l'entrée du Chabbat
-        shir_base = self.round_to_nearest_five(start_minutes - 10)
-        if start_minutes - shir_base < 10:
-            shir_base = start_minutes - 10  # Forcer à 9 minutes avant si nécessaire
-        times["shir_hashirim"] = shir_base
 
-        # 2. Calcul de Shiur Rav et Minha 2
-        times["mincha_2"] = self.round_to_nearest_five(times["arvit"] - 90)
+        # Garantit Shir HaShirim au moins 10 minutes avant l'entrée du Chabbat
+        if start_minutes - times["shir_hashirim"] < 10:
+            times["shir_hashirim"] = start_minutes - 10  # Force à 10 minutes avant si nécessaire
+
+        # Calcul de Shiur Rav et Minha 2
+        times["mincha_2"] = self.round_to_nearest_five(end_minutes - 90)
         times["shiur_rav"] = self.round_to_nearest_five(times["mincha_2"] - 45)
 
-        # 3. Calcul de Parashat Hashavua : 45 minutes avant Shiur Rav
+        # Calcul de Parashat Hashavua : 45 minutes avant Shiur Rav
         times["parashat_hashavua"] = self.round_to_nearest_five(times["shiur_rav"] - 45)
 
         return times
@@ -330,45 +330,86 @@ class ShabbatScheduleGenerator:
                             draw.text((x, y), self.format_time(times['tehilim']), fill="black", font=font)
                     else:
                         draw.text((x, y), self.format_time(times[key]), fill="black", font=font)
-                # Affichage de l'heure de fin du Chabbat ("מוצאי שבת קודש") à 830px
+
+                # Affichage de l'heure de fin du Chabbat ("מוצאי שבת Kodch") à 830px
                 end_time_str = shabbat_end.strftime("%H:%M")
                 draw.text((time_x, 830), end_time_str, fill="black", font=font)
+
                 # Affichage du nom de la parasha en haut (en bleu) à partir de la variable parasha_hebrew
                 reversed_parasha = self.reverse_hebrew_text(parasha_hebrew)
                 draw.text((300, 280), reversed_parasha, fill="blue", font=self._arial_bold_font, anchor="mm")
+
                 # Affichage de l'heure de כניסת שבת en haut (440px)
-                draw.text((time_x, 440), self.format_time(times["mincha_kabbalat"]), fill="black", font=font)
+                draw.text((time_x, 440), candle_lighting, fill="black", font=font)
 
                 # Récupère les horaires de Tsé Hakochavim pour dimanche et jeudi
                 sunday_date = shabbat_date + timedelta(days=2)
                 s_sunday = sun(self.ramat_gan.observer, date=sunday_date, tzinfo=self.ramat_gan.timezone)
-                sunday_dusk = s_sunday["dusk"].strftime("%H:%M")  # Tsé Hakochavim dimanche
+                sunday_dusk = s_sunday.get("dusk", None)
+                if sunday_dusk:
+                    sunday_dusk = sunday_dusk.strftime("%H:%M")
+                else:
+                    sunday_dusk = None
 
                 thursday_date = sunday_date + timedelta(days=4)
                 s_thursday = sun(self.ramat_gan.observer, date=thursday_date, tzinfo=self.ramat_gan.timezone)
-                thursday_dusk = s_thursday["dusk"].strftime("%H:%M")  # Tsé Hakochavim jeudi
+                thursday_dusk = s_thursday.get("dusk", None)
+                if thursday_dusk:
+                    thursday_dusk = thursday_dusk.strftime("%H:%M")
+                else:
+                    thursday_dusk = None
 
                 def to_minutes(t):
-                    h, m = map(int, t.split(":"))
-                    return h * 60 + m
+                    if t is None:
+                        return None
+                    try:
+                        h, m = map(int, t.split(":"))
+                        return h * 60 + m
+                    except ValueError:
+                        return None
 
-                # 4. Calcul d'Arvit basé sur Tsé Hakochavim
+                # Calcul d'Arvit basé sur Tsé Hakochavim le plus tôt, soustrait 3 minutes, arrondi à 5 min
                 if sunday_dusk and thursday_dusk:
-                    base_arvit = min(to_minutes(sunday_dusk), to_minutes(thursday_dusk)) 
-                    new_arvit_time = self.round_to_nearest_five(base_arvit)
-                    times["arvit"] = new_arvit_time
+                    tsé_dimanche = to_minutes(sunday_dusk)
+                    tsé_jeudi = to_minutes(thursday_dusk)
+
+                    if tsé_dimanche is None or tsé_jeudi is None:
+                        print("Erreur : Tsé dimanche ou jeudi non disponible")
+                        times["arvit"] = 0  # Valeur par défaut
+                    else:
+                        # Calcul de la moyenne des Tsé
+                        moyenne = (tsé_dimanche + tsé_jeudi) // 2
+                        # Arrondi au multiple de 5 le plus proche (floor ou ceil selon la saison)
+                        if self.season == "summer":
+                            new_arvit_time = ((moyenne + 2) // 5) * 5
+                        else:
+                            new_arvit_time = ((moyenne - 2) // 5) * 5
+
+                        # Vérifie que l'écart reste ≤ 3 minutes après arrondi
+                        tsé_min = min(tsé_dimanche, tsé_jeudi)
+                        if tsé_min - new_arvit_time > 3:
+                            # Force à 3 minutes avant Tsé_min, puis arrondi au multiple supérieur
+                            new_arvit_time = ((tsé_min - 3 + 4) // 5) * 5
+                        times["arvit"] = new_arvit_time
                 else:
                     times["arvit"] = 0  # Valeur par défaut
 
-                # Calcul de Min'ha Bineyim : coucher du soleil le plus tôt entre dimanche et jeudi, -18 minutes
-                s_sunday = sun(self.ramat_gan.observer, date=sunday_date, tzinfo=self.ramat_gan.timezone)
-                sunday_sunset = s_sunday["sunset"].strftime("%H:%M")
-                s_thursday = sun(self.ramat_gan.observer, date=thursday_date, tzinfo=self.ramat_gan.timezone)
-                thursday_sunset = s_thursday["sunset"].strftime("%H:%M")
+                # Calcul de Min'ha Bineyim : coucher du soleil le plus tôt entre dimanche et jeudi, -17 minutes
+                sunday_sunset = s_sunday.get("sunset", None)
+                if sunday_sunset:
+                    sunday_sunset = sunday_sunset.strftime("%H:%M")
+                else:
+                    sunday_sunset = None
+
+                thursday_sunset = s_thursday.get("sunset", None)
+                if thursday_sunset:
+                    thursday_sunset = thursday_sunset.strftime("%H:%M")
+                else:
+                    thursday_sunset = None
 
                 if sunday_sunset and thursday_sunset:
-                    base_minha = min(to_minutes(sunday_sunset), to_minutes(thursday_sunset)) - 18
-                    minha_midweek = self.format_time(self.round_to_nearest_five(base_minha))
+                    base = min(to_minutes(sunday_sunset), to_minutes(thursday_sunset)) - 17
+                    minha_midweek = self.format_time(self.round_to_nearest_five(base))
                 else:
                     minha_midweek = ""
                 draw.text((time_x, 950), minha_midweek, fill="green", font=font)
@@ -384,6 +425,7 @@ class ShabbatScheduleGenerator:
                 print(f"Chemin de sortie de l'image : {output_path}")
                 img.save(str(output_path))
                 print("Image sauvegardée avec succès")
+
                 # Mise à jour du fichier latest-schedule.jpg
                 latest_path = self.output_dir / "latest-schedule.jpg"
                 if latest_path.exists():
@@ -413,12 +455,11 @@ class ShabbatScheduleGenerator:
             "שיעור עם הרב": self.format_time(times["shiur_rav"]),
             "מנחה 2": self.format_time(times["mincha_2"]),
             "ערבית מוצ\"ש": self.format_time(times["arvit"]),
-            "מוצאי שבת קודש": shabbat_data["end"].strftime("%H:%M"),
+            "מוצאי שבת Kodch": shabbat_data["end"].strftime("%H:%M"),
             "שבת הבאה (Date)": next_shabbat_date if next_shabbat_date else "N/A",
             "שבת הבאה (Heure)": next_shabbat_time if next_shabbat_time else "N/A"
         }
         try:
-            # Création du DataFrame annuel pour l'onglet "שבתות השנה"
             yearly_df = pd.DataFrame(self.yearly_shabbat_data)
             def compute_times(row):
                 row_date = datetime.strptime(row["day"], "%Y-%m-%d %H:%M:%S").date()
@@ -430,13 +471,11 @@ class ShabbatScheduleGenerator:
                 s_thu = sun(self.ramat_gan.observer, date=thursday_date, tzinfo=self.ramat_gan.timezone)
                 thursday_sunset = s_thu["sunset"].strftime("%H:%M")
                 thursday_dusk = s_thu["dusk"].strftime("%H:%M")
-
                 def to_minutes(t):
                     h, m = map(int, t.split(":"))
                     return h * 60 + m
-
                 if sunday_sunset and thursday_sunset:
-                    base = min(to_minutes(sunday_sunset), to_minutes(thursday_sunset)) - 18
+                    base = min(to_minutes(sunday_sunset), to_minutes(thursday_sunset)) - 17
                     if base < 0:
                         minha_midweek = ""
                     else:
@@ -481,17 +520,17 @@ class ShabbatScheduleGenerator:
                 print("Aucun horaire trouvé pour cette semaine")
                 return
             shabbat = excel_result[0]
-        # Vérifie si le nom en hébreu obtenu via l'API (ou Excel) semble invalide.
-        # Ici, on considère qu'une valeur identique à la version anglaise signifie que l'API n'a pas renvoyé le nom en hébreu.
+
+        # Vérifie si le nom en hébreu obtenu via l'API (ou Excel) semble invalide
         api_hebrew = shabbat.get("parasha_hebrew", "").strip()
         if not api_hebrew or api_hebrew == shabbat.get("parasha", "").strip():
-            # Utilisation d'un fallback : lecture depuis Excel (si une colonne "פרשה_עברית" existe)
             excel_result = self.get_shabbat_times_from_excel_file(current_date)
             if excel_result and excel_result[0].get("parasha_hebrew", "").strip():
                 shabbat["parasha_hebrew"] = excel_result[0].get("parasha_hebrew", "").strip()
-                print("Nom de parasha en hébreu récupéré depuis Excel.")
+                print("Nom de parasha en hébreu récupéré depuis Excel pour vérification.")
             else:
                 print("Aucune version hébraïque trouvée ; on conserve la valeur API.")
+
         # Utilisation de calculate_times pour obtenir les horaires calculés
         times = self.calculate_times(shabbat['start'], shabbat['end'])
         image_path = self.create_image(
