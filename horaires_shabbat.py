@@ -464,6 +464,36 @@ class ShabbatScheduleGenerator:
         }
         try:
             yearly_df = pd.DataFrame(self.yearly_shabbat_data)
+            def compute_times(row):
+                row_date = datetime.strptime(row["day"], "%Y-%m-%d %H:%M:%S").date()
+                sunday_date = row_date + timedelta(days=2)
+                s_sunday = sun(self.ramat_gan.observer, date=sunday_date, tzinfo=self.ramat_gan.timezone)
+                sunday_sunset = s_sunday["sunset"].strftime("%H:%M")
+                sunday_dusk = s_sunday["dusk"].strftime("%H:%M")
+                thursday_date = sunday_date + timedelta(days=4)
+                s_thu = sun(self.ramat_gan.observer, date=thursday_date, tzinfo=self.ramat_gan.timezone)
+                thursday_sunset = s_thu["sunset"].strftime("%H:%M")
+                thursday_dusk = s_thu["dusk"].strftime("%H:%M")
+                def to_minutes(t):
+                    h, m = map(int, t.split(":"))
+                    return h * 60 + m
+                if sunday_sunset and thursday_sunset:
+                    base = min(to_minutes(sunday_sunset), to_minutes(thursday_sunset)) - 17
+                    if base < 0:
+                        minha_midweek = ""
+                    else:
+                        minha_midweek = self.format_time(self.round_to_nearest_five(base))
+                else:
+                    minha_midweek = ""
+                return pd.Series({
+                    "שקיעה Dimanche": sunday_sunset,
+                    "שקיעה Jeudi": thursday_sunset,
+                    "צאת הכוכבים Dimanche": sunday_dusk,
+                    "צאת הכוכבים Jeudi": thursday_dusk,
+                    "מנחה ביניים": minha_midweek
+                })
+            times_df = yearly_df.apply(compute_times, axis=1)
+            yearly_df = pd.concat([yearly_df, times_df], axis=1)
             if excel_path.exists():
                 with pd.ExcelWriter(str(excel_path), engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
                     df = pd.DataFrame([row])

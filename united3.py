@@ -396,7 +396,7 @@ class ShabbatScheduleGenerator:
                 draw.text((time_x, 990), self.format_time(times.get('arvit_hol')), fill="green", font=font)
                 # Parasha inversée en haut
                 reversed_parasha = reverse_hebrew_text(parasha_hebrew)
-                draw.text((300, 280), parasha_hebrew, fill="blue", font=bold, anchor="mm")  # on remplace parasha_hebrew par reversed_parasha si on inverse lettres du nom
+                draw.text((300, 280), parasha_hebrew, fill="blue", font=bold, anchor="mm") # on remplace parasha_hebrew par reversed_parasha si on inverse lettres du nom
 
                 # MOLAD + ROCH HODESH (pour שבת מברכין)
                 if is_mevarchim:
