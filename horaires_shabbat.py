@@ -57,7 +57,7 @@ def find_next_rosh_chodesh(start_date=None):
         current += timedelta(days=1)
     raise RuntimeError("לא נמצא ראש חודש ב-60 הימים הקרובים.")
 
-# ----- MAIN CLASS -----
+# ---- MAIN CLASS ----
 class ShabbatScheduleGenerator:
     def __init__(self, template_path, font_path, arial_bold_path, output_dir):
         self.template_path = Path(template_path)
