@@ -45,7 +45,7 @@ def calculate_molad_for_date(gregorian_date):
     weekday_he = get_weekday_name_hebrew(gregorian_date)
     # Séparation du texte hébreu (inversé) et des chiffres (droits)
     hebrew_part = f"מולד: יום {weekday_he} בשעה "
-    molad_str = f"{hour}:{str(minute).zfill(2)} + {chalakim}" + hebrew_part
+    molad_str = hebrew_part + f"{hour}:{str(minute).zfill(2)} + {chalakim}"
     return molad_str
 
 def find_next_rosh_chodesh(start_date=None):
@@ -416,7 +416,7 @@ class ShabbatScheduleGenerator:
                     hebrew_part = f"ראש חודש: יום {day_name_he} "
                     date_part = rc_date.strftime('%d/%m/%Y')
                # On inverse la partie hébreu mais PAS la date                    
-                    rosh_chodesh_line =  date_part + hebrew_part # si on doit inverser le texte on mettre + reverse_hebrew_text(hebrew_part)
+                    rosh_chodesh_line =  hebrew_part + date_part # si on doit inverser le texte on mettre + reverse_hebrew_text(hebrew_part)
                      # rosh_chodesh_str = f"ראש חודש: {day_name_he} {rc_date.strftime('%d/%m/%Y')}"
                     # rosh_chodesh_str = reverse_hebrew_text(rosh_chodesh_str)
                     draw.text(
