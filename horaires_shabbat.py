@@ -396,13 +396,13 @@ class ShabbatScheduleGenerator:
                 draw.text((time_x, 990), self.format_time(times.get('arvit_hol')), fill="green", font=font)
                 # Parasha inversée en haut
                 reversed_parasha = reverse_hebrew_text(parasha_hebrew)
-                draw.text((300, 280), parasha_hebrew, fill="blue", font=bold, anchor="mm")
+                draw.text((300, 280), parasha_hebrew, fill="blue", font=bold, anchor="mm")# on remplace parasha_hebrew par reversed_parasha si on inverse lettres du nom
 
                 # MOLAD + ROCH HODESH (pour שבת מברכין)
                 if is_mevarchim:
                     rc_date = find_next_rosh_chodesh(shabbat_date)
                     molad_str = calculate_molad_for_date(rc_date)  # NE PAS inverser ici !
-                    molad_str = reverse_hebrew_text(molad_str)
+                    molad_str = reverse_hebrew_text(molad_str)  # inverser ici  si on veut annuler cette ligne on rajoute un symbole de diese
                     draw.text(
                         (200, img_h - 300),  # Position du molad (X, Y)
                         molad_str,
@@ -415,7 +415,7 @@ class ShabbatScheduleGenerator:
                     hebrew_part = f"ראש חודש: יום {day_name_he} "
                     date_part = rc_date.strftime('%d/%m/%Y')
                # On inverse la partie hébreu mais PAS la date                    
-                    rosh_chodesh_line = date_part + reverse_hebrew_text(hebrew_part) # + date_part
+                    rosh_chodesh_line = date_part + hebrew_part # si on doit inverser le texte on mettre + reverse_hebrew_text(hebrew_part)
                      # rosh_chodesh_str = f"ראש חודש: {day_name_he} {rc_date.strftime('%d/%m/%Y')}"
                     # rosh_chodesh_str = reverse_hebrew_text(rosh_chodesh_str)
                     draw.text(
