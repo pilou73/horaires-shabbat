@@ -28,6 +28,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests pillow pandas pytz openpyxl astral python-zmanim
 
+      # Étape 3b : Vérifier l'import du module zmanim
+      - name: Test import zmanim
+        run: |
+          python -c "import zmanim; print('zmanim importé avec succès')"
+
       # Étape 4 : Vérifier les fichiers locaux
       - name: Inspect local resources
         run: |
