@@ -416,7 +416,7 @@ class ShabbatScheduleGenerator:
                     hebrew_part = f"ראש חודש: יום {day_name_he} "
                     date_part = rc_date.strftime('%d/%m/%Y')
                # On inverse la partie hébreu mais PAS la date                    
-                    rosh_chodesh_line = date_part + hebrew_part # si on doit inverser le texte on mettre + reverse_hebrew_text(hebrew_part)
+                    rosh_chodesh_line =  hebrew_part + date_part # si on doit inverser le texte on mettre + reverse_hebrew_text(hebrew_part)
                      # rosh_chodesh_str = f"ראש חודש: {day_name_he} {rc_date.strftime('%d/%m/%Y')}"
                     # rosh_chodesh_str = reverse_hebrew_text(rosh_chodesh_str)
                     draw.text(
