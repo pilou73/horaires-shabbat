@@ -396,13 +396,13 @@ class ShabbatScheduleGenerator:
                 draw.text((time_x, 990), self.format_time(times.get('arvit_hol')), fill="green", font=font)
                 # Parasha inversée en haut
                 reversed_parasha = reverse_hebrew_text(parasha_hebrew)
-                draw.text((300, 280), reversed_parasha, fill="blue", font=bold, anchor="mm")
+                draw.text((300, 280), parasha_hebrew, fill="blue", font=bold, anchor="mm")
 
                 # MOLAD + ROCH HODESH (pour שבת מברכין)
                 if is_mevarchim:
                     rc_date = find_next_rosh_chodesh(shabbat_date)
                     molad_str = calculate_molad_for_date(rc_date)  # NE PAS inverser ici !
-                    # molad_str = reverse_hebrew_text(molad_str)
+                    molad_str = reverse_hebrew_text(molad_str)
                     draw.text(
                         (200, img_h - 300),  # Position du molad (X, Y)
                         molad_str,
