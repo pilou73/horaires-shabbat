@@ -39,16 +39,14 @@ def get_weekday_name_hebrew(dt):
 def calculate_molad_for_date(gregorian_date):
     jc = JewishCalendar(datetime.combine(gregorian_date, datetime.min.time()))
     molad_obj = jc.molad()
-    hour     = molad_obj.molad_hours
-    minute   = molad_obj.molad_minutes
+    hour = molad_obj.molad_hours
+    minute = molad_obj.molad_minutes
     chalakim = molad_obj.molad_chalakim
-    jm = jc.jewish_month
-    jy = jc.jewish_year
-    month_name = get_jewish_month_name_hebrew(jm, jy)
     weekday_he = get_weekday_name_hebrew(gregorian_date)
-    # Exemple : מולד: יום שני בשעה 20:35 + 2 חלקים
-    molad_str = f"מולד: יום {weekday_he} בשעה {hour}:{str(minute).zfill(2)} + {chalakim} חלקים"
-    return reverse_hebrew_text(molad_str)
+    # Séparation du texte hébreu (inversé) et des chiffres (droits)
+    hebrew_part = f"מולד: יום {weekday_he} בשעה "
+    molad_str = f"{hour}:{str(minute).zfill(2)} + {chalakim}" + reverse_hebrew_text(hebrew_part)
+    return molad_str
 
 def find_next_rosh_chodesh(start_date=None):
     current = start_date or date.today()
@@ -403,19 +401,26 @@ class ShabbatScheduleGenerator:
                 # MOLAD + ROCH HODESH (pour שבת מברכין)
                 if is_mevarchim:
                     rc_date = find_next_rosh_chodesh(shabbat_date)
-                    molad_str = calculate_molad_for_date(rc_date)
-                    molad_str = reverse_hebrew_text(molad_str)
+                    molad_str = calculate_molad_for_date(rc_date)  # NE PAS inverser ici !
+                    # molad_str = reverse_hebrew_text(molad_str)
                     draw.text(
-                        (120, img_h - 300),  # Position du molad (X, Y)
+                        (200, img_h - 300),  # Position du molad (X, Y)
                         molad_str,
                         fill="blue",
                         font=font
                     )
-                    rosh_chodesh_str = f"ראש חודש: {rc_date.strftime('%d/%m/%Y')}"
-                    rosh_chodesh_str = reverse_hebrew_text(rosh_chodesh_str)
+               # Construction de la ligne ראש חודש :
+               # Ajout du jour hébreu pour ראש חודש
+                    day_name_he = get_weekday_name_hebrew(rc_date)
+                    hebrew_part = f"ראש חודש: יום {day_name_he} "
+                    date_part = rc_date.strftime('%d/%m/%Y')
+               # On inverse la partie hébreu mais PAS la date                    
+                    rosh_chodesh_line = date_part + reverse_hebrew_text(hebrew_part) # + date_part
+                     # rosh_chodesh_str = f"ראש חודש: {day_name_he} {rc_date.strftime('%d/%m/%Y')}"
+                    # rosh_chodesh_str = reverse_hebrew_text(rosh_chodesh_str)
                     draw.text(
-                        (120, img_h - 260),  # Même X, 40 pixels plus bas que le molad
-                        rosh_chodesh_str,
+                        (200, img_h - 260),  # Même X, 40 pixels plus bas que le molad
+                        rosh_chodesh_line,
                         fill="blue",
                         font=font
                     )
