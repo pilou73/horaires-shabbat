@@ -379,14 +379,15 @@ class ShabbatScheduleGenerator:
                     (time_x, 790, 'arvit_motsach'),
                 ]
                 for x, y, key in time_positions:
-                    if key == "tehilim":
+                    if key == 'tehilim':
                         if self.season == "summer":
-                            formatted_time = f"{self.format_time(times['tehilim_ete'])}/{self.format_time(times['tehilim_hiver'])}"
+                            formatted_time = "14:00/" + self.format_time(times['tehilim'])
+                            draw.text((x - 40, y), formatted_time, fill="black", font=font)
                         else:
-                            formatted_time = self.format_time(times['tehilim_hiver'])
-                        draw.text((x, y), formatted_time, fill="black", font=font)
+                            draw.text((x, y), self.format_time(times['tehilim']), fill="black", font=font)
                     else:
                         draw.text((x, y), self.format_time(times[key]), fill="black", font=font)
+
                 # Candle lighting
                 draw.text((time_x, 440), candle_lighting, fill="black", font=font)
                 # Shabbat end
