@@ -43,7 +43,6 @@ def calculate_molad_for_date(gregorian_date):
     minute = molad_obj.molad_minutes
     chalakim = molad_obj.molad_chalakim
     weekday_he = get_weekday_name_hebrew(gregorian_date)
-    # Séparation du texte hébreu (inversé) et des chiffres (droits)
     hebrew_part = f"מולד: יום {weekday_he} בשעה "
     molad_str = hebrew_part + f"{hour}:{str(minute).zfill(2)} + {chalakim}"
     return molad_str
@@ -56,6 +55,45 @@ def find_next_rosh_chodesh(start_date=None):
             return current
         current += timedelta(days=1)
     raise RuntimeError("לא נמצא ראש חודש ב-60 הימים הקרובים.")
+
+
+# ✅ AJOUT : Calcule la date limite d'Amirat ברכת הלבנה
+# et le début possible de l'Amirat (7 jours après המולד)
+def calculate_last_kiddush_levana_date(gregorian_date):
+    jc = JewishCalendar(datetime.combine(gregorian_date, datetime.min.time()))
+    molad_obj = jc.molad()
+    molad_date = datetime.combine(gregorian_date, datetime.min.time())
+    molad_dt = molad_date + timedelta(
+        hours=molad_obj.molad_hours,
+        minutes=molad_obj.molad_minutes,
+        seconds=molad_obj.molad_chalakim * 10 / 18
+    )
+    latest_time = molad_dt + timedelta(days=12, hours=18)
+    return molad_dt, latest_time
+
+def calculate_molad_for_date(gregorian_date):
+    jc = JewishCalendar(datetime.combine(gregorian_date, datetime.min.time()))
+    molad_obj = jc.molad()
+    hour = molad_obj.molad_hours
+    minute = molad_obj.molad_minutes
+    chalakim = molad_obj.molad_chalakim
+    weekday_he = get_weekday_name_hebrew(gregorian_date)
+    hebrew_part = f"מולד: יום {weekday_he} בשעה "
+    molad_str = hebrew_part + f"{hour}:{str(minute).zfill(2)} + {chalakim}"
+    return molad_str
+
+
+def calculate_molad_for_date(gregorian_date):
+    jc = JewishCalendar(datetime.combine(gregorian_date, datetime.min.time()))
+    molad_obj = jc.molad()
+    hour = molad_obj.molad_hours
+    minute = molad_obj.molad_minutes
+    chalakim = molad_obj.molad_chalakim
+    weekday_he = get_weekday_name_hebrew(gregorian_date)
+    hebrew_part = f"מולד: יום {weekday_he} בשעה "
+    molad_str = hebrew_part + f"{hour}:{str(minute).zfill(2)} + {chalakim}"
+    return molad_str
+
 
 # ---- MAIN CLASS ----
 class ShabbatScheduleGenerator:
@@ -425,6 +463,31 @@ class ShabbatScheduleGenerator:
                         fill="blue",
                         font=font
                     )
+                if not is_mevarchim:
+                    # ➕ Affichage du dernier moment possible pour ברכת הלבנה
+                    previous_rosh = find_next_rosh_chodesh(shabbat_date - timedelta(days=15))
+                    molad_dt, latest_kiddush_levana = calculate_last_kiddush_levana_date(previous_rosh)
+                    start_kiddush_levana = molad_dt + timedelta(days=6)
+
+                    if shabbat_date.date() <= start_kiddush_levana.date() <=  latest_kiddush_levana.date():
+                        message = f"תאריך אחרון לאמירת ברכת הלבנה:{latest_kiddush_levana.strftime('%d/%m/%Y')}"
+                        draw.text(
+                            (100, img_h - 260),  # Position en bas de l'image
+                            message,
+                            fill="blue",
+                            font=font
+                        )
+
+                    #start_kiddush_levana = molad_dt + timedelta(days=6)
+                    #if shabbat_date.date() >= start_kiddush_levana.date():
+                        message2 = f"זמן התחלה לאמירת ברכת הלבנה:{start_kiddush_levana.strftime('%d/%m/%Y')}"
+                        draw.text(
+                            (100, img_h - 300),  # Position au-dessus de la ligne précédente
+                            message2,
+                            fill="blue",
+                            font=font
+                        )
+
 
                 # Sauvegarde de l’image
                 safe_parasha = self.sanitize_filename(parasha)
