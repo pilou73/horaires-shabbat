@@ -372,7 +372,7 @@ class ShabbatScheduleGenerator:
             times["arvit_hol"] = 0
 
         # arvit_motsach : fin du Chabbat
-        times["arvit_motsach"] = self.round_to_nearest_five(end_minutes - 5)
+        times["arvit_motsach"] = self.round_to_nearest_five(end_minutes - 9)
 
         # Min'ha Hol (coucher du soleil - 17min)
         sunday_sunset = s_sunday.get("sunset", None)
