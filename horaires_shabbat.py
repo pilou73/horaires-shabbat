@@ -321,7 +321,7 @@ class ShabbatScheduleGenerator:
             "tehilim": tehilim,
             "tehilim_ete": tehilim_ete,
             "tehilim_hiver": tehilim_hiver,
-            "shiur_nashim": 16 * 60,
+            "shiur_nashim": 17 * 60,
             "arvit_hol": None,
             "arvit_motsach": None,
             "mincha_2": None,
