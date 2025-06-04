@@ -420,9 +420,9 @@ class ShabbatScheduleGenerator:
             sunday_sunset_min = to_minutes(sunday_sunset_str)
             thursday_sunset_min = to_minutes(thursday_sunset_str)
 
-            # minha_hol: 18 minutes avant la plus PRECOCE des 2, arrondi à 5 en dessous
+            # minha_hol: 20 minutes avant la plus PRECOCE des 2, arrondi à 5 en dessous
             min_sunset = min(sunday_sunset_min, thursday_sunset_min)
-            minha_hol_minutes = min_sunset - 18
+            minha_hol_minutes = min_sunset - 20
             times["mincha_hol"] = self.round_to_nearest_five(minha_hol_minutes)
 
             # arvit_hol: 20 minutes après la plus TARDIVE des 2, arrondi à 5 au supérieur
@@ -628,7 +628,7 @@ class ShabbatScheduleGenerator:
                     thursday_sunset_min = to_minutes(thursday_sunset)
                     min_sunset = min(sunday_sunset_min, thursday_sunset_min)
                     max_sunset = max(sunday_sunset_min, thursday_sunset_min)
-                    minha_midweek = self.format_time(self.round_to_nearest_five(min_sunset - 18))
+                    minha_midweek = self.format_time(self.round_to_nearest_five(min_sunset - 20))
                     arvit_midweek = self.format_time(self.round_to_next_five(max_sunset + 20))
                 else:
                     minha_midweek = ""

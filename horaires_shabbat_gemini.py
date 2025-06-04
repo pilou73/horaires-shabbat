@@ -30,6 +30,15 @@ def get_jewish_month_name_hebrew(jm, jy):
         return 'אדר ב׳'
     return HEBREW_MONTHS.get(jm, 'חודש לא ידוע')
 
+def find_previous_rosh_chodesh(date_):
+    current_date = date_
+    for i in range(30):  # Recherche max sur 30 jours en arrière
+        cal = JewishCalendar(current_date)
+        if cal.jewish_day == 1:
+            return current_date
+        current_date -= timedelta(days=1)
+    raise Exception("Aucun Rosh Khodesh trouvé dans les 30 jours précédents")
+
 def reverse_hebrew_text(text):
     return text[::-1]
 
@@ -411,9 +420,9 @@ class ShabbatScheduleGenerator:
             sunday_sunset_min = to_minutes(sunday_sunset_str)
             thursday_sunset_min = to_minutes(thursday_sunset_str)
 
-            # minha_hol: 20 minutes avant la plus PRECOCE des 2, arrondi à 5 en dessous
+            # minha_hol: 18 minutes avant la plus PRECOCE des 2, arrondi à 5 en dessous
             min_sunset = min(sunday_sunset_min, thursday_sunset_min)
-            minha_hol_minutes = min_sunset - 20
+            minha_hol_minutes = min_sunset - 18
             times["mincha_hol"] = self.round_to_nearest_five(minha_hol_minutes)
 
             # arvit_hol: 20 minutes après la plus TARDIVE des 2, arrondi à 5 au supérieur
@@ -504,26 +513,58 @@ class ShabbatScheduleGenerator:
                                 fill="blue",
                                 font=font
                             )
-                    if not is_mevarchim:
-                        previous_rosh = find_next_rosh_chodesh(shabbat_date - timedelta(days=15))
-                        molad_dt, latest_kiddush_levana = calculate_last_kiddush_levana_date(previous_rosh)
-                        start_kiddush_levana = molad_dt + timedelta(days=6)
+                    if is_mevarchim:
+                        molad_str = get_next_month_molad(shabbat_date)
+                        draw.text(
+                            (200, img_h - 300),
+                            molad_str,
+                            fill="blue",
+                            font=font
+                        )
+                        rc_days = get_rosh_chodesh_days_for_next_month(shabbat_date)
+                        print(f'{rc_days=}')  # Debug: Afficher les dates de Roch Hodech
+                        rosh_lines = []
+                        for gdate, m, y, d in rc_days:
+                            day_name_he = get_weekday_name_hebrew(gdate)
+                            month_name = get_jewish_month_name_hebrew(m, y)
+                            rosh_lines.append(
+                                f"ראש חודש: יום {day_name_he} {gdate.strftime('%d/%m/%Y')} {month_name} ({d})"
+                            )
+                        for i, rc_line in enumerate(rosh_lines):
+                            draw.text(
+                                (200, img_h - 260 + 40 * i),
+                                rc_line,
+                                fill="blue",
+                                font=font
+                            )
 
-                        if shabbat_date.date() <= start_kiddush_levana.date() <= latest_kiddush_levana.date():
-                            message = f"תאריך אחרון לאמירת ברכת הלבנה:{latest_kiddush_levana.strftime('%d/%m/%Y')}"
-                            draw.text(
-                                (100, img_h - 260),
-                                message,
-                                fill="blue",
-                                font=font
-                            )
-                            message2 = f"זמן התחלה לאמירת ברכת הלבנה:{start_kiddush_levana.strftime('%d/%m/%Y')}"
-                            draw.text(
-                                (100, img_h - 300),
-                                message2,
-                                fill="blue",
-                                font=font
-                            )
+                    if not is_mevarchim:
+                        try:
+                            previous_rosh = find_previous_rosh_chodesh(shabbat_date)
+                            molad_dt, latest_kiddush_levana = calculate_last_kiddush_levana_date(previous_rosh)
+                            start_kiddush_levana = molad_dt + timedelta(days=6)
+
+                            shabbat_date_only = shabbat_date.date()
+
+                            # Cas 1 : Chabbat avant le début de la période
+                            if shabbat_date_only < start_kiddush_levana.date():
+                                msg_start = f"זמן התחלה לאמירת ברכת הלבנה: {start_kiddush_levana.strftime('%d/%m/%Y')}"
+                                msg_end = f"תאריך אחרון לאמירת ברכת הלבנה: {latest_kiddush_levana.strftime('%d/%m/%Y')}"
+                                draw.text((100, img_h - 300), msg_start, fill="blue", font=font)
+                                draw.text((100, img_h - 260), msg_end, fill="blue", font=font)
+
+                            # Cas 2 : Chabbat pendant la période (après le début, avant la fin)
+                            elif start_kiddush_levana.date() <= shabbat_date_only <= latest_kiddush_levana.date():
+                                msg_end = f"תאריך אחרון לאמירת ברכת הלבנה: {latest_kiddush_levana.strftime('%d/%m/%Y')}"
+                                draw.text((100, img_h - 260), msg_end, fill="blue", font=font)
+
+                            # Cas 3 : Chabbat après la fin
+                            else:
+                                msg_ended = "התקופה של ברכת הלבנה הסתיימה."
+                                draw.text((100, img_h - 260), msg_ended, fill="red", font=font)
+
+                        except Exception as e:
+                            print(f"❌ Erreur lors de l'affichage de la Birkat Halevana : {e}")
 
                     # Sauvegarde de l’image
                     safe_parasha = self.sanitize_filename(parasha)
@@ -566,7 +607,7 @@ class ShabbatScheduleGenerator:
             "ערבית מוצאי שבת": self.format_time(times["arvit_motsach"]),
             "ערבית חול": self.format_time(times["arvit_hol"]),
             "מנחה חול": self.format_time(times["mincha_hol"]),
-            "מוצאי שבת Kodch": shabbat_data["end"].strftime("%H:%M"),
+            "מוצאי שבת קודש": shabbat_data["end"].strftime("%H:%M"),
             "שבת מברכין": "Oui" if shabbat_data.get("is_mevarchim", False) else "Non"
         }
         try:
@@ -587,7 +628,7 @@ class ShabbatScheduleGenerator:
                     thursday_sunset_min = to_minutes(thursday_sunset)
                     min_sunset = min(sunday_sunset_min, thursday_sunset_min)
                     max_sunset = max(sunday_sunset_min, thursday_sunset_min)
-                    minha_midweek = self.format_time(self.round_to_nearest_five(min_sunset - 20))
+                    minha_midweek = self.format_time(self.round_to_nearest_five(min_sunset - 18))
                     arvit_midweek = self.format_time(self.round_to_next_five(max_sunset + 20))
                 else:
                     minha_midweek = ""
