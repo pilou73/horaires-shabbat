@@ -70,10 +70,12 @@ def get_next_month_molad(shabbat_date):
     return molad_str
 
 def get_rosh_chodesh_days_for_next_month(shabbat_date):
+    # Trouver le mois hébraïque actuel de shabbat
     jc = JewishCalendar(datetime.combine(shabbat_date, datetime.min.time()))
     current_jyear = jc.jewish_year
     current_jmonth = jc.jewish_month
 
+    # Mois hébraïque suivant
     if current_jmonth == 13:
         next_jmonth = 1
         next_jyear = current_jyear + 1
@@ -81,26 +83,40 @@ def get_rosh_chodesh_days_for_next_month(shabbat_date):
         next_jmonth = current_jmonth + 1
         next_jyear = current_jyear
 
+    # Mois courant : combien de jours ?
     jc_current = JewishCalendar()
     jc_current.set_jewish_date(current_jyear, current_jmonth, 1)
+    # Plusieurs implémentations possibles pour le nombre de jours du mois courant
     if hasattr(jc_current, "days_in_jewish_month"):
-        days_in_current_month = jc_current.days_in_jewish_month()
+        days_in_current_month = jc_current.days_in_jewish_month()  # Appel de la méthode !
     elif hasattr(JewishCalendar, "getLastDayOfJewishMonth"):
         days_in_current_month = JewishCalendar.getLastDayOfJewishMonth(current_jmonth, current_jyear)
     else:
         raise Exception("Impossible de déterminer le nombre de jours dans le mois hébraïque.")
 
+    print(f'{days_in_current_month=}')  # Debug: Nombre de jours dans le mois courant
+    print(f'{current_jyear=}')  # Debug: Année juive courante
+    print(f'{current_jmonth=}')  # Debug: Mois juif courant
+
+    # 1er jour de ראש חודש prochain = 1er du prochain mois
     jc_next = JewishCalendar()
     jc_next.set_jewish_date(next_jyear, next_jmonth, 1)
     rc1_gdate = jc_next.gregorian_date
 
     rosh_chodesh_days = []
+    # Si le mois courant a 30 jours, ראש חודש = 30 du mois courant ET 1 du mois suivant
     if days_in_current_month == 30:
+        print("Le mois courant a 30 jours.")  # Debug: Confirmation que la condition est satisfaite
         jc_current.set_jewish_date(current_jyear, current_jmonth, 30)
         rc0_gdate = jc_current.gregorian_date
         rosh_chodesh_days.append((rc0_gdate, current_jmonth, current_jyear, 30))
+    else:
+        print("Le mois courant n'a PAS 30 jours.") # Debug
     rosh_chodesh_days.append((rc1_gdate, next_jmonth, next_jyear, 1))
     return rosh_chodesh_days
+
+# ✅ AJOUT : Calcule la date limite d'Amirat ברכת הלבנה
+# et le début possible de l'Amirat (7 jours après המולד)
 
 def calculate_last_kiddush_levana_date(gregorian_date):
     jc = JewishCalendar(datetime.combine(gregorian_date, datetime.min.time()))
@@ -143,7 +159,48 @@ class ShabbatScheduleGenerator:
         self.ramat_gan = LocationInfo("Ramat Gan", "Israel", "Asia/Jerusalem", 32.0680, 34.8248)
 
         self.yearly_shabbat_data = [
-            # ... (ta liste des shabbat de l'année, comme dans la partie précédente)
+            {'day': '2024-12-06 00:00:00', 'פרשה': 'ויצא', 'כנסית שבת': '16:17', 'צאת שבת': '17:16'},
+            {'day': '2024-12-13 00:00:00', 'פרשה': 'וישלח', 'כנסית שבת': '16:19', 'צאת שבת': '17:17'},
+            {'day': '2024-12-20 00:00:00', 'פרשה': 'וישב', 'כנסית שבת': '16:22', 'צאת שבת': '17:20'},
+            {'day': '2024-12-27 00:00:00', 'פרשה': 'מקץ', 'כנסית שבת': '16:25', 'צאת שבת': '17:24'},
+            {'day': '2025-01-03 00:00:00', 'פרשה': 'ויגש', 'כנסית שבת': '16:30', 'צאת שבת': '17:29'},
+            {'day': '2025-01-10 00:00:00', 'פרשה': 'ויחי', 'כנסית שבת': '16:36', 'צאת שבת': '17:35'},
+            {'day': '2025-01-17 00:00:00', 'פרשה': 'שמות', 'כנסית שבת': '16:42', 'צאת שבת': '17:41'},
+            {'day': '2025-01-24 00:00:00', 'פרשה': 'וארא', 'כנסית שבת': '16:49', 'צאת שבת': '17:47'},
+            {'day': '2025-01-31 00:00:00', 'פרשה': 'בא', 'כנסית שבת': '16:55', 'צאת שבת': '17:53'},
+            {'day': '2025-02-07 00:00:00', 'פרשה': 'בשלח', 'כנסית שבת': '17:02', 'צאת שבת': '17:58'},
+            {'day': '2025-02-14 00:00:00', 'פרשה': 'יתרו', 'כנסית שבת': '17:08', 'צאת שבת': '18:04'},
+            {'day': '2025-02-21 00:00:00', 'פרשה': 'משפטים', 'כנסית שבת': '17:14', 'צאת שבת': '18:10'},
+            {'day': '2025-02-28 00:00:00', 'פרשה': 'תרומה', 'כנסית שבת': '17:19', 'צאת שבת': '18:15'},
+            {'day': '2025-03-07 00:00:00', 'פרשה': 'תצוה', 'כנסית שבת': '17:25', 'צאת שבת': '18:20'},
+            {'day': '2025-03-14 00:00:00', 'פרשה': 'כי-תשא', 'כנסית שבת': '17:30', 'צאת שבת': '18:25'},
+            {'day': '2025-03-21 00:00:00', 'פרשה': 'ויקהל', 'כנסית שבת': '17:34', 'צאת שבת': '18:30'},
+            {'day': '2025-03-28 00:00:00', 'פרשה': 'פקודי', 'כנסית שבת': '18:39', 'צאת שבת': '19:35'},
+            {'day': '2025-04-04 00:00:00', 'פרשה': 'ויקרא', 'כנסית שבת': '18:44', 'צאת שבת': '19:40'},
+            {'day': '2025-04-11 00:00:00', 'פרשה': 'צו', 'כנסית שבת': '18:49', 'צאת שבת': '19:45'},
+            {'day': '2025-04-18 00:00:00', 'פרשה': 'פסח', 'כנסית שבת': '18:54', 'צאת שבת': '19:51'},
+            {'day': '2025-04-25 00:00:00', 'פרשה': 'שמיני', 'כנסית שבת': '18:59', 'צאת שבת': '19:56'},
+            {'day': '2025-05-02 00:00:00', 'פרשה': 'תזריע-מצורע', 'כנסית שבת': '19:04', 'צאת שבת': '20:02'},
+            {'day': '2025-05-09 00:00:00', 'פרשה': 'אחרי-מות קדושים', 'כנסית שבת': '19:09', 'צאת שבת': '20:08'},
+            {'day': '2025-05-16 00:00:00', 'פרשה': 'אמור', 'כנסית שבת': '19:14', 'צאת שבת': '20:13'},
+            {'day': '2025-05-23 00:00:00', 'פרשה': 'בהר-בחוקותי', 'כנסית שבת': '19:18', 'צאת שבת': '20:19'},
+            {'day': '2025-05-30 00:00:00', 'פרשה': 'במדבר', 'כנסית שבת': '19:23', 'צאת שבת': '20:23'},
+            {'day': '2025-06-06 00:00:00', 'פרשה': 'נשא', 'כנסית שבת': '19:26', 'צאת שבת': '20:28'},
+            {'day': '2025-06-13 00:00:00', 'פרשה': 'בהעלותך', 'כנסית שבת': '19:29', 'צאת שבת': '20:31'},
+            {'day': '2025-06-20 00:00:00', 'פרשה': 'שלח', 'כנסית שבת': '19:32', 'צאת שבת': '20:33'},
+            {'day': '2025-06-27 00:00:00', 'פרשה': 'קרח', 'כנסית שבת': '19:33', 'צאת שבת': '20:33'},
+            {'day': '2025-07-04 00:00:00', 'פרשה': 'חוקת', 'כנסית שבת': '19:32', 'צאת שבת': '20:33'},
+            {'day': '2025-07-11 00:00:00', 'פרשה': 'בלק', 'כנסית שבת': '19:31', 'צאת שבת': '20:31'},
+            {'day': '2025-07-18 00:00:00', 'פרשה': 'פינחס', 'כנסית שבת': '19:28', 'צאת שבת': '20:27'},
+            {'day': '2025-07-25 00:00:00', 'פרשה': 'מטות-מסעי', 'כנסית שבת': '19:24', 'צאת שבת': '20:23'},
+            {'day': '2025-08-01 00:00:00', 'פרשה': 'דברים', 'כנסית שבת': '19:19', 'צאת שבת': '20:17'},
+            {'day': '2025-08-08 00:00:00', 'פרשה': 'ואתחנן', 'כנסית שבת': '19:13', 'צאת שבת': '20:10'},
+            {'day': '2025-08-15 00:00:00', 'פרשה': 'עקב', 'כנסית שבת': '19:06', 'צאת שבת': '20:02'},
+            {'day': '2025-08-22 00:00:00', 'פרשה': 'ראה', 'כנסית שבת': '18:59', 'צאת שבת': '19:54'},
+            {'day': '2025-08-29 00:00:00', 'פרשה': 'שופטים', 'כנסית שבת': '18:50', 'צאת שבת': '19:45'},
+            {'day': '2025-09-05 00:00:00', 'פרשה': 'כי-תצא', 'כנסית שבת': '18:41', 'צאת שבת': '19:35'},
+            {'day': '2025-09-12 00:00:00', 'פרשה': 'כי-תבוא', 'כנסית שבת': '18:32', 'צאת שבת': '19:26'},
+            {'day': '2025-09-19 00:00:00', 'פרשה': 'ניצבים', 'כנסית שבת': '18:23', 'צאת שבת': '19:16'},
         ]
 
         # Moladot 5785 exacts (Jérusalem, UTC+2)
@@ -423,17 +480,24 @@ class ShabbatScheduleGenerator:
                         else:
                             draw.text((x, y), self.format_time(times[key]), fill="black", font=font)
 
+                    # Candle lighting
                 draw.text((time_x, 440), candle_lighting, fill="black", font=font)
+                    # Shabbat end
                 draw.text((time_x, 830), shabbat_end.strftime("%H:%M"), fill="black", font=font)
+                    # Moins courantes
                 draw.text((time_x, 950), self.format_time(times.get('mincha_hol')), fill="green", font=font)
                 draw.text((time_x, 990), self.format_time(times.get('arvit_hol')), fill="green", font=font)
-                draw.text((300, 280), parasha_hebrew, fill="blue", font=bold, anchor="mm")
+                    # Parasha inversée en haut
+                reversed_parasha = reverse_hebrew_text(parasha_hebrew)
+                draw.text((300, 280), parasha_hebrew, fill="blue", font=bold, anchor="mm")# on remplace parasha_hebrew par reversed_parasha si on inverse lettres du nom
 
-                # שבת מברכין et infos rosh hodesh / molad
+                # שבת מברכין et infos rosh hodesh / molad                
                 if is_mevarchim:
                     molad_str = get_next_month_molad(shabbat_date)
                     draw.text((200, img_h - 300), molad_str, fill="blue", font=font)
                     rc_days = get_rosh_chodesh_days_for_next_month(shabbat_date)
+                    print(f'{rc_days=}')  # Debug: Afficher les dates de Roch Hodech
+
                     for i, (gdate, m, y, d) in enumerate(rc_days):
                         day_name_he = get_weekday_name_hebrew(gdate)
                         month_name = get_jewish_month_name_hebrew(m, y)

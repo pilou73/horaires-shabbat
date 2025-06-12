@@ -491,36 +491,7 @@ class ShabbatScheduleGenerator:
                     # MOLAD + ROCH HODESH (pour שבת מברכין)
                     if is_mevarchim:
                         molad_str = get_next_month_molad(shabbat_date)
-                        draw.text(
-                            (200, img_h - 300),
-                            molad_str,
-                            fill="blue",
-                            font=font
-                        )
-                        rc_days = get_rosh_chodesh_days_for_next_month(shabbat_date)
-                        print(f'{rc_days=}')  # Debug: Afficher les dates de Roch Hodech
-                        rosh_lines = []
-                        for gdate, m, y, d in rc_days:
-                            day_name_he = get_weekday_name_hebrew(gdate)
-                            month_name = get_jewish_month_name_hebrew(m, y)
-                            rosh_lines.append(
-                                f"ראש חודש: יום {day_name_he} {gdate.strftime('%d/%m/%Y')} {month_name} ({d})"
-                            )
-                        for i, rc_line in enumerate(rosh_lines):
-                            draw.text(
-                                (200, img_h - 260 + 40 * i),
-                                rc_line,
-                                fill="blue",
-                                font=font
-                            )
-                    if is_mevarchim:
-                        molad_str = get_next_month_molad(shabbat_date)
-                        draw.text(
-                            (200, img_h - 300),
-                            molad_str,
-                            fill="blue",
-                            font=font
-                        )
+                        draw.text((200, img_h - 300), molad_str, fill="blue", font=font)
                         rc_days = get_rosh_chodesh_days_for_next_month(shabbat_date)
                         print(f'{rc_days=}')  # Debug: Afficher les dates de Roch Hodech
                         rosh_lines = []
@@ -607,8 +578,8 @@ class ShabbatScheduleGenerator:
             "ערבית מוצאי שבת": self.format_time(times["arvit_motsach"]),
             "ערבית חול": self.format_time(times["arvit_hol"]),
             "מנחה חול": self.format_time(times["mincha_hol"]),
-            "מוצאי שבת Kodch": shabbat_data["end"].strftime("%H:%M"),
-            "שבת מברכין": "Oui" if shabbat_data.get("is_mevarchim", False) else "Non"
+            "מוצאי שבת": shabbat_data["end"].strftime("%H:%M"),
+            "שבת מברכין": "כן" if shabbat_data.get("is_mevarchim", False) else "לא"
         }
         try:
             yearly_df = pd.DataFrame(self.yearly_shabbat_data)
