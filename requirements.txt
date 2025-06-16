@@ -1,0 +1,6 @@
+pandas
+pillow
+astral
+requests
+pytz
+zmanim
