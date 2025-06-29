@@ -519,7 +519,7 @@ class ShabbatScheduleGenerator:
 
                             # Cas 1 : Chabbat avant le début de la période
                             if shabbat_date_only < start_kiddush_levana.date():
-                                msg_start = f"זמן התחלה לאמירת ברכת הלבנה: {start_kiddush_levana.strftime('%d/%m/%Y')}"
+                                msg_start = f"תאריך התחלה לאמירת ברכת הלבנה: {start_kiddush_levana.strftime('%d/%m/%Y')}"
                                 msg_end = f"תאריך אחרון לאמירת ברכת הלבנה: {latest_kiddush_levana.strftime('%d/%m/%Y')}"
                                 draw.text((100, img_h - 300), msg_start, fill="blue", font=font)
                                 draw.text((100, img_h - 260), msg_end, fill="blue", font=font)
