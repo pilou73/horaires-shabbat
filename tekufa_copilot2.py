@@ -344,11 +344,6 @@ class ShabbatScheduleGenerator:
                 "ערבית ביניים": arvit_midweek
             })
         times_df = df.apply(compute_times, axis=1)
-        # Supprimer les colonnes existantes avant de les ajouter à nouveau
-        cols_to_remove = ["שקיעה Dimanche", "שקיעה Jeudi", "מנחה ביניים", "ערבית ביניים"]
-        for col in cols_to_remove:
-            if col in df.columns:
-                df.drop(col, axis=1, inplace=True)
         df = pd.concat([df, times_df], axis=1)
 
         # TEKOUFA
@@ -422,7 +417,7 @@ class ShabbatScheduleGenerator:
                 "start": shabbat_start,
                 "end": shabbat_end,
                 "parasha": row.get("פרשה", ""),
-                "parasha_hebrew": row.get("פרשה_עברית", rowget("פרשה", "")),
+                "parasha_hebrew": row.get("פרשה_עברית", row.get("פרשה", "")),
                 "candle_lighting": row["כנסית שבת"],
                 "is_mevarchim": is_mevarchim_excel
             }]
@@ -602,7 +597,7 @@ class ShabbatScheduleGenerator:
                             }
                             month_eng = match.group(1)
                             hebrew_month = name_map.get(month_eng, month_eng)
-                        tekufa_msg = f"תקופת {hebrew_month} ביום {dt.strftime('%d/%m/%Y')} בשעה {dt.strftime('%H:%M')}"
+                        tekufa_msg = f"תקופה {hebrew_month} ביום {dt.strftime('%d/%m/%Y')} בשעה {dt.strftime('%H:%M')}"
                         draw.text((100, img_h - 200), tekufa_msg, fill="red", font=font)
 
                     safe_parasha = self.sanitize_filename(parasha)
