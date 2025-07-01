@@ -62,7 +62,7 @@ def get_next_month_molad(shabbat_date):
     minute = molad_obj.molad_minutes
     chalakim = molad_obj.molad_chalakim
     weekday_he = get_weekday_name_hebrew(molad_date)
-    hebrew_part = f"מולד: יום {weekday_he} בשעה "
+    hebrew_part = f" יום {weekday_he} בשעה "
     molad_str = hebrew_part + f"{hour}:{str(minute).zfill(2)} + {chalakim}"
     return molad_str
 
@@ -313,7 +313,7 @@ class ShabbatScheduleGenerator:
         rosh_dates = self.fetch_roshchodesh_dates(min_date, max_date + timedelta(days=7))
         df = self.identify_shabbat_mevarchim(df, rosh_dates)
 
-        # CALCUL des colonnes horaires intermédiaires, comme dans ton script d'origine :
+        # CALCUL des colonnes horaires intermédiaires
         def compute_times(row):
             row_date = row["day"]
             if isinstance(row_date, pd.Timestamp):
@@ -324,9 +324,11 @@ class ShabbatScheduleGenerator:
             thursday_date = sunday_date + timedelta(days=4)
             s_thu = sun(self.ramat_gan.observer, date=thursday_date, tzinfo=self.ramat_gan.timezone)
             thursday_sunset = s_thu["sunset"].strftime("%H:%M")
+
             def to_minutes(t):
                 h, m = map(int, t.split(":"))
                 return h * 60 + m
+
             if sunday_sunset and thursday_sunset:
                 sunday_sunset_min = to_minutes(sunday_sunset)
                 thursday_sunset_min = to_minutes(thursday_sunset)
@@ -337,21 +339,39 @@ class ShabbatScheduleGenerator:
             else:
                 minha_midweek = ""
                 arvit_midweek = ""
+
             return pd.Series({
                 "שקיעה Dimanche": sunday_sunset,
                 "שקיעה Jeudi": thursday_sunset,
                 "מנחה ביניים": minha_midweek,
                 "ערבית ביניים": arvit_midweek
             })
+
         times_df = df.apply(compute_times, axis=1)
-        # Supprimer les colonnes existantes avant de les ajouter à nouveau
+
+        # Supprimer les anciennes colonnes si présentes
         cols_to_remove = ["שקיעה Dimanche", "שקיעה Jeudi", "מנחה ביניים", "ערבית ביניים"]
         for col in cols_to_remove:
             if col in df.columns:
                 df.drop(col, axis=1, inplace=True)
+
         df = pd.concat([df, times_df], axis=1)
 
-        # TEKOUFA
+        # Ajout de la colonne molad uniquement pour שבת מברכין
+        molad_col = []
+        for i, row in df.iterrows():
+            is_mevarchim = row.get("שבת מברכין") in [True, "כן"]
+            if is_mevarchim:
+                try:
+                    molad_str = get_next_month_molad(row["day"])
+                except Exception:
+                    molad_str = ""
+            else:
+                molad_str = ""
+            molad_col.append(molad_str)
+        df["molad"] = molad_col
+
+        # Ajout de la colonne tekoufa
         tekufa_col = []
         for shabbat in df["day"]:
             tekufa = self.get_tekufa_for_shabbat(shabbat)
@@ -362,24 +382,21 @@ class ShabbatScheduleGenerator:
                 tekufa_col.append("")
         df["tekoufa"] = tekufa_col
 
-        # MOLAD
-        molad_col = []
-        for shabbat in df["day"]:
-            try:
-                molad_str = get_next_month_molad(shabbat)
-            except Exception:
-                molad_str = ""
-            molad_col.append(molad_str)
-        df["molad"] = molad_col
+        # Déplacer tekoufa à la fin
+        if 'tekoufa' in df.columns:
+            tekoufa = df.pop('tekoufa')
+            df['tekoufa'] = tekoufa
 
+        # Mise à jour de la feuille
         sheets["שבתות השנה"] = df
 
-
-        # Ecriture de tous les onglets (préserve Sheet1, etc.)
+        # Écriture de tous les onglets
         with pd.ExcelWriter(str(excel_path), engine="openpyxl", mode="w") as writer:
             for name, sheet_df in sheets.items():
                 sheet_df.to_excel(writer, sheet_name=name, index=False)
-        print("✅ Colonnes 'שבת מברכין' et 'tekoufa' mises à jour dans Excel.")
+
+        print("✅ Colonnes mises à jour : שבת מברכין, horaires ביניים, molad (sélectif) et tekoufa (fin).")
+
 
     def get_shabbat_times_from_excel_file(self, current_date):
         excel_path = self.output_dir / "horaires_shabbat.xlsx"
@@ -692,17 +709,23 @@ class ShabbatScheduleGenerator:
             "מוצאי שבת": shabbat_data["end"].strftime("%H:%M"),
             "שבת מברכין": "כן" if shabbat_data.get("is_mevarchim", False) else "לא"
         }
+
         tekufa_info = self.get_tekufa_for_shabbat(shabbat_data["date"])
         if tekufa_info:
             dt, summary = tekufa_info
             row["tekoufa"] = dt.strftime("%Y-%m-%d %H:%M")
         else:
             row["tekoufa"] = ""
+
         try:
-            yearly_df = pd.DataFrame(self.yearly_shabbat_data)
-            # ... tu peux continuer ici la logique d’écriture complète si besoin ...
+            # Écrire les données de ce Chabbat dans un onglet 'Sheet1'
+            df_current = pd.DataFrame([row])
+            with pd.ExcelWriter(excel_path, engine="openpyxl", mode="a", if_sheet_exists="replace") as writer:
+                df_current.to_excel(writer, sheet_name="Sheet1", index=False)
+            print("✅ Onglet 'Sheet1' mis à jour avec les données du Chabbat en cours.")
         except Exception as e:
             print(f"❌ Erreur lors de la mise à jour de l’Excel: {e}")
+
 
     def generate(self):
         current_date = datetime.now()
