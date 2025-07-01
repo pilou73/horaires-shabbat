@@ -514,13 +514,28 @@ class ShabbatScheduleGenerator:
                 rc_template = self.template_path.parent / "template_rosh_hodesh.jpg"
                 if rc_template.exists():
                     template = rc_template
+
+            # Définir le chemin d'accès aux icônes (UNE SEULE FOIS)
+            icon_path = self.template_path.parent / "resources"
+
             with Image.open(template) as img:
                 try:
-                    img_w, img_h = img.size
+                    img_w, img_h = img.size # Définir img_w et img_h ici
                     draw = ImageDraw.Draw(img)
                     font = self._font
                     bold = self._arial_bold_font
                     time_x = 120
+
+                    # Charger les icônes (UNE SEULE FOIS, GÉRER LES EXCEPTIONS)
+                    first_moon_icon = None
+                    full_moon_icon = None
+                    eau_icon = None
+                    try:
+                        first_moon_icon = Image.open(icon_path / "first_moon.png").convert("RGBA").resize((48, 48), Image.LANCZOS)
+                        full_moon_icon = Image.open(icon_path / "full_moon.png").convert("RGBA").resize((48, 48), Image.LANCZOS)
+                        eau_icon = Image.open(icon_path / "eau.png").resize((64, 64), Image.LANCZOS)
+                    except FileNotFoundError as e:
+                        print(f"❌ Erreur: Une ou plusieurs icônes sont introuvables: {e}")
 
                     # Affichage des horaires
                     time_positions = [
@@ -550,43 +565,39 @@ class ShabbatScheduleGenerator:
                     draw.text((time_x, 950), self.format_time(times.get('mincha_hol')), fill="green", font=font)
                     draw.text((time_x, 990), self.format_time(times.get('arvit_hol')), fill="green", font=font)
                     reversed_parasha = reverse_hebrew_text(parasha_hebrew)
-                    draw.text((300, 280), parasha_hebrew, fill="blue", font=bold, anchor="mm")
+                    draw.text((300, 280), reversed_parasha, fill="blue", font=bold, anchor="mm")
 
-                    if is_mevarchim:
-                        molad_str = get_next_month_molad(shabbat_date)
-                        draw.text((200, img_h - 300), molad_str, fill="blue", font=font)
-                        rc_days = get_rosh_chodesh_days_for_next_month(shabbat_date)
-                        rosh_lines = []
-                        for gdate, m, y, d in rc_days:
-                            day_name_he = get_weekday_name_hebrew(gdate)
-                            month_name = get_jewish_month_name_hebrew(m, y)
-                            rosh_lines.append(
-                                f"ראש חודש: יום {day_name_he} {gdate.strftime('%d/%m/%Y')} {month_name} ({d})"
-                            )
-                        for i, rc_line in enumerate(rosh_lines):
-                            draw.text(
-                                (200, img_h - 260 + 40 * i),
-                                rc_line,
-                                fill="blue",
-                                font=font
-                            )
                     if not is_mevarchim:
                         try:
                             previous_rosh = find_previous_rosh_chodesh(shabbat_date)
                             molad_dt, latest_kiddush_levana = calculate_last_kiddush_levana_date(previous_rosh)
                             start_kiddush_levana = molad_dt + timedelta(days=6)
                             shabbat_date_only = shabbat_date.date()
+                            y_start = img_h - 320
+                            y_end = img_h - 260
+
                             if shabbat_date_only < start_kiddush_levana.date():
-                                msg_start = f"תאריך התחלה לאמירת ברכת הלבנה: {start_kiddush_levana.strftime('%d/%m/%Y')}"
-                                msg_end = f"תאריך אחרון לאמירת ברכת הלבנה: {latest_kiddush_levana.strftime('%d/%m/%Y')}"
-                                draw.text((100, img_h - 300), msg_start, fill="blue", font=font)
-                                draw.text((100, img_h - 260), msg_end, fill="blue", font=font)
+                                msg_start = f"תאריך תחילת אמירה ברכת הלבנה: {start_kiddush_levana.strftime('%d/%m/%Y')}"
+                                msg_end = f"תאריך סיום אמירה ברכת הלבנה: {latest_kiddush_levana.strftime('%d/%m/%Y')}"
+
+                                # Affichage de l'icône first_moon
+                                if first_moon_icon:
+                                    img.paste(first_moon_icon, (55, y_start - 10), first_moon_icon)
+                                draw.text((55 + 48 + 10, y_start), msg_start, fill="purple", font=font)
+
+                                # Affichage de l'icône full_moon
+                                if full_moon_icon:
+                                    img.paste(full_moon_icon, (55, y_end - 10), full_moon_icon)
+                                draw.text((55 + 48 + 10, y_end), msg_end, fill="purple", font=font)
+
                             elif start_kiddush_levana.date() <= shabbat_date_only <= latest_kiddush_levana.date():
                                 msg_end = f"תאריך אחרון לאמירת ברכת הלבנה: {latest_kiddush_levana.strftime('%d/%m/%Y')}"
-                                draw.text((100, img_h - 260), msg_end, fill="blue", font=font)
+                                if full_moon_icon:
+                                    img.paste(full_moon_icon, (55, y_end - 10), full_moon_icon)
+                                draw.text((55 + 48 + 10, y_end), msg_end, fill="purple", font=font)
                             else:
                                 msg_ended = "התקופה של ברכת הלבנה הסתיימה."
-                                draw.text((100, img_h - 260), msg_ended, fill="red", font=font)
+                                draw.text((100, y_end), msg_ended, fill="red", font=font)
                         except Exception as e:
                             print(f"❌ Erreur lors de l'affichage de la Birkat Halevana : {e}")
 
@@ -603,11 +614,15 @@ class ShabbatScheduleGenerator:
                             month_eng = match.group(1)
                             hebrew_month = name_map.get(month_eng, month_eng)
                         tekufa_msg = f"תקופת {hebrew_month} ביום {dt.strftime('%d/%m/%Y')} בשעה {dt.strftime('%H:%M')}"
-                        draw.text((100, img_h - 200), tekufa_msg, fill="red", font=font)
+
+                        if eau_icon:
+                            img.paste(eau_icon, (55, img_h - 200 - 15), eau_icon)
+                        draw.text((55 + 48 + 10, img_h - 200), tekufa_msg, fill="blue", font=font)
 
                     safe_parasha = self.sanitize_filename(parasha)
                     output_filename = f"horaires_{safe_parasha}.jpeg"
                     output_path = self.output_dir / output_filename
+                    print(f"✅ Image sauvegardée ici : {output_path}") # Ajout d'une instruction de débogage
                     img.save(str(output_path))
                     latest = self.output_dir / "latest-schedule.jpg"
                     if latest.exists():
