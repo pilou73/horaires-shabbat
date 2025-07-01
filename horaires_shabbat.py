@@ -565,7 +565,7 @@ class ShabbatScheduleGenerator:
                     draw.text((time_x, 950), self.format_time(times.get('mincha_hol')), fill="green", font=font)
                     draw.text((time_x, 990), self.format_time(times.get('arvit_hol')), fill="green", font=font)
                     reversed_parasha = reverse_hebrew_text(parasha_hebrew)
-                    draw.text((300, 280), reversed_parasha, fill="blue", font=bold, anchor="mm")
+                    draw.text((300, 280), parasha_hebrew, fill="blue", font=bold, anchor="mm")
 
                     if not is_mevarchim:
                         try:
