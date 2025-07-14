@@ -61,18 +61,18 @@ def parse_events(data):
     return shabbat_list
 
 if __name__ == "__main__":
-    start = "2026-09-01"
-    end = "2027-09-30"
+    start = "2027-09-01"
+    end = "2028-09-30"
     data = fetch_shabbatot(start, end)
     shabbat_data = parse_events(data)
 
     # Écriture TXT (format python dict)
-    with open("yearly_shabbat_data_5787.txt", "w", encoding="utf-8") as f:
+    with open("yearly_shabbat_data_5788.txt", "w", encoding="utf-8") as f:
         for entry in shabbat_data:
             f.write(f"{entry},\n")
 
     # Écriture JSON
-    with open("yearly_shabbat_data_5787.json", "w", encoding="utf-8") as fjson:
+    with open("yearly_shabbat_data_5788.json", "w", encoding="utf-8") as fjson:
         json.dump(shabbat_data, fjson, ensure_ascii=False, indent=2)
 
-    print("✅ yearly_shabbat_data_5787.txt et yearly_shabbat_data_5787.json générés.")
+    print("✅ yearly_shabbat_data_5788.txt et yearly_shabbat_data_5788.json générés.")
