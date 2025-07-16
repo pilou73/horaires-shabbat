@@ -888,7 +888,7 @@ class ShabbatScheduleGenerator:
                             day_name_he = get_weekday_name_hebrew(gdate)
                             month_name = get_jewish_month_name_hebrew(m, y)
                             rosh_lines.append(
-                                f"ראש חודש: יום {day_name_he} {gdate.strftime('%d/%m/%Y')} {month_name} ({d})"
+                                f"ראש חודש: יום {day_name_he} {gdate.strftime('%d/%m/%Y')} {d} {month_name}"
                             )
                         for i, rc_line in enumerate(rosh_lines):
                             draw.text(
@@ -940,7 +940,7 @@ class ShabbatScheduleGenerator:
                             line = f"צום {hebrew_name}: {fast['start']} - {fast['end']}"
                             if eau2_icon:
                                 img.paste(eau2_icon, (55, fast_y - 10), eau2_icon)
-                            draw.text((55 + 64 + 10, fast_y), line, fill="blue", font=font)
+                            draw.text((55 + 64 + 10, fast_y), line, fill="black", font=font)
                             fast_y += 50
 
 
