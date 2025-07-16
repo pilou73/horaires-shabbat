@@ -1,6 +1,8 @@
 At each year, open the file generate_yearly_data.py and change the dates for this year and the files named producted.
 
-after that, copy the contain of the yearly_shabbat_data_XXXX.json into the horaires_shabbat.py
+after that, copy the contain of the yearly_shabbat_data_XXXX.txt into the horaires_shabbat.py
+
+after that, execute chabbat_missing.py to check if one chabbat is missing (a dute of an holiday)
 
 ========================================================================================
 
