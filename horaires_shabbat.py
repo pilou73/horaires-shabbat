@@ -65,7 +65,7 @@ def get_next_month_molad(shabbat_date):
     chalakim = molad_obj.molad_chalakim
     weekday_he = get_weekday_name_hebrew(molad_date)
     hebrew_part = f" המולד ביום {weekday_he} בשעה "
-    molad_str = hebrew_part + f"{hour}:{str(minute).zfill(2)} + {chalakim}"
+    molad_str = hebrew_part + f"{hour}:{str(minute).zfill(2)} + {chalakim} חלקים"
     return molad_str
 
 def get_rosh_chodesh_days_for_next_month(shabbat_date):
