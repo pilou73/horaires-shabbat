@@ -50,11 +50,11 @@ while True:
         ev.add('dtstart', dt_local)
         ev.add('dtend', dt_local + timedelta(minutes=1))
 
-        # ➕ Ajouter rappel VALARM 30 minutes avant (DISPLAY)
+        # ➕ Ajouter rappel VALARM 60 minutes avant (DISPLAY)
         alarm = Alarm()
         alarm.add('ACTION', 'DISPLAY')
         alarm.add('DESCRIPTION', f"Tekufa {summary} dans 30 minutes")
-        alarm.add('TRIGGER', timedelta(minutes=-30))
+        alarm.add('TRIGGER', timedelta(minutes=-60))
         ev.add_component(alarm)
 
         cal.add_component(ev)

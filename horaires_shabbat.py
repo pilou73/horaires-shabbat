@@ -64,7 +64,7 @@ def get_next_month_molad(shabbat_date):
     minute = molad_obj.molad_minutes
     chalakim = molad_obj.molad_chalakim
     weekday_he = get_weekday_name_hebrew(molad_date)
-    hebrew_part = f" יום {weekday_he} בשעה "
+    hebrew_part = f" המולד ביום {weekday_he} בשעה "
     molad_str = hebrew_part + f"{hour}:{str(minute).zfill(2)} + {chalakim}"
     return molad_str
 
