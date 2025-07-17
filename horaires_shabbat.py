@@ -362,7 +362,18 @@ class ShabbatScheduleGenerator:
                 tekufa_col.append("")
         df["tekoufa"] = tekufa_col
 
+        # MOLAD
+        molad_col = []
+        for shabbat in df["day"]:
+            try:
+                molad_str = get_next_month_molad(shabbat)
+            except Exception:
+                molad_str = ""
+            molad_col.append(molad_str)
+        df["molad"] = molad_col
+
         sheets["שבתות השנה"] = df
+
 
         # Ecriture de tous les onglets (préserve Sheet1, etc.)
         with pd.ExcelWriter(str(excel_path), engine="openpyxl", mode="w") as writer:
@@ -567,6 +578,24 @@ class ShabbatScheduleGenerator:
                     reversed_parasha = reverse_hebrew_text(parasha_hebrew)
                     draw.text((300, 280), parasha_hebrew, fill="blue", font=bold, anchor="mm")
 
+                    if is_mevarchim:
+                        molad_str = get_next_month_molad(shabbat_date)
+                        draw.text((200, img_h - 300), molad_str, fill="blue", font=font)
+                        rc_days = get_rosh_chodesh_days_for_next_month(shabbat_date)
+                        rosh_lines = []
+                        for gdate, m, y, d in rc_days:
+                            day_name_he = get_weekday_name_hebrew(gdate)
+                            month_name = get_jewish_month_name_hebrew(m, y)
+                            rosh_lines.append(
+                                f"ראש חודש: יום {day_name_he} {gdate.strftime('%d/%m/%Y')} {month_name} ({d})"
+                            )
+                        for i, rc_line in enumerate(rosh_lines):
+                            draw.text(
+                                (200, img_h - 260 + 40 * i),
+                                rc_line,
+                                fill="blue",
+                                font=font
+                            )
                     if not is_mevarchim:
                         try:
                             previous_rosh = find_previous_rosh_chodesh(shabbat_date)
@@ -601,7 +630,7 @@ class ShabbatScheduleGenerator:
                         except Exception as e:
                             print(f"❌ Erreur lors de l'affichage de la Birkat Halevana : {e}")
 
-                    # --- Tekoufa à venir : affichage en rouge ---
+                    # --- Tekoufa à venir : affichage en bleu ---
                     tekufa_next = self.get_tekufa_for_next_week(shabbat_date)
                     if tekufa_next:
                         dt, summary = tekufa_next
