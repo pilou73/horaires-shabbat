@@ -903,7 +903,7 @@ class ShabbatScheduleGenerator:
                         try:
                             previous_rosh = find_previous_rosh_chodesh(shabbat_date)
                             molad_dt, latest_kiddush_levana = calculate_last_kiddush_levana_date(previous_rosh)
-                            start_kiddush_levana = molad_dt + timedelta(days=6)
+                            start_kiddush_levana = molad_dt + timedelta(days=7)
                             shabbat_date_only = shabbat_date.date()
                             y_start = img_h - 320
                             y_end = img_h - 260
