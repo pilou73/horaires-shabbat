@@ -887,8 +887,10 @@ class ShabbatScheduleGenerator:
                         for gdate, m, y, d in rc_days:
                             day_name_he = get_weekday_name_hebrew(gdate)
                             month_name = get_jewish_month_name_hebrew(m, y)
+                            # Conversion du jour en hébreu (א pour 1, ל pour 30)
+                            hebrew_day_num = "א' ב" if d == 1 else ("ל' ב" if d == 30 else str(d))
                             rosh_lines.append(
-                                f"ראש חודש: יום {day_name_he} {gdate.strftime('%d/%m/%Y')} {d} {month_name}"
+                                f"ראש חודש: יום {day_name_he} {gdate.strftime('%d/%m/%Y')} {hebrew_day_num}{month_name}"
                             )
                         for i, rc_line in enumerate(rosh_lines):
                             draw.text(
