@@ -803,10 +803,10 @@ class ShabbatScheduleGenerator:
             sunday_sunset_min = to_minutes(sunday_sunset_str)
             thursday_sunset_min = to_minutes(thursday_sunset_str)
             min_sunset = min(sunday_sunset_min, thursday_sunset_min)
-            minha_hol_minutes = min_sunset - 18
+            minha_hol_minutes = min_sunset - 17
             times["mincha_hol"] = self.round_to_nearest_five(minha_hol_minutes)
             max_sunset = max(sunday_sunset_min, thursday_sunset_min)
-            arvit_hol_minutes = max_sunset + 20
+            arvit_hol_minutes = max_sunset + 21
             times["arvit_hol"] = self.round_to_next_five(arvit_hol_minutes)
         else:
             times["mincha_hol"] = None
