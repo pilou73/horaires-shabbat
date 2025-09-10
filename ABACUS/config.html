@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <title>הגדרות קהילה / Community Settings / Paramètres de la communauté</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+    body { font-family: Arial, sans-serif; direction: rtl; background: #f7f7f7; margin: 0; padding: 20px; }
+    .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); }
+    h1 { text-align: center; margin-bottom: 30px; color: #1a237e; }
+    .lang-select { text-align: left; margin-bottom: 20px; direction: ltr; }
+    .lang-select select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; color: #333; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; box-sizing: border-box; }
+    input:focus, select:focus { border-color: #1a237e; outline: none; }
+    #map { height: 300px; width: 100%; border-radius: 8px; margin: 10px 0; }
+    .section-title { margin: 30px 0 15px 0; font-size: 1.3em; color: #1a237e; font-weight: bold; border-bottom: 2px solid #1a237e; padding-bottom: 5px; }
+    .activity-item { background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 8px; border: 1px solid #e9ecef; }
+    .activity-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .activity-name { font-weight: bold; color: #1a237e; }
+    .remove-btn { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .remove-btn:hover { background: #c82333; }
+    .activity-config { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .activity-config select, .activity-config input { margin: 0; }
+    .add-btn { background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin: 10px 0; }
+    .add-btn:hover { background: #218838; }
+    .save-btn { background: #1a237e; color: white; border: none; padding: 15px 30px; border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 30px; width: 100%; }
+    .save-btn:hover { background: #3949ab; }
+    .coords-display { background: #e3f2fd; padding: 10px; border-radius: 5px; margin: 10px 0; font-size: 14px; }
+    .hidden { display: none; }
+    body[dir="rtl"] .activity-config { direction: rtl; }
+    body[dir="rtl"] .lang-select { text-align: right; direction: rtl; }
+    body[dir="ltr"] .container { direction: ltr; }
+    body[dir="ltr"] .activity-config { direction: ltr; }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <!-- Sélecteur de langue -->
+    <div class="lang-select">
+    <label for="lang" style="font-weight:normal;">🌐 
+    <select id="lang" onchange="setLang(this.value)">
+    <option value="en">English</option>
+    <option value="he">עברית</option>
+    <option value="fr">Français</option>
+    </select>
+    </label>
+    </div>
+
+    <h1 id="title">הגדרות קהילה</h1>
+    
+    <form id="configForm">
+    <!-- Informations de base -->
+    <div class="form-group">
+    <label id="lbl_community" for="community">שם הקהילה</label>
+    <input type="text" id="community" name="community" placeholder="שם הקהילה">
+    </div>
+
+    <div class="form-group">
+    <label id="lbl_location" for="location">מיקום</label>
+    <input type="text" id="location" name="location" placeholder="לדוג׳ Paris, France">
+    </div>
+
+    <!-- Carte -->
+    <div class="form-group">
+    <label id="lbl_map">בחר מיקום על המפה</label>
+    <div id="map"></div>
+    <div id="coords-display" class="coords-display">
+    <span id="coords-text">לחץ על המפה לבחירת מיקום</span>
+    </div>
+    </div>
+
+    <!-- Coordonnées cachées -->
+    <input type="hidden" id="latitude" name="latitude">
+    <input type="hidden" id="longitude" name="longitude">
+
+    <!-- Activités Shabbat -->
+    <div class="section-title" id="lbl_shabbat_activities">פעילויות שבת</div>
+    <div id="shabbat_activities_container"></div>
+    <button type="button" class="add-btn" id="add_shabbat_activity" onclick="addActivity('shabbat')">+ הוסף פעילות שבת</button>
+
+    <!-- Horaires de semaine -->
+    <div class="section-title" id="lbl_weekly_times">זמני תפילות באמצע השבוע</div>
+    <div id="weekly_times_container"></div>
+    <button type="button" class="add-btn" id="add_weekly_time" onclick="addActivity('weekly')">+ הוסף תפילת שבוע</button>
+
+    <button type="submit" class="save-btn" id="btn_save">שמור הגדרות</button>
+    </form>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+    let currentLang = 'he';
+    let map;
+    let marker;
+    let activityCounter = 0;
+
+    const translations = {
+      he: {title: "הגדרות קהילה", lbl_community: "שם הקהילה", lbl_location: "מיקום", lbl_map: "בחר מיקום על המפה",
+        lbl_shabbat_activities: "פעילויות שבת", lbl_weekly_times: "זמני תפילות באמצע השבוע", btn_save: "שמור הגדרות",
+        add_shabbat_activity: "+ הוסף פעילות שבת", add_weekly_time: "+ הוסף תפילת שבוע",
+        placeholder_community: "שם הקהילה", placeholder_location: "לדוג׳ Paris, France",
+        coords_text: "לחץ על המפה לבחירת מיקום", coords_selected: "נבחר מיקום:",
+        activity_name: "שם הפעילות", fixed_time: "שעה קבועה", calculated_time: "חישוב יחסי",
+        reference_point: "נקודת ייחוס", before_after: "לפני/אחרי",
+        minutes_offset: "דקות", fixed_hour: "שעה",
+        before: "לפני", after: "אחרי",
+        candle_lighting: "הדלקת נרות", fin_shabbat: "סוף שבת", shkiya: "שקיעה", remove: "הסר"
+      },
+      en: {title: "Community Settings", lbl_community: "Community Name", lbl_location: "Location", lbl_map: "Select location on map",
+        lbl_shabbat_activities: "Shabbat Activities", lbl_weekly_times: "Weekday Prayer Times", btn_save: "Save Settings",
+        add_shabbat_activity: "+ Add Shabbat Activity", add_weekly_time: "+ Add Weekday Prayer",
+        placeholder_community: "Community Name", placeholder_location: "e.g. Paris, France",
+        coords_text: "Click on map to select location", coords_selected: "Selected location:",
+        activity_name: "Activity Name", fixed_time: "Fixed Time", calculated_time: "Relative Calculation",
+        reference_point: "Reference Point", before_after: "Before/After",
+        minutes_offset: "Minutes", fixed_hour: "Time",
+        before: "Before", after: "After",
+        candle_lighting: "Candle Lighting", fin_shabbat: "End of Shabbat", shkiya: "Sunset", remove: "Remove"
+      },
+      fr: {title: "Paramètres de la communauté", lbl_community: "Nom de la communauté", lbl_location: "Lieu",
+        lbl_map: "Sélectionner l'emplacement sur la carte", lbl_shabbat_activities: "Activités de Chabbat",
+        lbl_weekly_times: "Horaires des offices en semaine", btn_save: "Enregistrer les paramètres",
+        add_shabbat_activity: "+ Ajouter activité Chabbat", add_weekly_time: "+ Ajouter office de semaine",
+        placeholder_community: "Nom de la communauté", placeholder_location: "ex: Paris, France",
+        coords_text: "Cliquez sur la carte pour sélectionner l'emplacement", coords_selected: "Emplacement sélectionné:",
+        activity_name: "Nom de l'activité", fixed_time: "Heure fixe", calculated_time: "Calcul relatif",
+        reference_point: "Point de référence", before_after: "Avant/Après", minutes_offset: "Minutes", fixed_hour: "Heure",
+        before: "Avant", after: "Après",
+        candle_lighting: "Allumage des bougies", fin_shabbat: "Fin de Chabbat", shkiya: "Coucher du soleil", remove: "Supprimer"
+      }
+    };
+
+    function initMap() {
+      map = L.map('map').setView([31.7683, 35.2137], 12); // Jérusalem par défaut
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OpenStreetMap contributors'}).addTo(map);
+      map.on('click', function(e) {
+        const lat = e.latlng.lat.toFixed(6);
+        const lng = e.latlng.lng.toFixed(6);
+        if (marker) { map.removeLayer(marker); }
+        marker = L.marker([lat, lng]).addTo(map);
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+        const t = translations[currentLang];
+        document.getElementById('coords-text').textContent = `${t.coords_selected} ${lat}, ${lng}`;
+      });
+    }
+
+    function addActivity(type, defaultName = "", defaultTime = "") {
+      activityCounter++;
+      const container = type === 'shabbat' ? 'shabbat_activities_container' : 'weekly_times_container';
+      const t = translations[currentLang];
+      const activityHtml = `
+      <div class="activity-item" id="activity_${activityCounter}">
+        <div class="activity-header">
+          <span class="activity-name">${defaultName || (t.activity_name + " #" + activityCounter)}</span>
+          <button type="button" class="remove-btn" onclick="removeActivity(${activityCounter})">${t.remove}</button>
+        </div>
+        <div class="form-group">
+          <input type="text" name="activities[${activityCounter}][nom]" value="${defaultName}" placeholder="${t.activity_name}" ${defaultName ? "readonly" : ""} required>
+        </div>
+        <div class="activity-config">
+          <div>
+            <select name="activities[${activityCounter}][type]" onchange="toggleActivityType(${activityCounter}, this.value)">
+              <option value="fixe">${t.fixed_time}</option>
+              <option value="calculee">${t.calculated_time}</option>
+            </select>
+          </div>
+          <div id="fixed_${activityCounter}">
+            <input type="time" name="activities[${activityCounter}][heure]" value="${defaultTime}">
+          </div>
+          <div id="calculated_${activityCounter}" class="hidden">
+            <select name="activities[${activityCounter}][reference]">
+              <option value="candle_lighting">${t.candle_lighting}</option>
+              <option value="fin_shabbat">${t.fin_shabbat}</option>
+              <option value="shkiya">${t.shkiya}</option>
+            </select>
+          </div>
+        </div>
+        <div id="calculated_extra_${activityCounter}" class="hidden">
+          <div class="activity-config">
+            <div>
+              <select name="activities[${activityCounter}][avant_apres]">
+                <option value="avant">${t.before}</option>
+                <option value="apres">${t.after}</option>
+              </select>
+            </div>
+            <div>
+              <input type="number" name="activities[${activityCounter}][minutes_offset]" placeholder="${t.minutes_offset}" min="0" max="300">
+            </div>
+          </div>
+        </div>
+        <input type="hidden" name="activities[${activityCounter}][category]" value="${type}">
+      </div>`;
+      document.getElementById(container).insertAdjacentHTML('beforeend', activityHtml);
+    }
+
+    function removeActivity(id) {
+      const element = document.getElementById(`activity_${id}`);
+      if (element) { element.remove(); }
+    }
+
+    function toggleActivityType(id, type) {
+      const fixedDiv = document.getElementById(`fixed_${id}`);
+      const calculatedDiv = document.getElementById(`calculated_${id}`);
+      const calculatedExtraDiv = document.getElementById(`calculated_extra_${id}`);
+      if (type === 'fixe') {
+        fixedDiv.classList.remove('hidden');
+        calculatedDiv.classList.add('hidden');
+        calculatedExtraDiv.classList.add('hidden');
+      } else {
+        fixedDiv.classList.add('hidden');
+        calculatedDiv.classList.remove('hidden');
+        calculatedExtraDiv.classList.remove('hidden');
+      }
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      document.body.dir = (lang === "he") ? "rtl" : "ltr";
+      const t = translations[lang];
+      document.getElementById("title").textContent = t.title;
+      document.getElementById("lbl_community").textContent = t.lbl_community;
+      document.getElementById("lbl_location").textContent = t.lbl_location;
+      document.getElementById("lbl_map").textContent = t.lbl_map;
+      document.getElementById("lbl_shabbat_activities").textContent = t.lbl_shabbat_activities;
+      document.getElementById("lbl_weekly_times").textContent = t.lbl_weekly_times;
+      document.getElementById("btn_save").textContent = t.btn_save;
+      document.getElementById("add_shabbat_activity").textContent = t.add_shabbat_activity;
+      document.getElementById("add_weekly_time").textContent = t.add_weekly_time;
+      document.getElementById("community").placeholder = t.placeholder_community;
+      document.getElementById("location").placeholder = t.placeholder_location;
+      const coordsText = document.getElementById('coords-text');
+      if (coordsText.textContent.includes(':')) {
+        const coords = coordsText.textContent.split(': ')[1];
+        coordsText.textContent = `${t.coords_selected} ${coords}`;
+      } else {
+        coordsText.textContent = t.coords_text;
+      }
+    }
+
+    document.getElementById('configForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const config = {
+        nom_communaute: formData.get('community'),
+        lieu: formData.get('location'),
+        latitude: formData.get('latitude'),
+        longitude: formData.get('longitude'),
+        activites_shabbat: [],
+        horaires_semaine: {}
+      };
+      const activities = {};
+      for (let [key, value] of formData.entries()) {
+        if (key.startsWith('activities[')) {
+          const match = key.match(/activities\[(\d+)\]\[(\w+)\]/);
+          if (match) {
+            const id = match[1]; const field = match[2];
+            if (!activities[id]) activities[id] = {};
+            activities[id][field] = value;
+          }
+        }
+      }
+      Object.values(activities).forEach(activity => {
+        if (activity.category === 'shabbat') {
+          config.activites_shabbat.push(activity);
+        } else if (activity.category === 'weekly') {
+          const key = activity.nom.toLowerCase().replace(/\s+/g, '_');
+          config.horaires_semaine[key] = activity;
+        }
+      });
+      const jsonStr = JSON.stringify(config, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'config.json'; a.click();
+      URL.revokeObjectURL(url);
+      alert(translations[currentLang].btn_save + ' ✓');
+    });
+
+    // Initialisation
+    window.onload = function() {
+      setLang('he');
+      document.getElementById("lang").value = "he";
+      initMap();
+      // Ajout dynamique des 3 offices semaine avec option fixe ou calculée
+      addActivity('weekly', "שחרית");
+      addActivity('weekly', "מנחה");
+      addActivity('weekly', "ערבית");
+    };
+    </script>
+</body>
+</html>

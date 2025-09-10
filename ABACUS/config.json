@@ -1,0 +1,145 @@
+{
+  "nom_communaute": "מרום נווה",
+  "lieu": "יוחנן בדר 5 רמת גן",
+  "latitude": "32.072910",
+  "longitude": "34.832164",
+  "activites_shabbat": [
+    {
+      "nom": "שיר השירים",
+      "type": "calculee",
+      "heure": "",
+      "reference": "candle_lighting",
+      "avant_apres": "avant",
+      "minutes_offset": "13",
+      "category": "shabbat"
+    },
+    {
+      "nom": "מנחה וקבלת שבת",
+      "type": "calculee",
+      "heure": "",
+      "reference": "candle_lighting",
+      "avant_apres": "avant",
+      "minutes_offset": "0",
+      "category": "shabbat"
+    },
+    {
+      "nom": "שחרית",
+      "type": "fixe",
+      "heure": "07:45",
+      "reference": "candle_lighting",
+      "avant_apres": "avant",
+      "minutes_offset": "",
+      "category": "shabbat"
+    },
+    {
+      "nom": "מנחה גדולה",
+      "type": "fixe",
+      "heure": "13:15",
+      "reference": "candle_lighting",
+      "avant_apres": "avant",
+      "minutes_offset": "",
+      "category": "shabbat"
+    },
+    {
+      "nom": "תהילים לילדים",
+      "type": "fixe",
+      "heure": "14:00",
+      "reference": "candle_lighting",
+      "avant_apres": "avant",
+      "minutes_offset": "",
+      "category": "shabbat"
+    },
+    {
+      "nom": "שיעור לנשים",
+      "type": "fixe",
+      "heure": "16:30",
+      "reference": "candle_lighting",
+      "avant_apres": "avant",
+      "minutes_offset": "",
+      "category": "shabbat"
+    },
+    {
+      "nom": "שיעור אברהם כהן",
+      "type": "calculee",
+      "heure": "",
+      "reference": "fin_shabbat",
+      "avant_apres": "avant",
+      "minutes_offset": "180",
+      "category": "shabbat"
+    },
+    {
+      "nom": "תהילים לילדים 2",
+      "type": "fixe",
+      "heure": "17:00",
+      "reference": "candle_lighting",
+      "avant_apres": "avant",
+      "minutes_offset": "",
+      "category": "shabbat"
+    },
+    {
+      "nom": "שיעור הרב שוקרון",
+      "type": "calculee",
+      "heure": "",
+      "reference": "fin_shabbat",
+      "avant_apres": "avant",
+      "minutes_offset": "135",
+      "category": "shabbat"
+    },
+    {
+      "nom": "מנחה נוספת",
+      "type": "calculee",
+      "heure": "",
+      "reference": "fin_shabbat",
+      "avant_apres": "avant",
+      "minutes_offset": "90",
+      "category": "shabbat"
+    },
+    {
+      "nom": "ערבית מוצ\"ש",
+      "type": "calculee",
+      "heure": "",
+      "reference": "fin_shabbat",
+      "avant_apres": "avant",
+      "minutes_offset": "12",
+      "category": "shabbat"
+    },
+    {
+      "nom": "צאת השבת",
+      "type": "calculee",
+      "heure": "",
+      "reference": "fin_shabbat",
+      "avant_apres": "avant",
+      "minutes_offset": "0",
+      "category": "shabbat"
+    }
+  ],
+  "horaires_semaine": {
+    "שחרית": {
+      "nom": "שחרית",
+      "type": "fixe",
+      "heure": "05:45",
+      "reference": "candle_lighting",
+      "avant_apres": "avant",
+      "minutes_offset": "",
+      "category": "weekly"
+    },
+    "מנחה": {
+      "nom": "מנחה",
+      "type": "calculee",
+      "heure": "",
+      "reference": "shkiya",
+      "avant_apres": "avant",
+      "minutes_offset": "21",
+      "category": "weekly"
+    },
+    "ערבית": {
+      "nom": "ערבית",
+      "type": "calculee",
+      "heure": "",
+      "reference": "shkiya",
+      "avant_apres": "apres",
+      "minutes_offset": "25",
+      "category": "weekly"
+    }
+  }
+}

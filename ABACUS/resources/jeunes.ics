@@ -1,0 +1,193 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Jeûnes juifs diurnes (Ramat Gan)
+X-WR-TIMEZONE:Asia/Jerusalem
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20241006T052618
+DTEND;TZID=Asia/Jerusalem:20241006T183637
+SUMMARY:גדליה 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20250110T053028
+DTEND;TZID=Asia/Jerusalem:20250110T171217
+SUMMARY:עשרה בטבת 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20250313T044134
+DTEND;TZID=Asia/Jerusalem:20250313T180506
+SUMMARY:תענית אסתר 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20250410T050600
+DTEND;TZID=Asia/Jerusalem:20250410T192424
+SUMMARY:תענית בכורות 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20250713T043216
+DTEND;TZID=Asia/Jerusalem:20250713T200629
+SUMMARY:י''ז בתמוז 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20250925T051901
+DTEND;TZID=Asia/Jerusalem:20250925T185109
+SUMMARY:גדליה 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20251230T052908
+DTEND;TZID=Asia/Jerusalem:20251230T170330
+SUMMARY:עשרה בטבת 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20260302T045519
+DTEND;TZID=Asia/Jerusalem:20260302T175648
+SUMMARY:תענית אסתר 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20260401T051732
+DTEND;TZID=Asia/Jerusalem:20260401T191805
+SUMMARY:תענית בכורות 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20260702T042641
+DTEND;TZID=Asia/Jerusalem:20260702T200843
+SUMMARY:י''ז בתמוז 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20260914T051204
+DTEND;TZID=Asia/Jerusalem:20260914T190604
+SUMMARY:גדליה 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20261220T052455
+DTEND;TZID=Asia/Jerusalem:20261220T165731
+SUMMARY:עשרה בטבת 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20270322T043041
+DTEND;TZID=Asia/Jerusalem:20270322T181104
+SUMMARY:תענית אסתר 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20270421T045343
+DTEND;TZID=Asia/Jerusalem:20270421T193142
+SUMMARY:תענית בכורות 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20270722T043722
+DTEND;TZID=Asia/Jerusalem:20270722T200238
+SUMMARY:י''ז בתמוז 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20271004T052430
+DTEND;TZID=Asia/Jerusalem:20271004T184004
+SUMMARY:גדליה 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20280109T053029
+DTEND;TZID=Asia/Jerusalem:20280109T171049
+SUMMARY:עשרה בטבת 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20280309T044614
+DTEND;TZID=Asia/Jerusalem:20280309T180225
+SUMMARY:תענית אסתר 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20280410T050540
+DTEND;TZID=Asia/Jerusalem:20280410T192435
+SUMMARY:תענית בכורות 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20280711T043119
+DTEND;TZID=Asia/Jerusalem:20280711T200702
+SUMMARY:י''ז בתמוז 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20280924T051834
+DTEND;TZID=Asia/Jerusalem:20280924T185207
+SUMMARY:גדליה 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20281228T052836
+DTEND;TZID=Asia/Jerusalem:20281228T170220
+SUMMARY:עשרה בטבת 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20290228T045719
+DTEND;TZID=Asia/Jerusalem:20290228T175528
+SUMMARY:תענית אסתר 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20290330T051944
+DTEND;TZID=Asia/Jerusalem:20290330T191654
+SUMMARY:תענית בכורות 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20290701T042624
+DTEND;TZID=Asia/Jerusalem:20290701T200845
+SUMMARY:י''ז בתמוז 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20290912T051101
+DTEND;TZID=Asia/Jerusalem:20290912T190821
+SUMMARY:גדליה 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20291216T052246
+DTEND;TZID=Asia/Jerusalem:20291216T165558
+SUMMARY:עשרה בטבת 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20300318T043528
+DTEND;TZID=Asia/Jerusalem:20300318T180829
+SUMMARY:תענית אסתר 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20300417T045756
+DTEND;TZID=Asia/Jerusalem:20300417T192906
+SUMMARY:תענית בכורות 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20300718T043505
+DTEND;TZID=Asia/Jerusalem:20300718T200432
+SUMMARY:י''ז בתמוז 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=Asia/Jerusalem:20300930T052204
+DTEND;TZID=Asia/Jerusalem:20300930T184453
+SUMMARY:גדליה 
+DESCRIPTION:Jeûne diurne. Début à עלות השחר, fin à צאת הכוכבים (+18min).
+END:VEVENT
+END:VCALENDAR
