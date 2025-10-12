@@ -34,7 +34,7 @@
     {
       "nom": "מנחה גדולה",
       "type": "fixe",
-      "heure": "13:15",
+      "heure": "13:00",
       "reference": "candle_lighting",
       "avant_apres": "avant",
       "minutes_offset": "",
@@ -129,7 +129,7 @@
       "heure": "",
       "reference": "shkiya",
       "avant_apres": "avant",
-      "minutes_offset": "21",
+      "minutes_offset": "20",
       "category": "weekly"
     },
     "ערבית": {
@@ -138,7 +138,7 @@
       "heure": "",
       "reference": "shkiya",
       "avant_apres": "apres",
-      "minutes_offset": "25",
+      "minutes_offset": "21",
       "category": "weekly"
     }
   }

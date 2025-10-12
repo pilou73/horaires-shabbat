@@ -753,7 +753,7 @@ class ShabbatScheduleGenerator:
     def calculate_times(self, shabbat_start, shabbat_end):
         start_minutes = shabbat_start.hour * 60 + shabbat_start.minute
         end_minutes = shabbat_end.hour * 60 + shabbat_end.minute
-        tehilim_ete = self.round_to_nearest_five(17 * 60)
+        tehilim_ete = self.round_to_nearest_five(16 * 60 +30)
         tehilim_hiver = self.round_to_nearest_five(14 * 60)
         tehilim = tehilim_ete if self.season == "summer" else tehilim_hiver
 
@@ -765,7 +765,7 @@ class ShabbatScheduleGenerator:
             "tehilim": tehilim,
             "tehilim_ete": tehilim_ete,
             "tehilim_hiver": tehilim_hiver,
-            "shiur_nashim": 16 * 60 +30,
+            "shiur_nashim": 16 * 60 +00,
             "arvit_hol": None,
             "arvit_motsach": None,
             "mincha_2": None,
