@@ -753,7 +753,7 @@ class ShabbatScheduleGenerator:
     def calculate_times(self, shabbat_start, shabbat_end):
         start_minutes = shabbat_start.hour * 60 + shabbat_start.minute
         end_minutes = shabbat_end.hour * 60 + shabbat_end.minute
-        tehilim_ete = self.round_to_nearest_five(17 * 60)
+        tehilim_ete = self.round_to_nearest_five(16 * 60 +30)
         tehilim_hiver = self.round_to_nearest_five(14 * 60)
         tehilim = tehilim_ete if self.season == "summer" else tehilim_hiver
 
@@ -765,7 +765,7 @@ class ShabbatScheduleGenerator:
             "tehilim": tehilim,
             "tehilim_ete": tehilim_ete,
             "tehilim_hiver": tehilim_hiver,
-            "shiur_nashim": 16 * 60 +15,
+            "shiur_nashim": 16 * 60 +00,
             "arvit_hol": None,
             "arvit_motsach": None,
             "mincha_2": None,
@@ -803,10 +803,10 @@ class ShabbatScheduleGenerator:
             sunday_sunset_min = to_minutes(sunday_sunset_str)
             thursday_sunset_min = to_minutes(thursday_sunset_str)
             min_sunset = min(sunday_sunset_min, thursday_sunset_min)
-            minha_hol_minutes = min_sunset - 17
+            minha_hol_minutes = min_sunset - 18
             times["mincha_hol"] = self.round_to_nearest_five(minha_hol_minutes)
             max_sunset = max(sunday_sunset_min, thursday_sunset_min)
-            arvit_hol_minutes = max_sunset + 21
+            arvit_hol_minutes = max_sunset + 20
             times["arvit_hol"] = self.round_to_next_five(arvit_hol_minutes)
         else:
             times["mincha_hol"] = None
@@ -1026,8 +1026,9 @@ class ShabbatScheduleGenerator:
             print(f"❌ Erreur lors de la mise à jour de l’Excel: {e}")
 
 
-    def generate(self):
-        current_date = datetime.now()
+    def generate(self, current_date=None):
+        if current_date is None:
+            current_date = datetime.now()
         shabbat_times = self.get_shabbat_times_from_excel_file(current_date)
         if not shabbat_times:
             print("❌ Aucun horaire trouvé pour cette semaine")
@@ -1044,26 +1045,44 @@ class ShabbatScheduleGenerator:
             is_mevarchim=shabbat.get("is_mevarchim", False)
         )
         if not image_path:
-            print("❌ Échec de la génération de l’image")
+            print("❌ Échec de la génération de l'image")
         self.update_excel(shabbat, times)
 
 def main():
     try:
+        # Gestion des arguments de ligne de commande
+        if len(sys.argv) > 1:
+            try:
+                # Format attendu: YYYY-MM-DD (exemple: 2025-10-27)
+                custom_date = datetime.strptime(sys.argv[1], "%Y-%m-%d")
+                print(f"📅 Date spécifiée: {custom_date.strftime('%d/%m/%Y')}")
+            except ValueError:
+                print("⚠️ Format de date invalide!")
+                print("Format attendu : YYYY-MM-DD (exemple: 2025-10-27)")
+                input("Appuyez sur Entrée pour fermer...")
+                return
+        else:
+            custom_date = datetime.now()
+            print(f"📅 Date actuelle: {custom_date.strftime('%d/%m/%Y')}")
+
         if getattr(sys, "frozen", False):
             base_path = Path(sys.executable).parent
         elif "__file__" in globals():
             base_path = Path(__file__).parent
         else:
             base_path = Path.cwd()
+        
         template_path = base_path / "resources" / "template.jpg"
-        font_path     = base_path / "resources" / "mriamc_0.ttf"
+        font_path    = base_path / "resources" / "mriamc_0.ttf"
         arial_bold    = base_path / "resources" / "ARIALBD_0.TTF"
         output_dir    = base_path / "output"
+        
         generator = ShabbatScheduleGenerator(
             template_path, font_path, arial_bold, output_dir
         )
         generator.update_excel_with_mevarchim_column(generator.output_dir / "horaires_shabbat.xlsx")
-        generator.generate()
+        generator.generate(custom_date)
+        
     except Exception as e:
         print(f"❌ Erreur: {e}")
         input("Appuyez sur Entrée pour fermer...")
