@@ -43,7 +43,7 @@
     {
       "nom": "תהילים לילדים",
       "type": "fixe",
-      "heure": "14:00",
+      "heure": "15:00",
       "reference": "candle_lighting",
       "avant_apres": "avant",
       "minutes_offset": "",
@@ -65,15 +65,6 @@
       "reference": "fin_shabbat",
       "avant_apres": "avant",
       "minutes_offset": "180",
-      "category": "shabbat"
-    },
-    {
-      "nom": "תהילים לילדים 2",
-      "type": "fixe",
-      "heure": "17:00",
-      "reference": "candle_lighting",
-      "avant_apres": "avant",
-      "minutes_offset": "",
       "category": "shabbat"
     },
     {

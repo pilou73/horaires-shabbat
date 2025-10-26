@@ -106,7 +106,7 @@ def calculate_last_kiddush_levana_date(gregorian_date):
         minutes=molad_obj.molad_minutes,
         seconds=molad_obj.molad_chalakim * 10 / 18
     )
-    latest_time = molad_dt + timedelta(days=12, hours=18)
+    latest_time = molad_dt + timedelta(days=13, hours=18)
     return molad_dt, latest_time
 
 def find_next_rosh_chodesh(date_):
@@ -761,7 +761,7 @@ class ShabbatScheduleGenerator:
             "mincha_kabbalat": start_minutes,
             "shir_hashirim": self.round_to_nearest_five(start_minutes - 10),
             "shacharit": self.round_to_nearest_five(7 * 60 + 45),
-            "mincha_gdola": self.round_to_nearest_five(12 * 60 + (30 if self.season == "winter" else 60)),
+            "mincha_gdola": self.round_to_nearest_five(12 * 60 + (45 if self.season == "winter" else 60)),
             "tehilim": tehilim,
             "tehilim_ete": tehilim_ete,
             "tehilim_hiver": tehilim_hiver,
