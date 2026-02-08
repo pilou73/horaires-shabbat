@@ -25,19 +25,7 @@ HEBREW_MONTHS = {
 HEBREW_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 
 def get_jewish_month_name_hebrew(jm, jy):
-    # ✅ FIX: Utiliser une approche plus robuste
-    try:
-        cal = JewishCalendar()
-        cal.set_jewish_date(jy, jm, 1)
-        # Vérifier si c'est une année bissextile hébraïque
-        cal2 = JewishCalendar()
-        cal2.set_jewish_date(jy, 13, 1)
-        # Si on peut définir le mois 13, c'est une année bissextile
-        is_leap_year = True
-    except:
-        is_leap_year = False
-    
-    if jm == 12 and is_leap_year:
+    if jm == 12 and JewishCalendar.is_jewish_leap_year(jy):
         return 'אדר א׳'
     if jm == 13:
         return 'אדר ב׳'
@@ -190,13 +178,8 @@ def parse_fast_ics(ics_path):
 
 def get_fast_from_ics_for_week(shabbat_date, ics_path=ICS_PATH):
     all_fasts = parse_fast_ics(ics_path)
-    
-    # ✅ FIX: Vérifier si shabbat_date est déjà un date ou un datetime
-    if isinstance(shabbat_date, datetime):
-        shabbat_date = shabbat_date.date()
-    
-    week_start = (shabbat_date + timedelta(days=1))  # dimanche
-    week_end = (shabbat_date + timedelta(days=6))    # vendredi
+    week_start = (shabbat_date + timedelta(days=1)).date()  # dimanche
+    week_end = (shabbat_date + timedelta(days=6)).date()    # vendredi
     return [
         {
             "date": f["date"],
@@ -207,6 +190,7 @@ def get_fast_from_ics_for_week(shabbat_date, ics_path=ICS_PATH):
         for f in all_fasts
         if week_start <= f["date"] <= week_end
     ]
+
 
 class ShabbatScheduleGenerator:
     def __init__(self, template_path, font_path, arial_bold_path, output_dir):
@@ -283,7 +267,7 @@ class ShabbatScheduleGenerator:
 {'day': '2026-07-03 19:33:00', 'פרשה': 'פינחס', 'כנסית שבת': '19:33', 'צאת שבת': '20:33'},
 {'day': '2026-07-10 19:31:00', 'פרשה': 'מטות-מסעי', 'כנסית שבת': '19:31', 'צאת שבת': '20:31'},
 {'day': '2026-07-17 19:29:00', 'פרשה': 'דברים', 'כנסית שבת': '19:29', 'צאת שבת': '20:28'},
-{'day': '2026-07-24 19:25:00', 'פרשה': 'ואתחנן', 'כנסית שבת': '19:25', 'צאת שב  ': '20:24'},
+{'day': '2026-07-24 19:25:00', 'פרשה': 'ואתחנן', 'כנסית שבת': '19:25', 'צאת שבת': '20:24'},
 {'day': '2026-07-31 19:20:00', 'פרשה': 'עקב', 'כנסית שבת': '19:20', 'צאת שבת': '20:18'},
 {'day': '2026-08-07 19:15:00', 'פרשה': 'ראה', 'כנסית שבת': '19:15', 'צאת שבת': '20:11'},
 {'day': '2026-08-14 19:08:00', 'פרשה': 'שופטים', 'כנסית שבת': '19:08', 'צאת שבת': '20:04'},
@@ -366,7 +350,7 @@ class ShabbatScheduleGenerator:
 {'day': '2028-02-04 16:58:00', 'פרשה': 'בא', 'כנסית שבת': '16:58', 'צאת שבת': '17:55'},
 {'day': '2028-02-11 17:05:00', 'פרשה': 'בשלח', 'כנסית שבת': '17:05', 'צאת שבת': '18:01'},
 {'day': '2028-02-18 17:11:00', 'פרשה': 'יתרו', 'כנסית שבת': '17:11', 'צאת שבת': '18:07'},
-{'day': '2028-02-25 17:16:00', 'פרשה': 'מש  טים', 'כנסית שבת': '17:16', 'צאת שבת': '18:12'},
+{'day': '2028-02-25 17:16:00', 'פרשה': 'משפטים', 'כנסית שבת': '17:16', 'צאת שבת': '18:12'},
 {'day': '2028-03-03 17:22:00', 'פרשה': 'תרומה', 'כנסית שבת': '17:22', 'צאת שבת': '18:17'},
 {'day': '2028-03-10 17:27:00', 'פרשה': 'תצוה', 'כנסית שבת': '17:27', 'צאת שבת': '18:22'},
 {'day': '2028-03-17 17:32:00', 'פרשה': 'כי תשא', 'כנסית שבת': '17:32', 'צאת שבת': '18:27'},
@@ -430,7 +414,7 @@ class ShabbatScheduleGenerator:
 {'day': '2029-04-27 19:00:00', 'פרשה': 'אמור', 'כנסית שבת': '19:00', 'צאת שבת': '19:58'},
 {'day': '2029-05-04 19:05:00', 'פרשה': 'בהר', 'כנסית שבת': '19:05', 'צאת שבת': '20:04'},
 {'day': '2029-05-11 19:10:00', 'פרשה': 'בחקתי', 'כנסית שבת': '19:10', 'צאת שבת': '20:09'},
-{'day': '2029-05-18 19:15:00', 'פרשה': 'במדבר', 'כנסית שבת': '19:15', 'צאת שבת': '20:12'},
+{'day': '2029-05-18 19:15:00', 'פרשה': 'במדבר', 'כנסית שבת': '19:15', 'צאת שבת': ''},
 {'day': '2029-05-25 19:20:00', 'פרשה': 'נשא', 'כנסית שבת': '19:20', 'צאת שבת': '20:20'},
 {'day': '2029-06-01 19:24:00', 'פרשה': 'בהעלתך', 'כנסית שבת': '19:24', 'צאת שבת': '20:25'},
 {'day': '2029-06-08 19:27:00', 'פרשה': 'שלח־לך', 'כנסית שבת': '19:27', 'צאת שבת': '20:29'},
@@ -661,10 +645,7 @@ class ShabbatScheduleGenerator:
             is_mevarchim = row.get("שבת מברכין") in [True, "כן"]
             if is_mevarchim:
                 try:
-                    shabbat_date_val = row["day"]
-                    if isinstance(shabbat_date_val, pd.Timestamp):
-                        shabbat_date_val = shabbat_date_val.date()
-                    molad_str = get_next_month_molad(shabbat_date_val)
+                    molad_str = get_next_month_molad(row["day"])
                 except Exception:
                     molad_str = ""
             else:
@@ -675,10 +656,7 @@ class ShabbatScheduleGenerator:
         # Ajout de la colonne tekoufa
         tekufa_col = []
         for shabbat in df["day"]:
-            shabbat_date_val = shabbat
-            if isinstance(shabbat_date_val, pd.Timestamp):
-                shabbat_date_val = shabbat_date_val.date()
-            tekufa = self.get_tekufa_for_shabbat(shabbat_date_val)
+            tekufa = self.get_tekufa_for_shabbat(shabbat)
             if tekufa:
                 dt, summary = tekufa
                 tekufa_col.append(dt.strftime("%Y-%m-%d %H:%M"))
@@ -701,6 +679,7 @@ class ShabbatScheduleGenerator:
 
         print("✅ Colonnes mises à jour : שבת מברכין, horaires ביניים, molad (sélectif) et tekoufa (fin).")
 
+
     def get_shabbat_times_from_excel_file(self, current_date):
         excel_path = self.output_dir / "horaires_shabbat.xlsx"
         if excel_path.exists():
@@ -710,47 +689,28 @@ class ShabbatScheduleGenerator:
                     df["day"] = pd.to_datetime(df["תאריך"], format="%d/%m/%Y").dt.date
                 else:
                     df["day"] = pd.to_datetime(df["day"], format="%Y-%m-%d %H:%M:%S", errors='coerce').dt.date.fillna(df["day"])
-                
                 today_date = current_date.date()
                 df = df[df["day"] >= today_date].sort_values(by="day")
                 if df.empty:
                     return None
-                
                 row = df.iloc[0]
-                
-                # ✅ FIX: Assure-toi que la date est datetime.date
-                shabbat_date_val = row["day"]
-                if isinstance(shabbat_date_val, pd.Timestamp):
-                    shabbat_date_val = shabbat_date_val.date()
-                elif isinstance(shabbat_date_val, (int, float)):
-                    # Si c'est un nombre, essaie de convertir
-                    try:
-                        shabbat_date_val = datetime.fromordinal(int(shabbat_date_val)).date()
-                    except:
-                        shabbat_date_val = pd.Timestamp(shabbat_date_val).date()
-                
-                print(f"DEBUG: shabbat_date_val = {shabbat_date_val} ({type(shabbat_date_val)})")  # 🔍 Pour vérifier
-                
-                shabbat_date = datetime.combine(shabbat_date_val, datetime.min.time())
+                shabbat_date = datetime.combine(row["day"], datetime.min.time())
                 candle_time = datetime.strptime(str(row["כנסית שבת"]), "%H:%M").time()
                 havdalah_time = datetime.strptime(str(row["צאת שבת"]), "%H:%M").time()
-                shabbat_start = datetime.combine(shabbat_date_val, candle_time)
-                shabbat_end = datetime.combine(shabbat_date_val, havdalah_time)
+                shabbat_start = datetime.combine(row["day"], candle_time)
+                shabbat_end = datetime.combine(row["day"], havdalah_time)
                 is_mevarchim_excel = row.get("שבת מברכין", False) == True or row.get("שבת מברכין", "") == "Oui"
-                
                 return [{
-                    "date": shabbat_date_val,  # ✅ Utilise la valeur corrigée
+                    "date": shabbat_date,
                     "start": shabbat_start,
                     "end": shabbat_end,
                     "parasha": row.get("פרשה", ""),
-                    "parasha_hebrew": row.get("פרשה_עברית", row.get("פרשה", "")),  # ✅ FIX: rowget -> row.get
+                    "parasha_hebrew": row.get("פרשה_עברית", row.get("פרשה", "")),
                     "candle_lighting": row["כנסית שבת"],
                     "is_mevarchim": is_mevarchim_excel
                 }]
             except Exception as e:
                 print(f"❌ Erreur lors de la lecture du fichier Excel: {e}")
-                import traceback
-                traceback.print_exc()  # 🔍 Affiche le message d'erreur complet
                 return None
         else:
             print("Fichier Excel non trouvé, utilisation des données intégrées")
@@ -760,25 +720,19 @@ class ShabbatScheduleGenerator:
             roshchodesh_end = df["day"].max()
             rosh_dates = self.fetch_roshchodesh_dates(roshchodesh_start, roshchodesh_end)
             df = self.identify_shabbat_mevarchim(df, rosh_dates)
-            df = df[df["day"] >= current_date.date()].sort_values(by="day")
-            if df.empty:
-                return None
             row = df.iloc[0]
-            shabbat_date_val = row["day"]
-            if isinstance(shabbat_date_val, pd.Timestamp):
-                shabbat_date_val = shabbat_date_val.date()
-            shabbat_date = datetime.combine(shabbat_date_val, datetime.min.time())
+            shabbat_date = datetime.combine(row["day"], datetime.min.time())
             candle_time = datetime.strptime(str(row["כנסית שבת"]), "%H:%M").time()
             havdalah_time = datetime.strptime(str(row["צאת שבת"]), "%H:%M").time()
-            shabbat_start = datetime.combine(shabbat_date_val, candle_time)
-            shabbat_end = datetime.combine(shabbat_date_val, havdalah_time)
+            shabbat_start = datetime.combine(row["day"], candle_time)
+            shabbat_end = datetime.combine(row["day"], havdalah_time)
             is_mevarchim_excel = row.get("שבת מברכין", False) == True or row.get("שבת מברכין", "") == "Oui"
             return [{
-                "date": shabbat_date_val,
+                "date": shabbat_date,
                 "start": shabbat_start,
                 "end": shabbat_end,
                 "parasha": row.get("פרשה", ""),
-                "parasha_hebrew": row.get("פרשה_עברית", row.get("פרשה", "")),  # ✅ FIX: rowget -> row.get
+                "parasha_hebrew": row.get("פרשה_עברית", rowget("פרשה", "")),
                 "candle_lighting": row["כנסית שבת"],
                 "is_mevarchim": is_mevarchim_excel
             }]
@@ -799,19 +753,19 @@ class ShabbatScheduleGenerator:
     def calculate_times(self, shabbat_start, shabbat_end):
         start_minutes = shabbat_start.hour * 60 + shabbat_start.minute
         end_minutes = shabbat_end.hour * 60 + shabbat_end.minute
-        tehilim_ete = self.round_to_nearest_five(16 * 60 + 30)
-        tehilim_hiver = self.round_to_nearest_five(15 * 60)
+        tehilim_ete = self.round_to_nearest_five(16 * 60 +30)
+        tehilim_hiver = self.round_to_nearest_five(14 * 60)
         tehilim = tehilim_ete if self.season == "summer" else tehilim_hiver
 
         times = {
             "mincha_kabbalat": start_minutes,
             "shir_hashirim": self.round_to_nearest_five(start_minutes - 10),
             "shacharit": self.round_to_nearest_five(7 * 60 + 45),
-            "mincha_gdola": self.round_to_nearest_five(12 * 60 + (45 if self.season == "winter" else 60)),
+            "mincha_gdola": self.round_to_nearest_five(12 * 60 + (30 if self.season == "winter" else 60)),
             "tehilim": tehilim,
             "tehilim_ete": tehilim_ete,
             "tehilim_hiver": tehilim_hiver,
-            "shiur_nashim": 15 * 60 + 30,
+            "shiur_nashim": 16 * 60 +00,
             "arvit_hol": None,
             "arvit_motsach": None,
             "mincha_2": None,
@@ -876,7 +830,7 @@ class ShabbatScheduleGenerator:
 
             with Image.open(template) as img:
                 try:
-                    img_w, img_h = img.size  # Définir img_w et img_h ici
+                    img_w, img_h = img.size # Définir img_w et img_h ici
                     draw = ImageDraw.Draw(img)
                     font = self._font
                     bold = self._arial_bold_font
@@ -923,19 +877,12 @@ class ShabbatScheduleGenerator:
                     draw.text((time_x, 950), self.format_time(times.get('mincha_hol')), fill="green", font=font)
                     draw.text((time_x, 990), self.format_time(times.get('arvit_hol')), fill="green", font=font)
                     reversed_parasha = reverse_hebrew_text(parasha_hebrew)
-                    draw.text((300, 280), parasha_hebrew, fill="blue", font=bold, anchor="mm")
+                    draw.text((300, 280), reversed_parasha, fill="blue", font=bold, anchor="mm")
 
                     if is_mevarchim:
-                        # ✅ FIX: Assure-toi que shabbat_date est une date, pas un int
-                        if isinstance(shabbat_date, datetime):
-                            shabbat_date_for_molad = shabbat_date.date()
-                        else:
-                            shabbat_date_for_molad = shabbat_date
-                        
-                        print(f"DEBUG: shabbat_date_for_molad = {shabbat_date_for_molad} ({type(shabbat_date_for_molad)})")
-                        molad_str = get_next_month_molad(shabbat_date_for_molad)
+                        molad_str = get_next_month_molad(shabbat_date)
                         draw.text((200, img_h - 300), molad_str, fill="blue", font=font)
-                        rc_days = get_rosh_chodesh_days_for_next_month(shabbat_date_for_molad)
+                        rc_days = get_rosh_chodesh_days_for_next_month(shabbat_date)
                         rosh_lines = []
                         for gdate, m, y, d in rc_days:
                             day_name_he = get_weekday_name_hebrew(gdate)
@@ -954,16 +901,10 @@ class ShabbatScheduleGenerator:
                             )
                     if not is_mevarchim:
                         try:
-                            # ✅ FIX: Convertis la date si nécessaire
-                            if isinstance(shabbat_date, datetime):
-                                shabbat_date_for_calc = shabbat_date.date()
-                            else:
-                                shabbat_date_for_calc = shabbat_date
-                            
-                            previous_rosh = find_previous_rosh_chodesh(shabbat_date_for_calc)
+                            previous_rosh = find_previous_rosh_chodesh(shabbat_date)
                             molad_dt, latest_kiddush_levana = calculate_last_kiddush_levana_date(previous_rosh)
                             start_kiddush_levana = molad_dt + timedelta(days=7)
-                            shabbat_date_only = shabbat_date_for_calc if isinstance(shabbat_date_for_calc, date) else shabbat_date_for_calc.date()
+                            shabbat_date_only = shabbat_date.date()
                             y_start = img_h - 320
                             y_end = img_h - 260
 
@@ -993,7 +934,7 @@ class ShabbatScheduleGenerator:
                             print(f"❌ Erreur lors de l'affichage de la Birkat Halevana : {e}")
 
                     # 🔽 Affichage des jeunes (à partir de jeunes.ics)
-                    fasts = get_fast_from_ics_for_week(shabbat_date_for_molad if is_mevarchim else shabbat_date_for_calc)
+                    fasts = get_fast_from_ics_for_week(shabbat_date)
                     if fasts:
                         fast_y = img_h - 140
                         for fast in fasts:
@@ -1004,9 +945,9 @@ class ShabbatScheduleGenerator:
                             draw.text((55 + 64 + 10, fast_y), line, fill="black", font=font)
                             fast_y += 50
 
+
                     # --- Tekoufa à venir : affichage en bleu ---
-                    shabbat_date_for_tekufa = shabbat_date_for_molad if is_mevarchim else shabbat_date_for_calc
-                    tekufa_next = self.get_tekufa_for_next_week(shabbat_date_for_tekufa)
+                    tekufa_next = self.get_tekufa_for_next_week(shabbat_date)
                     if tekufa_next:
                         dt, summary = tekufa_next
                         match = re.search(r'Tekufat\s+(\w+)\s+(\d{4})', summary)
@@ -1026,7 +967,7 @@ class ShabbatScheduleGenerator:
                     safe_parasha = self.sanitize_filename(parasha)
                     output_filename = f"horaires_{safe_parasha}.jpeg"
                     output_path = self.output_dir / output_filename
-                    print(f"✅ Image sauvegardée ici : {output_path}")  # Ajout d'une instruction de débogage
+                    print(f"✅ Image sauvegardée ici : {output_path}") # Ajout d'une instruction de débogage
                     img.save(str(output_path))
                     latest = self.output_dir / "latest-schedule.jpg"
                     if latest.exists():
@@ -1035,16 +976,12 @@ class ShabbatScheduleGenerator:
                     return output_path
                 except Exception as e:
                     print(f"❌ Erreur lors du traitement de l'image: {e}")
-                    import traceback
-                    traceback.print_exc()
                     return None
         except FileNotFoundError as e:
             print(f"❌ Erreur lors de l'ouverture du template: {e}")
             return None
         except Exception as e:
             print(f"❌ Erreur générale: {e}")
-            import traceback
-            traceback.print_exc()
             return None
 
     def update_excel(self, shabbat_data, times):
@@ -1086,7 +1023,8 @@ class ShabbatScheduleGenerator:
                 df_current.to_excel(writer, sheet_name="השבת", index=False)
             print("✅ Onglet 'THIS SHABBAT' mis à jour avec les données du Chabbat en cours.")
         except Exception as e:
-            print(f"❌ Erreur lors de la mise à jour de l'Excel: {e}")
+            print(f"❌ Erreur lors de la mise à jour de l’Excel: {e}")
+
 
     def generate(self, current_date=None):
         if current_date is None:
@@ -1136,8 +1074,8 @@ def main():
         
         template_path = base_path / "resources" / "template.jpg"
         font_path    = base_path / "resources" / "mriamc_0.ttf"
-        arial_bold   = base_path / "resources" / "ARIALBD_0.TTF"
-        output_dir   = base_path / "output"
+        arial_bold    = base_path / "resources" / "ARIALBD_0.TTF"
+        output_dir    = base_path / "output"
         
         generator = ShabbatScheduleGenerator(
             template_path, font_path, arial_bold, output_dir
@@ -1147,8 +1085,6 @@ def main():
         
     except Exception as e:
         print(f"❌ Erreur: {e}")
-        import traceback
-        traceback.print_exc()
         input("Appuyez sur Entrée pour fermer...")
 
 if __name__ == "__main__":
