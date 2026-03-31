@@ -799,7 +799,7 @@ class ShabbatScheduleGenerator:
     def calculate_times(self, shabbat_start, shabbat_end):
         start_minutes = shabbat_start.hour * 60 + shabbat_start.minute
         end_minutes = shabbat_end.hour * 60 + shabbat_end.minute
-        tehilim_ete = self.round_to_nearest_five(16 * 60 + 30)
+        tehilim_ete = self.round_to_nearest_five(17 * 60)
         tehilim_hiver = self.round_to_nearest_five(15 * 60)
         tehilim = tehilim_ete if self.season == "summer" else tehilim_hiver
 
