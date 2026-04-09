@@ -811,7 +811,7 @@ class ShabbatScheduleGenerator:
             "tehilim": tehilim,
             "tehilim_ete": tehilim_ete,
             "tehilim_hiver": tehilim_hiver,
-            "shiur_nashim": 15 * 60 + 30,
+            "shiur_nashim": 16 * 60 + 00,
             "arvit_hol": None,
             "arvit_motsach": None,
             "mincha_2": None,
@@ -911,8 +911,8 @@ class ShabbatScheduleGenerator:
                     for x, y, key in time_positions:
                         if key == 'tehilim':
                             if self.season == "summer":
-                                formatted_time = f"{self.format_time(times['tehilim_ete'])}/{self.format_time(times['tehilim_hiver'])}"
-                                draw.text((x - 50, y), formatted_time, fill="black", font=font)
+                                formatted_time = f"{self.format_time(times['tehilim_ete'])}" #/{self.format_time(times['tehilim_hiver'])}"
+                                draw.text((x, y), formatted_time, fill="black", font=font)
                             else:
                                 draw.text((x, y), self.format_time(times['tehilim']), fill="black", font=font)
                         else:
