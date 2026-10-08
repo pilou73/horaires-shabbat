@@ -66,10 +66,11 @@ def get_next_friday_saturday_tuesday(today=None):
     tuesday = today + timedelta(days=days_to_tuesday)
     return friday, saturday, tuesday
 
-def get_zmanim_for_day(lat, lon, date):
+def get_zmanim_for_day(lat, lon, date, tzid="Asia/Jerusalem"):
     url = (
         f"https://www.hebcal.com/zmanim?cfg=json"
         f"&latitude={lat}&longitude={lon}"
+        f"&tzid={tzid}"
         f"&date={date.strftime('%Y-%m-%d')}"
     )
     try:
@@ -81,19 +82,19 @@ def get_zmanim_for_day(lat, lon, date):
         print(f"Erreur lors de la récupération des zmanim pour {date.strftime('%A %Y-%m-%d')}: {e}")
         return {}
 
-def get_all_zmanim(lat, lon, today=None):
+def get_all_zmanim(lat, lon, today=None, tzid="Asia/Jerusalem"):
     friday, saturday, tuesday = get_next_friday_saturday_tuesday(today)
     zmanim = {}
 
-    times_fri = get_zmanim_for_day(lat, lon, friday)
+    times_fri = get_zmanim_for_day(lat, lon, friday, tzid)
     if 'candle_lighting' in times_fri:
         zmanim['candle_lighting'] = datetime.fromisoformat(times_fri['candle_lighting'])
 
-    times_sat = get_zmanim_for_day(lat, lon, saturday)
+    times_sat = get_zmanim_for_day(lat, lon, saturday, tzid)
     if 'tzeit85deg' in times_sat:
         zmanim['fin_shabbat'] = datetime.fromisoformat(times_sat['tzeit85deg'])
 
-    times_tue = get_zmanim_for_day(lat, lon, tuesday)
+    times_tue = get_zmanim_for_day(lat, lon, tuesday, tzid)
     if 'sunset' in times_tue:
         zmanim['shkiya'] = datetime.fromisoformat(times_tue['sunset'])
 
@@ -563,7 +564,10 @@ def main():
     lon = float(config['longitude'])
     print(f"Localisation: {config.get('nom_communaute', 'Communauté')} ({lat}, {lon})")
     print("\n--- Récupération des horaires halakhiques ---")
-    zmanim = get_all_zmanim(lat, lon, date_test)
+    tzid = config.get('timezone', 'Asia/Jerusalem')
+    print(f"Localisation: {config.get('nom_communaute', 'Communauté')} ({lat}, {lon}) - Timezone: {tzid}")
+    print("\n--- Récupération des horaires halakhiques ---")
+    zmanim = get_all_zmanim(lat, lon, date_test, tzid)
     print(zmanim)
     print("\n--- Calcul des horaires des activités ---")
     horaires_activites = []
