@@ -1,79 +1,52 @@
 {
-  "nom_communaute": "מרום נווה",
-  "lieu": "TELAVIV, ISRAEL",
-  "latitude": "32.072968",
-  "longitude": "34.832011",
+  "nom_communaute": "",
+  "lieu": "CONSTANTINE, ALGERIE",
+  "latitude": "36.359435",
+  "longitude": "6.625872",
   "activites_shabbat": [
     {
-      "nom": "קבלת שבת",
-      "type": "calculee",
-      "heure": "",
-      "reference": "candle_lighting",
-      "avant_apres": "avant",
-      "minutes_offset": "0",
-      "category": "shabbat"
-    },
-    {
-      "nom": "שבת בבוקר",
+      "nom": "MATIN",
       "type": "fixe",
-      "heure": "07:45",
+      "heure": "09:00",
       "reference": "candle_lighting",
       "avant_apres": "avant",
       "minutes_offset": "",
       "category": "shabbat"
     },
     {
-      "nom": "שיעור נשים",
+      "nom": "APRESMIDI",
       "type": "fixe",
-      "heure": "16:30",
+      "heure": "14:30",
+      "reference": "candle_lighting",
+      "avant_apres": "avant",
+      "minutes_offset": "",
+      "category": "shabbat"
+    },
+    {
+      "nom": "DAF YOMI",
+      "type": "fixe",
+      "heure": "15:00",
+      "reference": "candle_lighting",
+      "avant_apres": "avant",
+      "minutes_offset": "",
+      "category": "shabbat"
+    },
+    {
+      "nom": "GONZESSES",
+      "type": "calculee",
+      "heure": "",
       "reference": "fin_shabbat",
       "avant_apres": "avant",
       "minutes_offset": "240",
       "category": "shabbat"
     },
     {
-      "nom": "שיעור אברהם כהן",
+      "nom": "MECS",
       "type": "calculee",
       "heure": "",
       "reference": "fin_shabbat",
       "avant_apres": "avant",
       "minutes_offset": "180",
-      "category": "shabbat"
-    },
-    {
-      "nom": "שיעור הרב שוקרון",
-      "type": "calculee",
-      "heure": "",
-      "reference": "fin_shabbat",
-      "avant_apres": "avant",
-      "minutes_offset": "135",
-      "category": "shabbat"
-    },
-    {
-      "nom": "מנחה נוספת",
-      "type": "calculee",
-      "heure": "",
-      "reference": "fin_shabbat",
-      "avant_apres": "avant",
-      "minutes_offset": "90",
-      "category": "shabbat"
-    },
-    {
-      "nom": "מוצ\"ש",
-      "type": "calculee",
-      "heure": "",
-      "reference": "fin_shabbat",
-      "avant_apres": "avant",
-      "minutes_offset": "10",
-      "category": "shabbat"
-    },
-    {
-      "nom": "מנחה גדולה ",
-      "type": "fixe",
-      "heure": "13:00",
-      "reference": "candle_lighting",
-      "avant_apres": "avant",
-      "minutes_offset": "",
       "category": "shabbat"
     }
   ],
@@ -81,7 +54,7 @@
     "שחרית": {
       "nom": "שחרית",
       "type": "fixe",
-      "heure": "06:00",
+      "heure": "05:00",
       "reference": "candle_lighting",
       "avant_apres": "avant",
       "minutes_offset": "",
@@ -89,20 +62,20 @@
     },
     "מנחה": {
       "nom": "מנחה",
-      "type": "calculee",
-      "heure": "",
-      "reference": "shkiya",
+      "type": "fixe",
+      "heure": "17:00",
+      "reference": "candle_lighting",
       "avant_apres": "avant",
-      "minutes_offset": "18",
+      "minutes_offset": "",
       "category": "weekly"
     },
     "ערבית": {
       "nom": "ערבית",
-      "type": "calculee",
-      "heure": "",
-      "reference": "shkiya",
-      "avant_apres": "apres",
-      "minutes_offset": "20",
+      "type": "fixe",
+      "heure": "18:00",
+      "reference": "candle_lighting",
+      "avant_apres": "avant",
+      "minutes_offset": "",
       "category": "weekly"
     }
   }
