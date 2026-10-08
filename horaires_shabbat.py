@@ -230,19 +230,6 @@ class ShabbatScheduleGenerator:
 
         self.yearly_shabbat_data = [
             {'day': '2025-07-11 00:00:00', 'פרשה': 'בלק', 'כנסית שבת': '19:31', 'צאת שבת': '20:31'},
-            {'day': '2025-07-18 00:00:00', 'פרשה': 'פינחס', 'כנסית שבת': '19:28', 'צאת שבת': '20:27'},
-            {'day': '2025-07-25 00:00:00', 'פרשה': 'מטות-מסעי', 'כנסית שבת': '19:24', 'צאת שבת': '20:23'},
-            {'day': '2025-08-01 00:00:00', 'פרשה': 'דברים', 'כנסית שבת': '19:19', 'צאת שבת': '20:17'},
-            {'day': '2025-08-08 00:00:00', 'פרשה': 'ואתחנן', 'כנסית שבת': '19:13', 'צאת שבת': '20:10'},
-            {'day': '2025-08-15 00:00:00', 'פרשה': 'עקב', 'כנסית שבת': '19:06', 'צאת שבת': '20:02'},
-            {'day': '2025-08-22 00:00:00', 'פרשה': 'ראה', 'כנסית שבת': '18:59', 'צאת שבת': '19:54'},
-            {'day': '2025-08-29 00:00:00', 'פרשה': 'שופטים', 'כנסית שבת': '18:50', 'צאת שבת': '19:45'},
-{'day': '2025-09-05 18:41:00', 'פרשה': 'כי־תצא', 'כנסית שבת': '18:41', 'צאת שבת': '19:35'},
-{'day': '2025-09-12 18:32:00', 'פרשה': 'כי־תבוא', 'כנסית שבת': '18:32', 'צאת שבת': '19:26'},
-{'day': '2025-09-19 18:23:00', 'פרשה': 'נצבים', 'כנסית שבת': '18:23', 'צאת שבת': '19:16'},
-{'day': '2025-09-26 18:14:00', 'פרשה': 'וילך', 'כנסית שבת': '18:14', 'צאת שבת': '19:07'},
-{'day': '2025-10-03 18:05:00', 'פרשה': 'האזינו', 'כנסית שבת': '18:05', 'צאת שבת': '18:58'},
-{'day': '2025-10-10 17:56:00', 'פרשה': 'סוכות', 'כנסית שבת': '17:56', 'צאת שבת': '18:51'},
 {'day': '2025-10-17 17:48:00', 'פרשה': 'בראשית', 'כנסית שבת': '17:48', 'צאת שבת': '18:42'},
 {'day': '2025-10-24 17:40:00', 'פרשה': 'נח', 'כנסית שבת': '17:40', 'צאת שבת': '18:34'},
 {'day': '2025-10-31 16:33:00', 'פרשה': 'לך־לך', 'כנסית שבת': '16:33', 'צאת שבת': '17:28'},
@@ -632,8 +619,8 @@ class ShabbatScheduleGenerator:
                 thursday_sunset_min = to_minutes(thursday_sunset)
                 min_sunset = min(sunday_sunset_min, thursday_sunset_min)
                 max_sunset = max(sunday_sunset_min, thursday_sunset_min)
-                minha_midweek = self.format_time(self.round_to_nearest_five(min_sunset - 18))
-                arvit_midweek = self.format_time(self.round_to_next_five(max_sunset + 20))
+                minha_midweek = self.format_time(self.round_to_nearest_five(min_sunset - 13))
+                arvit_midweek = self.format_time(self.round_to_next_five(max_sunset + 15))
             else:
                 minha_midweek = ""
                 arvit_midweek = ""
@@ -849,10 +836,10 @@ class ShabbatScheduleGenerator:
             sunday_sunset_min = to_minutes(sunday_sunset_str)
             thursday_sunset_min = to_minutes(thursday_sunset_str)
             min_sunset = min(sunday_sunset_min, thursday_sunset_min)
-            minha_hol_minutes = min_sunset - 18
+            minha_hol_minutes = min_sunset - 13
             times["mincha_hol"] = self.round_to_nearest_five(minha_hol_minutes)
             max_sunset = max(sunday_sunset_min, thursday_sunset_min)
-            arvit_hol_minutes = max_sunset + 20
+            arvit_hol_minutes = max_sunset + 15
             times["arvit_hol"] = self.round_to_next_five(arvit_hol_minutes)
         else:
             times["mincha_hol"] = None

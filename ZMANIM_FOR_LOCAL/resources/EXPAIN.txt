@@ -1,0 +1,18 @@
+At each year, open the file generate_yearly_data.py and change the scale of dates for this year and the name files producted.
+
+after that, copy the contain of the yearly_shabbat_data_XXXX.txt into the horaires_shabbat.py. Delete the word "פרשת "
+
+after that, execute chabbat_missing.py to check if one chabbat is missing (a dute of an holiday)
+
+========================================================================================
+
+for the fasts, execute the jeune.py to product jeunes.ics - and change the scale of the dates if need
+
+========================================================================================
+
+for the tekufa, execute the tekufot.py to product tekufa_2025_2035.ics - and change the scale ofdates if need
+
+check this website to help:
+https://hokshamayim.com/seasons
+https://he.wikipedia.org/wiki/%D7%90%D7%A8%D7%91%D7%A2_%D7%94%D7%AA%D7%A7%D7%95%D7%A4%D7%95%D7%AA
+

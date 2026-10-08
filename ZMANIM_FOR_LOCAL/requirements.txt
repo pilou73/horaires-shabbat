@@ -4,4 +4,3 @@ astral
 requests
 pytz
 zmanim
-hdate

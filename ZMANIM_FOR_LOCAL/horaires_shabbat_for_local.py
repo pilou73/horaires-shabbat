@@ -890,7 +890,7 @@ class ShabbatScheduleGenerator:
                             # Conversion du jour en hébreu (א pour 1, ל pour 30)
                             hebrew_day_num = "א' ב" if d == 1 else ("ל' ב" if d == 30 else str(d))
                             rosh_lines.append(
-                                f"ראש חודש: יום {day_name_he} {gdate.strftime('%d/%m/%Y')} {hebrew_day_num}{month_name}"
+                                f"םוי :שדוח שאר {day_name_he} {gdate.strftime('%d/%m/%Y')} {hebrew_day_num}{month_name}"
                             )
                         for i, rc_line in enumerate(rosh_lines):
                             draw.text(
@@ -909,8 +909,8 @@ class ShabbatScheduleGenerator:
                             y_end = img_h - 260
 
                             if shabbat_date_only < start_kiddush_levana.date():
-                                msg_start = f"{start_kiddush_levana.strftime('%d/%m/%Y')} :םויב הנבלה תכרב ןמז תליחת "
-                                msg_end = f"{latest_kiddush_levana.strftime('%d/%m/%Y')} :הנבלה תכרב תרימאל ןורחא דעומ "
+                                msg_start = f"םויב הנבלה תכרב הרימא תליחת: {start_kiddush_levana.strftime('%d/%m/%Y')}"
+                                msg_end = f"הנבלה תכרב תרימאל ןורחא ךיראת: {latest_kiddush_levana.strftime('%d/%m/%Y')}"
 
                                 # Affichage de l'icône first_moon
                                 if first_moon_icon:
@@ -923,12 +923,12 @@ class ShabbatScheduleGenerator:
                                 draw.text((55 + 48 + 10, y_end), msg_end, fill="purple", font=font)
 
                             elif start_kiddush_levana.date() <= shabbat_date_only <= latest_kiddush_levana.date():
-                                msg_end = f"ערב אחרון לאמירת ברכת הלבנה: {latest_kiddush_levana.strftime('%d/%m/%Y')}"
+                                msg_end = f":הנבלה תכרב תרימאל ןורחא ברע {latest_kiddush_levana.strftime('%d/%m/%Y')}"
                                 if full_moon_icon:
                                     img.paste(full_moon_icon, (55, y_end - 10), full_moon_icon)
                                 draw.text((55 + 48 + 10, y_end), msg_end, fill="purple", font=font)
                             else:
-                                msg_ended = "התקופה של ברכת הלבנה הסתיימה."
+                                msg_ended = ".המייתסה הנבלה תכרב לש הפוקתה"
                                 draw.text((100, y_end), msg_ended, fill="red", font=font)
                         except Exception as e:
                             print(f"❌ Erreur lors de l'affichage de la Birkat Halevana : {e}")
@@ -939,7 +939,7 @@ class ShabbatScheduleGenerator:
                         fast_y = img_h - 140
                         for fast in fasts:
                             hebrew_name = fast["nom"]
-                            line = f"צום {hebrew_name}: {fast['start']} - {fast['end']}"
+                            line = f"םוצ {hebrew_name}: {fast['start']} - {fast['end']}"
                             if eau2_icon:
                                 img.paste(eau2_icon, (55, fast_y - 10), eau2_icon)
                             draw.text((55 + 64 + 10, fast_y), line, fill="black", font=font)
@@ -958,7 +958,7 @@ class ShabbatScheduleGenerator:
                             }
                             month_eng = match.group(1)
                             hebrew_month = name_map.get(month_eng, month_eng)
-                        tekufa_msg = f"תקופת {hebrew_month} ביום {dt.strftime('%d/%m/%Y')} בשעה {dt.strftime('%H:%M')}"
+                        tekufa_msg = f"תפוקת {hebrew_month} םויב {dt.strftime('%d/%m/%Y')} בעשב {dt.strftime('%H:%M')}"
 
                         if eau_icon:
                             img.paste(eau_icon, (55, img_h - 200 - 15), eau_icon)
