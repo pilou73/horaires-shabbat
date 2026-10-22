@@ -619,8 +619,8 @@ class ShabbatScheduleGenerator:
                 thursday_sunset_min = to_minutes(thursday_sunset)
                 min_sunset = min(sunday_sunset_min, thursday_sunset_min)
                 max_sunset = max(sunday_sunset_min, thursday_sunset_min)
-                minha_midweek = self.format_time(self.round_to_nearest_five(min_sunset - 13))
-                arvit_midweek = self.format_time(self.round_to_next_five(max_sunset + 15))
+                minha_midweek = self.format_time(self.round_to_nearest_five(min_sunset - 17))
+                arvit_midweek = self.format_time(self.round_to_next_five(max_sunset + 18))
             else:
                 minha_midweek = ""
                 arvit_midweek = ""
@@ -786,7 +786,7 @@ class ShabbatScheduleGenerator:
     def calculate_times(self, shabbat_start, shabbat_end):
         start_minutes = shabbat_start.hour * 60 + shabbat_start.minute
         end_minutes = shabbat_end.hour * 60 + shabbat_end.minute
-        tehilim_ete = self.round_to_nearest_five(17 * 60)
+        tehilim_ete = self.round_to_nearest_five(16 * 60+30)
         tehilim_hiver = self.round_to_nearest_five(15 * 60)
         tehilim = tehilim_ete if self.season == "summer" else tehilim_hiver
 
@@ -836,10 +836,10 @@ class ShabbatScheduleGenerator:
             sunday_sunset_min = to_minutes(sunday_sunset_str)
             thursday_sunset_min = to_minutes(thursday_sunset_str)
             min_sunset = min(sunday_sunset_min, thursday_sunset_min)
-            minha_hol_minutes = min_sunset - 13
+            minha_hol_minutes = min_sunset - 17
             times["mincha_hol"] = self.round_to_nearest_five(minha_hol_minutes)
             max_sunset = max(sunday_sunset_min, thursday_sunset_min)
-            arvit_hol_minutes = max_sunset + 15
+            arvit_hol_minutes = max_sunset + 18
             times["arvit_hol"] = self.round_to_next_five(arvit_hol_minutes)
         else:
             times["mincha_hol"] = None
