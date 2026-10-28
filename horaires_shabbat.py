@@ -58,6 +58,38 @@ def reverse_hebrew_text(text):
 def get_weekday_name_hebrew(dt):
     return HEBREW_DAYS[(dt.weekday() + 1) % 7]
 
+def hebrew_numeral(n):
+    """20 -> 'כ׳', 15 -> 'ט״ו', 787 -> 'תשפ״ז' (gematria sans les milliers)."""
+    n %= 1000
+    letters = []
+    for value, letter in [(400, 'ת'), (300, 'ש'), (200, 'ר'), (100, 'ק')]:
+        while n >= value:
+            letters.append(letter)
+            n -= value
+    if n == 15:
+        letters += ['ט', 'ו']
+    elif n == 16:
+        letters += ['ט', 'ז']
+    else:
+        tens = {90: 'צ', 80: 'פ', 70: 'ע', 60: 'ס', 50: 'נ', 40: 'מ', 30: 'ל', 20: 'כ', 10: 'י'}
+        ones = {9: 'ט', 8: 'ח', 7: 'ז', 6: 'ו', 5: 'ה', 4: 'ד', 3: 'ג', 2: 'ב', 1: 'א'}
+        if n >= 10:
+            letters.append(tens[(n // 10) * 10])
+            n %= 10
+        if n:
+            letters.append(ones[n])
+    if len(letters) == 1:
+        return letters[0] + '׳'
+    return ''.join(letters[:-1]) + '״' + letters[-1]
+
+def get_hebrew_date_string(gdate):
+    """Ex : 'כ׳ בחשוון תשפ״ז'."""
+    jc = JewishCalendar(gdate)
+    month = HEBREW_MONTHS.get(jc.jewish_month, '')
+    if jc.is_jewish_leap_year() and jc.jewish_month == 12:
+        month = 'אדר א׳'
+    return f"{hebrew_numeral(jc.jewish_day)} ב{month} {hebrew_numeral(jc.jewish_year)}"
+
 def get_next_month_molad(shabbat_date):
     jc = JewishCalendar(datetime.combine(shabbat_date, datetime.min.time()))
     current_jyear = jc.jewish_year
@@ -1034,6 +1066,103 @@ class ShabbatScheduleGenerator:
             traceback.print_exc()
             return None
 
+    # ------------------------------------------------------------------
+    # Nouveau rendu dynamique (design moderne + 3 illustrations de parasha)
+    # ------------------------------------------------------------------
+    def collect_extra_info(self, shabbat_date, is_mevarchim):
+        """Mêmes calculs que create_image (molad / Rosh Hodesh / Birkat Halevana / tekoufa / jeûnes),
+        retournés sous forme de lignes (texte, couleur, icône) pour le rendu dynamique."""
+        from dynamic_design import NAVY, PURPLE, RED, TEAL
+        if isinstance(shabbat_date, datetime):
+            shabbat_date = shabbat_date.date()
+        icon_dir = self.template_path.parent / "resources"
+
+        def icon(name):
+            try:
+                return Image.open(icon_dir / name).convert("RGBA")
+            except Exception:
+                return None
+
+        lines = []
+        if is_mevarchim:
+            try:
+                lines.append((get_next_month_molad(shabbat_date).strip(), NAVY, icon("first_moon.png")))
+                for gdate, m, y, d in get_rosh_chodesh_days_for_next_month(shabbat_date):
+                    hebrew_day_num = "א׳" if d == 1 else ("ל׳" if d == 30 else str(d))
+                    lines.append((
+                        f"ראש חודש: יום {get_weekday_name_hebrew(gdate)} {gdate.strftime('%d/%m/%Y')} "
+                        f"{hebrew_day_num} ב{get_jewish_month_name_hebrew(m, y)}", NAVY, None))
+            except Exception as e:
+                print(f"❌ Erreur molad / Rosh Hodesh : {e}")
+        else:
+            try:
+                previous_rosh = find_previous_rosh_chodesh(shabbat_date)
+                molad_dt, latest = calculate_last_kiddush_levana_date(previous_rosh)
+                start = molad_dt + timedelta(days=7)
+                if shabbat_date < start.date():
+                    lines.append((f"תחילת אמירת ברכת הלבנה ביום: {start.strftime('%d/%m/%Y')}", PURPLE,
+                                  icon("first_moon.png")))
+                    lines.append((f"תאריך אחרון לאמירת ברכת הלבנה: {latest.strftime('%d/%m/%Y')}", PURPLE,
+                                  icon("full_moon.png")))
+                elif start.date() <= shabbat_date <= latest.date():
+                    lines.append((f"ערב אחרון לאמירת ברכת הלבנה: {latest.strftime('%d/%m/%Y')}", PURPLE,
+                                  icon("full_moon.png")))
+                else:
+                    lines.append(("התקופה של ברכת הלבנה הסתיימה.", RED, None))
+            except Exception as e:
+                print(f"❌ Erreur Birkat Halevana : {e}")
+
+        tekufa_next = self.get_tekufa_for_next_week(shabbat_date)
+        if tekufa_next:
+            dt, summary = tekufa_next
+            match = re.search(r'Tekufat\s+(\w+)\s+(\d{4})', summary)
+            name_map = {'Nisan': 'ניסן', 'Tammuz': 'תמוז', 'Tishri': 'תשרי', 'Tevet': 'טבת'}
+            hebrew_month = name_map.get(match.group(1), match.group(1)) if match else ""
+            lines.append((f"תקופת {hebrew_month} ביום {dt.strftime('%d/%m/%Y')} בשעה {dt.strftime('%H:%M')}",
+                          TEAL, icon("eau.png")))
+
+        for fast in get_fast_from_ics_for_week(shabbat_date):
+            lines.append((f"צום {fast['nom']}: {fast['start']} - {fast['end']}", NAVY, icon("eau2.png")))
+        return lines
+
+    def create_dynamic_image(self, times, parasha, shabbat_end, candle_lighting, shabbat_date,
+                             is_mevarchim=False):
+        from dynamic_design import Fonts, render_schedule
+        if isinstance(shabbat_date, datetime):
+            shabbat_date = shabbat_date.date()
+        resources = self.template_path.parent
+        fonts = Fonts(resources, self.font_path, self.arial_bold_path)
+
+        times_text = {k: self.format_time(v) for k, v in times.items() if isinstance(v, int)}
+        if self.season == "summer":
+            times_text["tehilim"] = self.format_time(times["tehilim_ete"])
+        times_text["candle_lighting"] = str(candle_lighting)
+        times_text["shabbat_end"] = shabbat_end.strftime("%H:%M")
+
+        # Les données stockent le vendredi (entrée de Chabbat) : on affiche vendredi-samedi
+        saturday = shabbat_date + timedelta(days=(5 - shabbat_date.weekday()) % 7)
+        friday = saturday - timedelta(days=1)
+        img = render_schedule(
+            resources=resources,
+            template_path=self.template_path,
+            fonts=fonts,
+            parasha=str(parasha or ""),
+            times_text=times_text,
+            extra_lines=self.collect_extra_info(shabbat_date, is_mevarchim),
+            date_line=f"{friday.strftime('%d/%m')} - {saturday.strftime('%d/%m/%Y')}",
+            hebrew_date_line=get_hebrew_date_string(saturday),
+            is_mevarchim=is_mevarchim,
+        )
+        output_path = self.output_dir / f"horaires_{self.sanitize_filename(str(parasha))}.jpeg"
+        img.save(str(output_path), quality=93, optimize=True)
+        img.save(str(self.output_dir / "latest-schedule.png"), optimize=True)
+        latest = self.output_dir / "latest-schedule.jpg"
+        if latest.exists():
+            latest.unlink()
+        shutil.copy(str(output_path), str(latest))
+        print(f"✅ Image (design dynamique) sauvegardée ici : {output_path}")
+        return output_path
+
     def update_excel(self, shabbat_data, times):
         excel_path = self.output_dir / "horaires_shabbat.xlsx"
         row = {
@@ -1075,7 +1204,7 @@ class ShabbatScheduleGenerator:
         except Exception as e:
             print(f"❌ Erreur lors de la mise à jour de l'Excel: {e}")
 
-    def generate(self, current_date=None):
+    def generate(self, current_date=None, design="dynamic"):
         if current_date is None:
             current_date = datetime.now()
         shabbat_times = self.get_shabbat_times_from_excel_file(current_date)
@@ -1084,15 +1213,31 @@ class ShabbatScheduleGenerator:
             return
         shabbat = shabbat_times[0]
         times = self.calculate_times(shabbat['start'], shabbat['end'])
-        image_path = self.create_image(
-            times,
-            shabbat["parasha"],
-            shabbat["parasha_hebrew"],
-            shabbat["end"],
-            shabbat["candle_lighting"],
-            shabbat["date"],
-            is_mevarchim=shabbat.get("is_mevarchim", False)
-        )
+        image_path = None
+        if design != "legacy":
+            try:
+                image_path = self.create_dynamic_image(
+                    times,
+                    shabbat["parasha"],
+                    shabbat["end"],
+                    shabbat["candle_lighting"],
+                    shabbat["date"],
+                    is_mevarchim=shabbat.get("is_mevarchim", False)
+                )
+            except Exception as e:
+                import traceback
+                traceback.print_exc()
+                print(f"⚠️ Design dynamique en échec ({e}) — repli sur le template classique")
+        if not image_path:
+            image_path = self.create_image(
+                times,
+                shabbat["parasha"],
+                shabbat["parasha_hebrew"],
+                shabbat["end"],
+                shabbat["candle_lighting"],
+                shabbat["date"],
+                is_mevarchim=shabbat.get("is_mevarchim", False)
+            )
         if not image_path:
             print("❌ Échec de la génération de l'image")
         self.update_excel(shabbat, times)
@@ -1100,10 +1245,14 @@ class ShabbatScheduleGenerator:
 def main():
     try:
         # Gestion des arguments de ligne de commande
-        if len(sys.argv) > 1:
+        # Options : --legacy (ancien rendu sur template) ; variable d'env. HORAIRES_DESIGN=legacy
+        flags = [a for a in sys.argv[1:] if a.startswith("--")]
+        args = [a for a in sys.argv[1:] if not a.startswith("--")]
+        design = "legacy" if ("--legacy" in flags or os.environ.get("HORAIRES_DESIGN") == "legacy") else "dynamic"
+        if args:
             try:
                 # Format attendu: YYYY-MM-DD (exemple: 2025-10-27)
-                custom_date = datetime.strptime(sys.argv[1], "%Y-%m-%d")
+                custom_date = datetime.strptime(args[0], "%Y-%m-%d")
                 print(f"📅 Date spécifiée: {custom_date.strftime('%d/%m/%Y')}")
             except ValueError:
                 print("⚠️ Format de date invalide!")
@@ -1130,7 +1279,7 @@ def main():
             template_path, font_path, arial_bold, output_dir
         )
         generator.update_excel_with_mevarchim_column(generator.output_dir / "horaires_shabbat.xlsx")
-        generator.generate(custom_date)
+        generator.generate(custom_date, design=design)
         
     except Exception as e:
         print(f"❌ Erreur: {e}")

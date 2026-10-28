@@ -5,3 +5,5 @@ requests
 pytz
 zmanim
 hdate
+openpyxl
+python-bidi
