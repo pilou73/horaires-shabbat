@@ -15,6 +15,7 @@ pour ne pas régénérer à chaque exécution de la même semaine.
 TOUTES ces images sont produites par IA : elles ne proviennent d'aucun site ni d'aucune œuvre existante.
 """
 import base64
+import hashlib
 import io
 import json
 import os
@@ -29,9 +30,10 @@ from parsha_assets import load_parsha_images, normalize_parsha, parsha_slug
 
 CACHE_DIR = Path(__file__).resolve().parent / "output" / "ai_cache"
 
-STYLE = ("soft watercolor illustration, warm biblical scene, ancient Middle East, gentle light, "
-         "blue and turquoise palette, respectful, modest clothing, no text, no letters, no words, "
-         "no depiction of God")
+# Style commun. Les modèles d'image gèrent mal les négations (« no X » fait souvent apparaître X) :
+# on décrit donc ce qu'on VEUT voir, et on ne parle de personnages que dans les scènes qui en ont.
+STYLE = ("soft watercolor illustration, ancient Land of Israel, gentle golden light, "
+         "clean simple composition, without any text or lettering")
 
 # parasha -> 3 x (légende hébraïque, description de la scène en anglais pour l'IA)
 THEMES = {
@@ -44,9 +46,12 @@ THEMES = {
     "לך לך": [("לך לך מארצך", "Abraham and Sarah journeying with camels and sheep through the desert"),
               ("כוכבי השמים", "old man looking up at a sky full of countless stars in the desert"),
               ("ברית בין הבתרים", "desert night with a torch of fire and a smoking furnace")],
-    "וירא": [("הכנסת אורחים", "Abraham at the entrance of his tent welcoming three travelers in the desert"),
-             ("הפיכת סדום", "distant burning cities on a plain, a man and his family fleeing"),
-             ("עקדת יצחק", "an altar of stones on a mountain top, a ram caught in a thicket")],
+    "וירא": [("הכנסת אורחים", "an elderly bearded man in a long robe and head covering standing at the open entrance "
+                              "of a large woven goat-hair tent in the desert, welcoming three male travelers "
+                              "in long robes, a big tree giving shade, bread and water on a low table"),
+             ("הפיכת סדום", "a burning ancient city, huge orange flames and black smoke, fire falling from a dark red sky"),
+             ("עקדת יצחק", "close-up of a male sheep ram with spiral horns stuck in a thicket, "
+                           "stacked firewood on stone altar behind, hills at dawn")],
     "חיי שרה": [("מערת המכפלה", "an ancient stone cave entrance in Hebron hills"),
                 ("רבקה ליד הבאר", "young woman giving water to camels from a well"),
                 ("יצחק ורבקה", "a caravan of camels arriving at sunset in a field")],
@@ -262,9 +267,11 @@ def generate_ai_images(parasha: str, max_images: int = 3):
     folder.mkdir(parents=True, exist_ok=True)
     results = []
     for i, (caption, scene) in enumerate(_themes_for(parasha)[:max_images], start=1):
-        path = folder / f"{i}.jpg"
+        prompt = f"{scene}, {STYLE}"
+        key = hashlib.sha1(f"{provider}|{prompt}".encode("utf-8")).hexdigest()[:8]
+        path = folder / f"{i}_{key}.jpg"  # nouveau nom si le thème est modifié -> régénération
         meta = {"file": path.name, "caption": caption, "origin": "ai-generated", "provider": provider,
-                "prompt": f"{scene}, {STYLE}"}
+                "prompt": prompt}
         try:
             if path.exists():
                 img = Image.open(path).convert("RGB")
