@@ -798,7 +798,7 @@ class ShabbatScheduleGenerator:
             "tehilim": tehilim,
             "tehilim_ete": tehilim_ete,
             "tehilim_hiver": tehilim_hiver,
-            "shiur_nashim": 16 * 60 + 00,
+            "shiur_nashim": self.round_to_nearest_five(15 * 60 + (30 if self.season == "winter" else 60)),
             "arvit_hol": None,
             "arvit_motsach": None,
             "mincha_2": None,
