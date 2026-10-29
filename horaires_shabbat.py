@@ -536,6 +536,23 @@ class ShabbatScheduleGenerator:
         ascii_str = re.sub(r'[^\w\s-]', '', ascii_str).strip()
         return re.sub(r'\s+', '_', ascii_str)
 
+    @staticmethod
+    def season_for(day):
+        """Saison d'un Chabbat donné, selon l'heure légale israélienne réelle de ce samedi
+        (au lieu de dates fixes 29/3 – 26/10 qui ne tombent pas toujours sur le changement d'heure)."""
+        if isinstance(day, datetime):
+            day = day.date()
+        saturday = day + timedelta(days=(5 - day.weekday()) % 7)
+        noon = pytz.timezone("Asia/Jerusalem").localize(datetime.combine(saturday, datetime.min.time()).replace(hour=12))
+        return "summer" if noon.dst() else "winter"
+
+    def tehilim_text(self, times):
+        """Hiver : une séance. Été : deux séances (ordre chronologique)."""
+        if times.get("season", self.season) == "summer":
+            a, b = sorted((times["tehilim_ete_1"], times["tehilim_ete"]))
+            return f"{self.format_time(a)} / {self.format_time(b)}"
+        return self.format_time(times["tehilim"])
+
     def determine_season(self):
         today = datetime.now()
         year = today.year
@@ -818,25 +835,29 @@ class ShabbatScheduleGenerator:
     def calculate_times(self, shabbat_start, shabbat_end):
         start_minutes = shabbat_start.hour * 60 + shabbat_start.minute
         end_minutes = shabbat_end.hour * 60 + shabbat_end.minute
-        tehilim_ete = self.round_to_nearest_five(16 * 60+30)
-        tehilim_hiver = self.round_to_nearest_five(15 * 60)
-        tehilim = tehilim_ete if self.season == "summer" else tehilim_hiver
+        tehilim_ete_1 = self.round_to_nearest_five(14 * 60)   # été : 1re séance
+        tehilim_ete = self.round_to_nearest_five(17 * 60)     # été : 2e séance
+        tehilim_hiver = self.round_to_nearest_five(15 * 60)   # hiver : une séance
+        season = self.season_for(shabbat_start)  # saison du Chabbat calculé, pas du jour d'exécution
+        tehilim = tehilim_ete if season == "summer" else tehilim_hiver
 
         times = {
             "mincha_kabbalat": start_minutes,
             "shir_hashirim": self.round_to_nearest_five(start_minutes - 10),
             "shacharit": self.round_to_nearest_five(7 * 60 + 45),
-            "mincha_gdola": self.round_to_nearest_five(12 * 60 + (45 if self.season == "winter" else 60)),
+            "mincha_gdola": self.round_to_nearest_five(12 * 60 + (45 if season == "winter" else 60)),
             "tehilim": tehilim,
             "tehilim_ete": tehilim_ete,
+            "tehilim_ete_1": tehilim_ete_1,
             "tehilim_hiver": tehilim_hiver,
-            "shiur_nashim": self.round_to_nearest_five(15 * 60 + (30 if self.season == "winter" else 60)),
+            "shiur_nashim": self.round_to_nearest_five(15 * 60 + (30 if season == "winter" else 60)),
             "arvit_hol": None,
             "arvit_motsach": None,
             "mincha_2": None,
             "shiur_rav": None,
             "parashat_hashavua": None,
-            "mincha_hol": None
+            "mincha_hol": None,
+            "season": season,
         }
 
         if start_minutes - times["shir_hashirim"] < 10:
@@ -929,11 +950,7 @@ class ShabbatScheduleGenerator:
                     ]
                     for x, y, key in time_positions:
                         if key == 'tehilim':
-                            if self.season == "summer":
-                                formatted_time = f"{self.format_time(times['tehilim_ete'])}" #/{self.format_time(times['tehilim_hiver'])}"
-                                draw.text((x, y), formatted_time, fill="black", font=font)
-                            else:
-                                draw.text((x, y), self.format_time(times['tehilim']), fill="black", font=font)
+                            draw.text((x, y), self.tehilim_text(times), fill="black", font=font)
                         else:
                             draw.text((x, y), self.format_time(times[key]), fill="black", font=font)
 
@@ -1134,8 +1151,7 @@ class ShabbatScheduleGenerator:
         fonts = Fonts(resources, self.font_path, self.arial_bold_path)
 
         times_text = {k: self.format_time(v) for k, v in times.items() if isinstance(v, int)}
-        if self.season == "summer":
-            times_text["tehilim"] = self.format_time(times["tehilim_ete"])
+        times_text["tehilim"] = self.tehilim_text(times)
         times_text["candle_lighting"] = str(candle_lighting)
         times_text["shabbat_end"] = shabbat_end.strftime("%H:%M")
 
@@ -1146,8 +1162,7 @@ class ShabbatScheduleGenerator:
         # Chabbat en heure d'hiver (vraie heure légale israélienne ce samedi) :
         # note sur la ligne « מנחה וקבלת שבת », rien d'autre ne change
         row_notes = {}
-        tz_il = pytz.timezone("Asia/Jerusalem")
-        if not tz_il.localize(datetime.combine(saturday, datetime.min.time()).replace(hour=12)).dst():
+        if self.season_for(saturday) == "winter":
             row_notes["mincha_kabbalat"] = "שיעור ח״י רגעים בתום תפילת ערבית"
 
         img = render_schedule(
@@ -1184,7 +1199,7 @@ class ShabbatScheduleGenerator:
             "מנחה": self.format_time(times["mincha_kabbalat"]),
             "שחרית": self.format_time(times["shacharit"]),
             "מנחה גדולה": self.format_time(times["mincha_gdola"]),
-            "תהילים קיץ": self.format_time(times["tehilim_ete"]),
+            "תהילים קיץ": f'{self.format_time(times["tehilim_ete_1"])} / {self.format_time(times["tehilim_ete"])}',
             "תהילים חורף": self.format_time(times["tehilim_hiver"]),
             "שיעור לנשים": self.format_time(times["shiur_nashim"]),
             "שיעור פרשה": self.format_time(times["parashat_hashavua"]),

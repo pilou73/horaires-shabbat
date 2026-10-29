@@ -338,7 +338,7 @@ def render_schedule(*, resources: Path, template_path: Path, fonts: Fonts, paras
             draw_text(d, (note_cx, cy), note, nfit, GREY, anchor="mm")
         t = times_text.get(key, "")
         if t:
-            time_pill(cy, t, TEAL if key not in ("candle_lighting", "shabbat_end") else LAVENDER)
+            time_pill(cy, t, TEAL if key not in ("candle_lighting", "shabbat_end") else LAVENDER, wide="/" in t)
         y += row_h
 
     # --- Section semaine --------------------------------------------------------------
