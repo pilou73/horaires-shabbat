@@ -1,0 +1,40 @@
+הוראות התקנה – עיצוב חדש לעלון השבת עם 3 תמונות AI
+==================================================
+
+איפה לשים כל קובץ (בתיקייה הראשית של הפרויקט horaires-shabbat, ליד horaires_shabbat.py הקיים):
+
+  horaires_shabbat.py         -> להחליף את הקובץ הקיים (חישוב הזמנים לא השתנה)
+  dynamic_design.py           -> קובץ חדש, בתיקייה הראשית
+  ai_images.py                -> קובץ חדש, בתיקייה הראשית (יצירת 3 התמונות ב-AI)
+  parsha_assets.py            -> קובץ חדש, בתיקייה הראשית
+  requirements.txt            -> להחליף (נוספה הספרייה python-bidi)
+  .gitignore                  -> להחליף (כדי שהתמונות הזמניות לא ייכנסו ל-git)
+  README.md                   -> להחליף (הסבר מלא)
+  resources\fonts\            -> תיקייה חדשה בתוך resources הקיימת (8 קבצי גופנים)
+  .github\workflows\update-schedule.yml -> להחליף את הקובץ הקיים
+                                 (התיקייה .github מוסתרת ב-Windows; אפשר גם להעתיק את התוכן דרך
+                                  אתר GitHub: Code -> .github/workflows/update-schedule.yml -> עריכה)
+
+לא צריך לגעת ב: resources\template.jpg, בקבצי האקסל ובשאר הקבצים הקיימים.
+
+במחשב המקומי (פעם אחת):
+  pip install python-bidi requests pillow
+  ואז להריץ כרגיל:  python horaires_shabbat.py
+  התמונה נוצרת כמו קודם ב-output\horaires_<פרשה>.jpeg
+
+עברית הפוכה:
+  אין יותר צורך בגרסת LOCAL נפרדת. אותו horaires_shabbat.py עובד גם ב-GitHub וגם במחשב.
+  אם במחשב שלך העברית בכל זאת יוצאת הפוכה (לא אמור לקרות), להריץ כך ב-CMD:
+     set HEBREW_RENDER=raqm
+     python horaires_shabbat.py
+
+העיצוב הישן (על ה-template) עדיין זמין:  python horaires_shabbat.py --legacy
+
+תמונות ה-AI:
+  - ברירת מחדל: שירות חינמי Pollinations, בלי מפתח. יש סימן מים קטן "pollinations" בפינה,
+    וההרצה לוקחת כדקה נוספת (המתנה בין תמונות).
+  - לתמונות בלי סימן מים: להוסיף ב-GitHub סוד בשם OPENAI_API_KEY
+    (Settings -> Secrets and variables -> Actions) ולשנות בקובץ update-schedule.yml
+    את AI_IMAGE_PROVIDER מ-pollinations ל-openai. (בתשלום, בערך 0.04$ לתמונה)
+  - הנושאים והכיתובים של כל פרשה נמצאים בראש ai_images.py (THEMES) ואפשר לערוך אותם.
+  - אם ה-AI לא זמין, יוצגו במקום התמונות ריבועים מעוטרים עם מגן דוד – העלון ייצא תמיד.

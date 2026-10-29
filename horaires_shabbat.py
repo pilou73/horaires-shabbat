@@ -1142,6 +1142,14 @@ class ShabbatScheduleGenerator:
         # Les données stockent le vendredi (entrée de Chabbat) : on affiche vendredi-samedi
         saturday = shabbat_date + timedelta(days=(5 - shabbat_date.weekday()) % 7)
         friday = saturday - timedelta(days=1)
+
+        # Chabbat en heure d'hiver (vraie heure légale israélienne ce samedi) :
+        # note sur la ligne « מנחה וקבלת שבת », rien d'autre ne change
+        row_notes = {}
+        tz_il = pytz.timezone("Asia/Jerusalem")
+        if not tz_il.localize(datetime.combine(saturday, datetime.min.time()).replace(hour=12)).dst():
+            row_notes["mincha_kabbalat"] = "שיעור ח״י רגעים בתום תפילת ערבית"
+
         img = render_schedule(
             resources=resources,
             template_path=self.template_path,
@@ -1152,6 +1160,7 @@ class ShabbatScheduleGenerator:
             date_line=f"{friday.strftime('%d/%m')} - {saturday.strftime('%d/%m/%Y')}",
             hebrew_date_line=get_hebrew_date_string(saturday),
             is_mevarchim=is_mevarchim,
+            row_notes=row_notes,
         )
         output_path = self.output_dir / f"horaires_{self.sanitize_filename(str(parasha))}.jpeg"
         img.save(str(output_path), quality=93, optimize=True)

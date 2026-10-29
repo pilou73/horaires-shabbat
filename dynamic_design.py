@@ -207,8 +207,9 @@ def prepare_picture(img, size):
 # ---------------------------------------------------------------------------
 def render_schedule(*, resources: Path, template_path: Path, fonts: Fonts, parasha: str,
                     times_text: dict, extra_lines: list, date_line: str, hebrew_date_line: str,
-                    is_mevarchim: bool = False):
+                    is_mevarchim: bool = False, row_notes: dict = None):
     """
+    row_notes : {clé: note} — remplace/ajoute la note d'une ligne de SHABBAT_ROWS (ex. hiver)
     times_text : {clé: 'HH:MM'} pour toutes les clés de SHABBAT_ROWS / WEEKDAY_ROWS
     extra_lines : [(texte, couleur_rgb, icône_PIL_ou_None), ...] (molad, lune, tekoufa, jeûnes)
     Retourne une PIL.Image RGB.
@@ -327,6 +328,7 @@ def render_schedule(*, resources: Path, template_path: Path, fonts: Fonts, paras
     lf = fonts.get("medium", 33)
     nf = fonts.get("regular", 25)
     for idx, (key, label, note) in enumerate(SHABBAT_ROWS):
+        note = (row_notes or {}).get(key, note)
         cy = y + row_h // 2
         if idx % 2 == 0:
             d.rounded_rectangle((MARGIN + 16, y + 3, W - MARGIN - 16, y + row_h - 3), 16, fill=LAVENDER_LIGHT)

@@ -7,3 +7,4 @@ zmanim
 hdate
 openpyxl
 python-bidi
+icalendar
