@@ -207,7 +207,8 @@ def prepare_picture(img, size):
 # ---------------------------------------------------------------------------
 def render_schedule(*, resources: Path, template_path: Path, fonts: Fonts, parasha: str,
                     times_text: dict, extra_lines: list, date_line: str, hebrew_date_line: str,
-                    is_mevarchim: bool = False, row_notes: dict = None):
+                    is_mevarchim: bool = False, row_notes: dict = None, title: str = None,
+                    theme: str = None):
     """
     row_notes : {clé: note} — remplace/ajoute la note d'une ligne de SHABBAT_ROWS (ex. hiver)
     times_text : {clé: 'HH:MM'} pour toutes les clés de SHABBAT_ROWS / WEEKDAY_ROWS
@@ -273,13 +274,14 @@ def render_schedule(*, resources: Path, template_path: Path, fonts: Fonts, paras
     title_cx = (MARGIN + logo_box[0] - 20) // 2
     title_w = logo_box[0] - 20 - MARGIN - 20
     draw_text(d, (title_cx, 60), "שבת קודש · " + date_line, fonts.get("medium", 28), GREY, anchor="ma")
-    ptitle = "פרשת " + parasha.replace("=", "-") if parasha else "שבת שלום"
+    # title : titre complet déjà calculé (ex. « שבת חול המועד סוכות ») ; sinon « פרשת X »
+    ptitle = title or ("פרשת " + parasha.replace("=", "-") if parasha else "שבת שלום")
     tf = fit_font(d, fonts, "title", ptitle, title_w, 84, 44)
     draw_text(d, (title_cx, 98), ptitle, tf, NAVY, anchor="ma")
     draw_text(d, (title_cx, 200), hebrew_date_line, fonts.get("bold", 30), TEAL, anchor="ma")
 
     # --- 3 illustrations ------------------------------------------------------------
-    pictures = get_parsha_pictures(parasha, 3)
+    pictures = get_parsha_pictures(theme or parasha, 3)
     gap = (W - 2 * MARGIN - 3 * pic_w) // 2
     cap_font = fonts.get("bold", 26)
     for i in range(3):

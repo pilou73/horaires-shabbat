@@ -34,7 +34,14 @@ PARSHIOT = [
 ]
 _SLUGS = {name: slug for name, slug in PARSHIOT}
 _ALIASES = {"קרח": "קורח", "שלח": "שלח לך", "מצורע": "מצרע", "בחוקותי": "בחקתי", "פנחס": "פינחס",
-            "בהעלותך": "בהעלתך", "תצווה": "תצוה", "פקודה": "פקודי"}
+            "בהעלותך": "בהעלתך", "תצווה": "תצוה", "פקודה": "פקודי",
+            "קדושים": "קדשים", "בחוקתי": "בחקתי", "מטות מסעי": "מטות-מסעי"}
+
+# Chabbatot de fête (lecture spéciale) -> slug ASCII du dossier de cache des illustrations
+HOLIDAY_SLUGS = {"ראש השנה": "rosh-hashana", "יום הכיפורים": "yom-kippur", "סוכות": "sukkot",
+                 "חול המועד סוכות": "chol-hamoed-sukkot", "פסח": "pesach",
+                 "חול המועד פסח": "chol-hamoed-pesach", "שביעי של פסח": "shvii-shel-pesach",
+                 "שבועות": "shavuot"}
 
 
 def normalize_parsha(name: str) -> str:
@@ -51,6 +58,8 @@ def parsha_slug(name: str) -> str:
     norm = normalize_parsha(name)
     if norm in _SLUGS:
         return _SLUGS[norm]
+    if norm in HOLIDAY_SLUGS:
+        return HOLIDAY_SLUGS[norm]
     parts = [normalize_parsha(p) for p in re.split(r"[-=]", norm) if p.strip()]
     slugs = [_SLUGS.get(p) for p in parts]
     if parts and all(slugs):

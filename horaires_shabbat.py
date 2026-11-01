@@ -748,7 +748,8 @@ class ShabbatScheduleGenerator:
                     df["day"] = pd.to_datetime(df["day"], format="%Y-%m-%d %H:%M:%S", errors='coerce').dt.date.fillna(df["day"])
                 
                 today_date = current_date.date()
-                df = df[df["day"] >= today_date].sort_values(by="day")
+                # les données stockent le vendredi : un samedi doit encore donner le Chabbat en cours
+                df = df[df["day"] >= today_date - timedelta(days=1)].sort_values(by="day")
                 if df.empty:
                     return None
                 
@@ -796,7 +797,7 @@ class ShabbatScheduleGenerator:
             roshchodesh_end = df["day"].max()
             rosh_dates = self.fetch_roshchodesh_dates(roshchodesh_start, roshchodesh_end)
             df = self.identify_shabbat_mevarchim(df, rosh_dates)
-            df = df[df["day"] >= current_date.date()].sort_values(by="day")
+            df = df[df["day"] >= current_date.date() - timedelta(days=1)].sort_values(by="day")
             if df.empty:
                 return None
             row = df.iloc[0]
@@ -1143,7 +1144,7 @@ class ShabbatScheduleGenerator:
         return lines
 
     def create_dynamic_image(self, times, parasha, shabbat_end, candle_lighting, shabbat_date,
-                             is_mevarchim=False):
+                             is_mevarchim=False, reading=None):
         from dynamic_design import Fonts, render_schedule
         if isinstance(shabbat_date, datetime):
             shabbat_date = shabbat_date.date()
@@ -1170,6 +1171,8 @@ class ShabbatScheduleGenerator:
             template_path=self.template_path,
             fonts=fonts,
             parasha=str(parasha or ""),
+            title=reading["title"] if reading else None,
+            theme=reading["theme"] if reading else None,
             times_text=times_text,
             extra_lines=self.collect_extra_info(shabbat_date, is_mevarchim),
             date_line=f"{friday.strftime('%d/%m')} - {saturday.strftime('%d/%m/%Y')}",
@@ -1237,6 +1240,17 @@ class ShabbatScheduleGenerator:
             return
         shabbat = shabbat_times[0]
         times = self.calculate_times(shabbat['start'], shabbat['end'])
+
+        # Nom de la parasha / de la fête calculé pour CE Chabbat (Israël), au lieu de la valeur stockée
+        from shabbat_calendar import shabbat_reading
+        reading = shabbat_reading(shabbat["date"], shabbat["parasha"])
+        stored = str(shabbat["parasha"] or "")
+        print(f"📖 {reading['title']}  (données : « {stored} », source : {reading['source']})")
+        if reading["source"] == "hdate":
+            if reading["is_holiday"]:
+                shabbat["parasha"] = shabbat["parasha_hebrew"] = reading["title"]
+            else:
+                shabbat["parasha"] = shabbat["parasha_hebrew"] = reading["parasha"]
         image_path = None
         if design != "legacy":
             try:
@@ -1246,7 +1260,8 @@ class ShabbatScheduleGenerator:
                     shabbat["end"],
                     shabbat["candle_lighting"],
                     shabbat["date"],
-                    is_mevarchim=shabbat.get("is_mevarchim", False)
+                    is_mevarchim=shabbat.get("is_mevarchim", False),
+                    reading=reading,
                 )
             except Exception as e:
                 import traceback
