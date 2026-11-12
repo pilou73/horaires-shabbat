@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests pillow pandas pytz openpyxl astral zmanim python-bidi
+          pip install requests pillow pandas pytz openpyxl astral zmanim python-bidi hdate icalendar
 
       # Étape 3b : Vérifier l'import du module zmanim
       - name: Test import zmanim
