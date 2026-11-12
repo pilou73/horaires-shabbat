@@ -11,7 +11,7 @@ on:
 
   # Programmer l'execution du workflow automatiquement tous les jeudis at 4:05 UTC
   schedule:
-    - cron: '5 17 * * 4'
+    - cron: '5 16 * * 4'
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:

@@ -43,13 +43,19 @@ def shabbat_reading(day, fallback_parasha=""):
     """
     sat = saturday_of(day)
     try:
-        from hdate import HDateInfo
-        from hdate.translator import set_language
-        set_language("he")
-        info = HDateInfo(sat, diaspora=False)  # Israël
-        parasha = str(info.parasha)
+        try:  # hdate >= 1.0 (Python 3.10+)
+            from hdate import HDateInfo
+            from hdate.translator import set_language
+            set_language("he")
+            info = HDateInfo(sat, diaspora=False)  # Israël
+            parasha = str(info.parasha)
+            holidays = [str(h) for h in info.holidays]
+        except ImportError:  # hdate 0.11 (installé sous Python 3.9, ex. GitHub Actions)
+            from hdate import HDate
+            info = HDate(sat, diaspora=False, hebrew=True)
+            parasha = str(info.parasha)
+            holidays = [h for h in str(info.holiday_description or "").split(", ") if h]
         parasha = "" if parasha.lower() == "none" else parasha
-        holidays = [str(h) for h in info.holidays]
     except Exception as e:  # hdate absent ou erreur : on garde les données telles quelles
         print(f"⚠️ hdate indisponible ({e}) — nom de parasha pris dans les données")
         name = str(fallback_parasha or "").replace("=", "-").strip()

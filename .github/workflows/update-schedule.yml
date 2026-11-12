@@ -2,7 +2,9 @@ name: Update Shabbat Schedule
 
 on:
   schedule:
-    - cron: '0 17 * * 4'  # Tous les mercredis à 4:00 UTC
+    # Horaire de secours (UTC, hors heure pile) : jeudi 16:00 UTC = 18:00 hiver / 19:00 été en Israël.
+    # Le lancement principal à 19:00 heure d'Israël vient de cron-job.org (workflow_dispatch).
+    - cron: '0 16 * * 4'  # Tous les jeudis à 4:00 UTC
   workflow_dispatch:
 
 permissions:
