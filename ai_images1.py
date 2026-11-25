@@ -32,8 +32,7 @@ CACHE_DIR = Path(__file__).resolve().parent / "output" / "ai_cache"
 
 # Style commun. Les modèles d'image gèrent mal les négations (« no X » fait souvent apparaître X) :
 # on décrit donc ce qu'on VEUT voir, et on ne parle de personnages que dans les scènes qui en ont.
-STYLE = ("soft watercolor illustration, ancient Land of Israel, gentle golden light, "
-         "clean simple composition, without any text or lettering")
+STYLE = ("warm and reverent biblical illustration in a timeless storybook style, soft golden-hour lighting, rich harmonious colors, painterly digital art with fine texture, serene and dignified mood, set in the ancient Land of Israel, clean composition, no text, no lettering, no watermark, no modern objects")
 
 # parasha -> 3 x (légende hébraïque, description de la scène en anglais pour l'IA)
 THEMES = {
@@ -58,12 +57,12 @@ THEMES = {
     "תולדות": [("יעקב ועשו", "twin brothers, one a hunter with a bow, one a shepherd near tents"),
                ("נזיד עדשים", "a pot of red lentil stew with bread in a tent"),
                ("ברכת יצחק", "an elderly blind father blessing his son inside a tent")],
-    "ויצא": [("סולם יעקב", "a ladder reaching to the sky with angels, a man sleeping on stones"),
-             ("רחל הרועה", "shepherdess with a flock of sheep near a well"),
-             ("צאן יעקב", "flock of speckled and spotted sheep and goats in pasture")],
-    "וישלח": [("מנחה לעשו", "herds of goats, camels and cattle sent across the desert"),
-              ("מעבר יבוק", "a river crossing at dawn, a man wrestling with an angel"),
-              ("פגישת האחים", "two brothers embracing in the desert, camps behind them")],
+    "ויצא": [("סולם יעקב", "Jacob's dream of a ladder reaching from the earth to the heavens, luminous angels ascending and descending, a lone traveler sleeping on stones in the wilderness at night under a star-filled sky."),
+             ("רחל הרועה", "Rachel the shepherdess drawing water at a stone well in the desert, surrounded by a flock of sheep, warm afternoon light"),
+             ("צאן יעקב", "Flocks of speckled and spotted sheep and goats grazing in green pasture beside flowing streams, a shepherd's staff resting nearby")],
+    "וישלח": [("מנחה לעשו", "numerous herds of goats, camels, and cattle sent across the desert"),
+              ("מעבר יבוק", "At dawn, during a river crossing, a man fights an angel with his bare hands. The man is wounded in the thigh—traces of blood are visible—yet he is the one who wins the battle."),
+              ("פגישת האחים", "Two twin brothers embrace in the desert, with encampments behind them. One of the brothers is a redhead, while the other is not.")],
     "וישב": [("כתונת הפסים", "a colorful striped coat"),
              ("חלומות יוסף", "sheaves of wheat bowing to one sheaf, sun moon and eleven stars"),
              ("יוסף בבור", "an empty pit in the desert, a caravan of camels passing")],
