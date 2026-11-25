@@ -12,15 +12,17 @@ permissions:
 
 jobs:
   update-schedule:
-    runs-on: ubuntu-latest
+    # Pin Ubuntu to a stable image; ubuntu-latest had moved to 26.04,
+    # where the old setup-python@v2 could not resolve Python 3.9.
+    runs-on: ubuntu-24.04
     steps:
       # Étape 1 : Cloner le dépôt
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7.0.1
 
       # Étape 2 : Configurer Python
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.9'
 
@@ -74,7 +76,7 @@ jobs:
             rm public/latest-schedule.jpg
           fi
           # Trouver et copier le fichier le plus récent
-          FILE_PATH=$(find output -type f -name "*.jpeg" -printf "%T@ %p\n" | sort -n | tail -1 | awk '{print $2}')
+          FILE_PATH=$(find output -type f -name "*.jpeg" -printf "%T@ %p\\n" | sort -n | tail -1 | awk '{print $2}')
           if [ -n "$FILE_PATH" ]; then
             echo "Fichier trouvé : $FILE_PATH"
             cp "$FILE_PATH" "output/latest-schedule.jpg"
